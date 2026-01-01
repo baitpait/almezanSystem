@@ -72,7 +72,7 @@ php artisan serve
 ### 📞 معلومات التواصل
 - **📧 البريد الإلكتروني:** info@baitpait.com
 - **🌐 الموقع الإلكتروني:** [baitpait.com](https://baitpait.com)
-- **📱 الهاتف:** +966 XX XXX XXXX
+- **📱 الهاتف:** +97059981475
 
 ---
 
