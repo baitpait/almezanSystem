@@ -1,0 +1,316 @@
+/* Import Design System */
+@import './design-system.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Cairo Arabic Font - Enhanced Readability */
+@layer base {
+    * {
+        font-family: 'Cairo', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+    
+    body {
+        font-family: 'Cairo', sans-serif;
+        font-weight: 400;
+        line-height: 1.6;
+        color: #000000;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Cairo', sans-serif;
+        font-weight: 700;
+        line-height: 1.4;
+        color: #000000;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+    
+    p, span, div, a, button, input, textarea, select, label {
+        font-family: 'Cairo', sans-serif;
+        font-weight: 400;
+        line-height: 1.6;
+        color: #000000;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+    
+    /* Improve text readability */
+    input, textarea, select {
+        font-size: 0.9375rem;
+        font-weight: 500;
+        line-height: 1.5;
+    }
+    
+    /* Improve small text readability */
+    .text-xs, .text-sm {
+        font-weight: 500;
+        line-height: 1.5;
+        letter-spacing: 0.01em;
+        color: #000000;
+    }
+    
+    /* Make table headers black */
+    table th {
+        color: #000000 !important;
+        font-weight: 700;
+    }
+    
+    /* Make table cells black */
+    table td {
+        color: #000000 !important;
+    }
+    
+    /* Add spacing between table rows */
+    table.table tbody tr {
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+    }
+    
+    table.table tbody tr td {
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
+    }
+}
+
+/* Custom Checkbox Styles for Medical Theme */
+.checkbox {
+    border-width: 2px;
+    border-color: #3b82f6;
+    background-color: #FFFFFF;
+}
+
+.checkbox:checked {
+    background-color: #3b82f6;
+    border-color: #3b82f6;
+}
+
+.checkbox:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+.checkbox-primary {
+    border-color: #3b82f6;
+}
+
+.checkbox-primary:checked {
+    background-color: #3b82f6;
+    border-color: #3b82f6;
+}
+
+/* Make unchecked checkboxes more visible */
+.checkbox:not(:checked) {
+    border-color: #3b82f6;
+    background-color: #FFFFFF;
+    opacity: 1;
+}
+
+/* Improve checkbox visibility in labels */
+.label .checkbox {
+    width: 1.25rem;
+    height: 1.25rem;
+    min-width: 1.25rem;
+    min-height: 1.25rem;
+}
+
+/* Custom Radio Button Styles for Medical Theme */
+.radio {
+    border-width: 2px;
+    border-color: #3b82f6;
+    background-color: #FFFFFF;
+}
+
+.radio:checked {
+    background-color: #3b82f6;
+    border-color: #3b82f6;
+}
+
+.radio:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+.radio-primary {
+    border-color: #3b82f6;
+}
+
+.radio-primary:checked {
+    background-color: #3b82f6;
+    border-color: #3b82f6;
+}
+
+/* Make unchecked radio buttons more visible */
+.radio:not(:checked) {
+    border-color: #3b82f6;
+    background-color: #FFFFFF;
+    opacity: 1;
+}
+
+/* Make all label-text black and readable */
+.label-text {
+    color: #000000 !important;
+    font-weight: 600;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    letter-spacing: 0.01em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+
+
+/* Brand Identity Enhancements */
+.card {
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+/* Gradient Text Effect */
+.gradient-text {
+    background: linear-gradient(135deg, #00A8E8 0%, #00D9A5 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Smooth Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in-up {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+/* Box shadow for h1.text-2xl elements */
+h1.text-2xl {
+    box-shadow: 0px 4px 12px 0px rgba(0, 0, 0, 0.15);
+}
+
+/* Custom Sidebar Styles - Blue Theme */
+.sidebar-blue-menu a {
+    color: white;
+    transition: all 0.2s ease;
+}
+
+.sidebar-blue-menu a:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-blue-menu a.active {
+    background-color: white;
+    color: #1e40af;
+    font-weight: 600;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Scrollbar styling for sidebar */
+aside::-webkit-scrollbar {
+    width: 6px;
+}
+
+aside::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+aside::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+}
+
+aside::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* Ensure body and drawer take full height */
+body {
+    height: 100vh !important;
+    overflow: hidden !important;
+}
+
+.drawer {
+    height: 100vh !important;
+    min-height: 100vh !important;
+}
+
+/* Ensure DaisyUI drawer is visible on desktop (left side) */
+@media (min-width: 1024px) {
+    .drawer.lg\:drawer-open {
+        display: flex !important;
+        flex-direction: row !important;
+        height: 100vh !important;
+        min-height: 100vh !important;
+        align-items: stretch !important;
+    }
+    
+    /* Force drawer-side to be on the left */
+    .drawer.lg\:drawer-open .drawer-side {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        position: relative !important;
+        transform: translateX(0) !important;
+        width: 16rem !important;
+        min-width: 16rem !important;
+        max-width: 16rem !important;
+        z-index: 40 !important;
+        order: -1 !important;
+        left: 0 !important;
+        right: auto !important;
+        height: 100vh !important;
+        min-height: 100vh !important;
+        align-self: stretch !important;
+    }
+    
+    .drawer.lg\:drawer-open .drawer-side aside {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        width: 16rem !important;
+        min-width: 16rem !important;
+        max-width: 16rem !important;
+        height: 100vh !important;
+        min-height: 100vh !important;
+        max-height: 100vh !important;
+    }
+    
+    /* Ensure drawer-content is on the right side of drawer-side */
+    .drawer.lg\:drawer-open .drawer-content {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        width: calc(100% - 16rem) !important;
+        order: 1 !important;
+        height: 100vh !important;
+        min-height: 100vh !important;
+        align-self: stretch !important;
+        overflow-y: auto !important;
+    }
+    
+    /* Prevent drawer-end from being applied */
+    .drawer.drawer-end {
+        flex-direction: row !important;
+    }
+    
+    .drawer.drawer-end .drawer-side {
+        order: -1 !important;
+        left: 0 !important;
+        right: auto !important;
+    }
+}

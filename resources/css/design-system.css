@@ -1,0 +1,617 @@
+/* ============================================
+   Design System - Medical Management System
+   ============================================ */
+
+/* Page Header Styles */
+.page-header {
+    @apply bg-gray-100 rounded-lg px-6 py-4 mb-6;
+    border-left: 4px solid #3b82f6;
+}
+
+.page-header h1 {
+    @apply text-2xl font-bold text-gray-900 m-0;
+    font-size: 1.5rem;
+    line-height: 1.75rem;
+    letter-spacing: -0.025em;
+}
+
+.page-header p {
+    @apply text-sm text-gray-700 mt-1 m-0;
+    font-weight: 500;
+}
+
+/* Search Bar Container */
+.search-container {
+    @apply bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6;
+}
+
+.search-input-wrapper {
+    @apply relative;
+}
+
+.search-input-wrapper svg {
+    @apply absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400;
+    width: 18px;
+    height: 18px;
+}
+
+.search-input-wrapper input {
+    @apply pl-10 pr-4 py-3 w-full border-2 border-gray-300 rounded-lg;
+    @apply focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
+    @apply transition-all duration-200;
+    font-weight: 500;
+    font-size: 0.9375rem;
+}
+
+/* Action Buttons */
+.btn-action {
+    @apply px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-200;
+    @apply focus:outline-none focus:ring-2 focus:ring-offset-2;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+}
+
+.btn-add {
+    @apply bg-blue-50 text-blue-700 border-2 border-blue-300 hover:bg-blue-100;
+    @apply focus:ring-blue-500 shadow-sm hover:shadow-md;
+    font-weight: 600;
+}
+
+.btn-edit {
+    @apply bg-blue-50 text-blue-700 border-2 border-blue-300 hover:bg-blue-100;
+    @apply focus:ring-blue-500;
+    font-weight: 600;
+}
+
+.btn-visit {
+    @apply bg-green-50 text-green-700 border-2 border-green-300 hover:bg-green-100;
+    @apply focus:ring-green-500;
+    font-weight: 600;
+}
+
+.btn-delete {
+    @apply bg-red-50 text-red-700 border-2 border-red-300 hover:bg-red-100;
+    @apply focus:ring-red-500;
+    font-weight: 600;
+}
+
+/* Dropdown Menu Fix */
+.dropdown-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-trigger {
+    cursor: pointer;
+}
+
+.dropdown-menu {
+    display: none !important;
+    position: fixed !important;
+    background: white !important;
+    border: 2px solid #d1d5db !important;
+    border-radius: 0.5rem !important;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+    padding: 0.5rem !important;
+    width: 13rem !important;
+    z-index: 999999 !important;
+    list-style: none !important;
+    margin: 0 !important;
+    min-width: 13rem;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    transition: opacity 0.2s ease !important;
+}
+
+.dropdown-menu.show {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.dropdown-menu-portal {
+    display: none !important;
+    position: fixed !important;
+    background: white !important;
+    border: 2px solid #d1d5db !important;
+    border-radius: 0.5rem !important;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+    padding: 0.5rem !important;
+    width: 13rem !important;
+    z-index: 999999 !important;
+    list-style: none !important;
+    margin: 0 !important;
+    min-width: 13rem;
+}
+
+.simple-dropdown-menu {
+    position: fixed !important;
+    background: white !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 0.5rem !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+    width: 9rem !important;
+    min-width: 9rem !important;
+    max-width: 9rem !important;
+    z-index: 999999 !important;
+    list-style: none !important;
+    margin: 0 !important;
+    padding: 0.25rem !important;
+}
+
+.dropdown-menu-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.dropdown-menu-list li {
+    margin: 0;
+    padding: 0;
+}
+
+.dropdown-menu-item {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0.4375rem 0.625rem;
+    border-radius: 0.375rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    transition: all 0.15s ease;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    gap: 0.4375rem;
+    white-space: nowrap;
+}
+
+.dropdown-menu-icon {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+}
+
+.dropdown-menu-item span {
+    flex: 1;
+    text-align: left;
+}
+
+.dropdown-menu-item-view {
+    color: #2563eb;
+}
+
+.dropdown-menu-item-view:hover {
+    background-color: #eff6ff;
+    color: #1d4ed8;
+}
+
+.dropdown-menu-item-visit {
+    color: #16a34a;
+}
+
+.dropdown-menu-item-visit:hover {
+    background-color: #f0fdf4;
+    color: #15803d;
+}
+
+.dropdown-menu-item-edit {
+    color: #2563eb;
+}
+
+.dropdown-menu-item-edit:hover {
+    background-color: #eff6ff;
+    color: #1d4ed8;
+}
+
+.dropdown-menu-item-delete {
+    color: #dc2626;
+}
+
+.dropdown-menu-item-delete:hover {
+    background-color: #fef2f2;
+    color: #b91c1c;
+}
+
+.dropdown-menu li {
+    margin-bottom: 0.25rem;
+}
+
+.dropdown-menu li:last-child {
+    margin-bottom: 0;
+}
+
+.btn-cancel {
+    @apply bg-red-50 text-red-700 border-2 border-red-300 hover:bg-red-100;
+    @apply focus:ring-red-500;
+    font-weight: 600;
+}
+
+/* Table Styles */
+.data-table-container {
+    @apply bg-white rounded-lg shadow-sm border border-gray-200;
+    overflow-x: auto;
+    position: relative;
+}
+
+.data-table-container table {
+    position: relative;
+}
+
+.data-table-container tbody tr td {
+    position: relative;
+}
+
+.data-table-container tbody tr {
+    position: relative;
+}
+
+/* Force overflow visible for dropdown */
+.data-table-container,
+.data-table-container * {
+    overflow: visible !important;
+}
+
+.data-table-container tbody tr td:last-child {
+    overflow: visible !important;
+}
+
+.data-table {
+    @apply w-full;
+}
+
+.data-table thead {
+    @apply bg-gray-50;
+}
+
+.data-table thead th {
+    @apply px-4 py-3.5 text-xs font-bold uppercase tracking-wider;
+    @apply border-b-2 border-gray-300;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-align: left;
+    color: #000000;
+}
+
+.data-table thead th.text-right {
+    text-align: right !important;
+}
+
+.data-table tbody tr {
+    @apply border-b border-gray-200 hover:bg-blue-50/30 transition-colors;
+}
+
+.data-table tbody td {
+    @apply px-4 py-3.5 text-sm;
+    font-weight: 500;
+    line-height: 1.5;
+    color: #000000;
+}
+
+/* Description column styling for long text */
+.data-table tbody td[style*="max-width"] {
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+}
+
+.data-table tbody tr:last-child {
+    @apply border-b-0;
+}
+
+/* Empty State */
+.empty-state {
+    @apply text-center py-12 px-4;
+}
+
+.empty-state svg {
+    @apply mx-auto h-12 w-12 text-gray-400 mb-4;
+}
+
+.empty-state h3 {
+    @apply text-lg font-medium text-gray-900 mb-2;
+}
+
+.empty-state p {
+    @apply text-sm text-gray-500;
+}
+
+/* Status Badges */
+.badge-status {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap;
+    font-weight: 600;
+    letter-spacing: 0.025em;
+}
+
+.badge-active {
+    @apply bg-green-100 text-green-800;
+}
+
+.badge-pending {
+    @apply bg-yellow-100 text-yellow-800;
+}
+
+.badge-inactive {
+    @apply bg-gray-100 text-gray-800;
+}
+
+.badge-completed {
+    @apply bg-blue-100 text-blue-800;
+}
+
+/* Card Styles */
+.card-modern {
+    @apply bg-white rounded-lg shadow-sm border border-gray-200;
+    @apply transition-all duration-200 hover:shadow-md;
+}
+
+.card-header {
+    @apply px-6 py-4 border-b border-gray-200;
+}
+
+.card-body {
+    @apply px-6 py-4;
+}
+
+.card-footer {
+    @apply px-6 py-4 border-t border-gray-200 bg-gray-50;
+}
+
+/* Form Styles */
+.form-group {
+    @apply mb-4;
+}
+
+.form-label {
+    @apply block text-sm font-semibold mb-2;
+    font-weight: 600;
+    line-height: 1.5;
+    letter-spacing: 0.01em;
+    color: #000000;
+}
+
+.form-input {
+    @apply w-full px-4 py-2.5 border border-gray-300 rounded-lg;
+    @apply focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
+    @apply transition-all duration-200;
+}
+
+.form-input textarea,
+textarea.form-input {
+    @apply resize-none;
+    padding: 0.5rem 0.75rem;
+    line-height: 1.5;
+    min-height: auto;
+}
+
+.form-select {
+    @apply px-4 py-2.5 border border-gray-300 rounded-lg bg-white;
+    @apply focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
+    @apply transition-all duration-200;
+    width: 100%;
+    min-width: 100%;
+}
+
+.form-select-sm {
+    @apply px-3 py-1.5 text-sm;
+    height: auto;
+    min-height: 38px;
+}
+
+/* Modal Styles */
+.modal-overlay {
+    @apply fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4;
+}
+
+.modal-container {
+    @apply bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto;
+}
+
+.modal-header {
+    @apply px-6 py-4 border-b border-gray-200 flex items-center justify-between;
+}
+
+.modal-title {
+    @apply text-xl font-bold text-gray-800;
+}
+
+.modal-body {
+    @apply px-6 py-4;
+}
+
+.modal-footer {
+    @apply px-6 py-4 border-t border-gray-200 flex items-center justify-end gap-3;
+}
+
+/* Pagination */
+.pagination-container {
+    @apply flex items-center justify-between px-6 py-4 border-t border-gray-200 bg-gray-50;
+}
+
+.pagination-info {
+    @apply text-sm font-medium text-gray-700;
+}
+
+.pagination-buttons {
+    @apply flex items-center gap-2;
+}
+
+.pagination-btn {
+    @apply w-10 h-10 flex items-center justify-center text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-full;
+    @apply hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500;
+    @apply transition-all duration-200;
+}
+
+.pagination-btn.active {
+    @apply bg-blue-600 text-white border-blue-600;
+}
+
+/* Custom Pagination Styles */
+.pagination-wrapper {
+    @apply flex items-center justify-end px-6 py-4 border-t border-gray-200 bg-white;
+}
+
+/* Base Pagination Button Styles */
+.pagination-btn {
+    @apply relative inline-flex items-center justify-center;
+    width: 40px;
+    height: 40px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease-in-out;
+    border: 1px solid;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Normal Page Buttons */
+.pagination-btn-normal {
+    background-color: #ffffff;
+    color: #374151;
+    border-color: #d1d5db;
+}
+
+.pagination-btn-normal:hover {
+    background-color: #eff6ff;
+    color: #1e40af;
+    border-color: #3b82f6;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.pagination-btn-normal:focus {
+    outline: none;
+    ring: 2px;
+    ring-color: #3b82f6;
+    ring-offset: 1px;
+}
+
+/* Active Page Button */
+.pagination-btn-active {
+    background-color: #3b82f6;
+    color: #ffffff;
+    border-color: #3b82f6;
+    font-weight: 600;
+    box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3), 0 2px 4px -1px rgba(59, 130, 246, 0.2);
+    cursor: default;
+}
+
+/* Disabled Buttons (Previous/Next when not available) */
+.pagination-btn-disabled {
+    background-color: #f3f4f6;
+    color: #9ca3af;
+    border-color: #e5e7eb;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* Navigation Buttons (Previous/Next) */
+.pagination-btn-nav {
+    background-color: #ffffff;
+    color: #374151;
+    border-color: #d1d5db;
+}
+
+.pagination-btn-nav:hover {
+    background-color: #eff6ff;
+    color: #1e40af;
+    border-color: #3b82f6;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.pagination-btn-nav:focus {
+    outline: none;
+    ring: 2px;
+    ring-color: #3b82f6;
+    ring-offset: 1px;
+}
+
+/* Hover Effect for All Interactive Buttons */
+.pagination-btn-hover:hover {
+    background-color: #eff6ff;
+    color: #1e40af;
+    border-color: #3b82f6;
+}
+
+/* Rounded Corners for First/Last Buttons */
+.pagination-btn.rounded-l-md {
+    border-top-left-radius: 0.5rem;
+    border-bottom-left-radius: 0.5rem;
+}
+
+.pagination-btn.rounded-r-md {
+    border-top-right-radius: 0.5rem;
+    border-bottom-right-radius: 0.5rem;
+}
+
+/* Gap between buttons */
+.pagination-wrapper nav span {
+    margin-left: 4px;
+}
+
+.pagination-wrapper nav span:first-child {
+    margin-left: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    .pagination-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 0.8125rem;
+    }
+}
+
+/* Responsive Utilities */
+@media (max-width: 768px) {
+    .page-header {
+        @apply px-4 py-3;
+    }
+    
+    .data-table-container {
+        @apply overflow-x-auto;
+    }
+    
+    .data-table {
+        @apply min-w-full;
+    }
+}
+
+/* Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Custom scrollbar for tabs */
+.overflow-x-auto::-webkit-scrollbar {
+    height: 6px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 3px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
