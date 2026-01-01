@@ -6,20 +6,18 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Invoice extends Model
 {
     protected $fillable = [
         'invoice_number',
         'patient_id',
-        'appointment_id',
-        'doctor_id',
+        'service_id',
         'branch_id',
         'invoice_date',
-        'due_date',
         'subtotal',
         'discount',
-        'tax',
         'total_amount',
         'paid_amount',
         'remaining_amount',
@@ -27,15 +25,12 @@ class Invoice extends Model
         'payment_method',
         'notes',
         'created_by',
-        'operation_id',
     ];
 
     protected $casts = [
         'invoice_date' => 'date',
-        'due_date' => 'date',
         'subtotal' => 'decimal:2',
         'discount' => 'decimal:2',
-        'tax' => 'decimal:2',
         'total_amount' => 'decimal:2',
         'paid_amount' => 'decimal:2',
         'remaining_amount' => 'decimal:2',
@@ -46,19 +41,15 @@ class Invoice extends Model
         return $this->belongsTo(Patient::class);
     }
 
-    public function appointment(): BelongsTo
-    {
-        return $this->belongsTo(Appointment::class);
-    }
-
-    public function doctor(): BelongsTo
-    {
-        return $this->belongsTo(Doctor::class);
-    }
 
     public function branch(): BelongsTo
     {
         return $this->belongsTo(Branch::class);
+    }
+
+    public function service(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Service::class);
     }
 
     public function createdBy(): BelongsTo
@@ -72,5 +63,13 @@ class Invoice extends Model
     public function operation(): BelongsTo
     {
         return $this->belongsTo(Operation::class);
+    }
+
+    /**
+     * Get the invoice services.
+     */
+    public function invoiceServices(): HasMany
+    {
+        return $this->hasMany(InvoiceService::class);
     }
 }

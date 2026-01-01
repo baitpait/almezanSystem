@@ -6,12 +6,14 @@
                 <h1>Appointment Management</h1>
                 <p>Manage and schedule patient appointments</p>
         </div>
+            @can('create.appointments')
             <button class="btn-add btn-action flex items-center gap-2" wire:click="create">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
             </svg>
             Add Appointment
         </button>
+        @endcan
         </div>
     </div>
 
@@ -172,12 +174,18 @@
                                     @endphp
                             <div class="flex items-center gap-2 flex-wrap">
                                         @if($appointment->visit_type === 'Assessment')
+                                    @can('view.assessment')
                                     <button 
                                         class="badge-status {{ $typeColor }} cursor-pointer hover:opacity-80 transition-opacity" 
                                         wire:click="goToAssessment({{ $appointment->id }})" 
                                         title="Click to go to Assessment">
                                         {{ $appointment->visit_type }}
                                             </button>
+                                    @else
+                                    <span class="badge-status {{ $typeColor }}">
+                                        {{ $appointment->visit_type }}
+                                    </span>
+                                    @endcan
                                         @elseif($appointment->visit_type === 'Operation')
                                     <a 
                                         href="{{ route('operation-notes.create', ['appointmentId' => $appointment->id]) }}" 
@@ -251,6 +259,7 @@
                                  data-original-parent="{{ $appointment->id }}"
                                  style="display: none;">
                                 <ul class="dropdown-menu-list">
+                                    @can('update.appointments')
                                     <li>
                                         <button type="button" class="dropdown-menu-item dropdown-menu-item-edit" wire:click="edit({{ $appointment->id }})" onclick="closeSimpleDropdown({{ $appointment->id }})">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-menu-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -259,6 +268,20 @@
                                             <span>Edit</span>
                                         </button>
                                     </li>
+                                    @endcan
+                                    @can('create.invoices')
+                                    <li>
+                                        <a href="{{ route('invoices.index', ['create' => 1, 'patient' => $appointment->patient_id]) }}"
+                                           class="dropdown-menu-item"
+                                           onclick="closeSimpleDropdown({{ $appointment->id }});">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-menu-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.5 0-3 .75-3 2.25C9 11.75 10.5 12.5 12 12.5s3 .75 3 2.25S13.5 17 12 17m0-9V7m0 10v1m9-7a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            <span>Add Invoice</span>
+                                        </a>
+                                    </li>
+                                    @endcan
+                                    @can('delete.appointments')
                                     <li>
                                         <button type="button" class="dropdown-menu-item dropdown-menu-item-delete" wire:click="delete({{ $appointment->id }})" wire:confirm="Are you sure you want to delete this appointment?" onclick="closeSimpleDropdown({{ $appointment->id }})">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-menu-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -267,6 +290,7 @@
                                             <span>Delete</span>
                                         </button>
                                     </li>
+                                    @endcan
                                 </ul>
                             </div>
                                 </div>

@@ -31,6 +31,7 @@ class User extends Authenticatable
         'phone',
         'notes',
         'last_login_at',
+        'previous_last_login_at',
     ];
 
     /**
@@ -55,6 +56,7 @@ class User extends Authenticatable
             'password' => 'hashed',
             'is_active' => 'boolean',
             'last_login_at' => 'datetime',
+            'previous_last_login_at' => 'datetime',
         ];
     }
 

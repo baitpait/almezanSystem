@@ -87,12 +87,21 @@ class PatientManager extends Component
 
     public function create(): void
     {
+        if (!auth()->user()->can('create.patients')) {
+            session()->flash('error', 'You do not have permission to create patients.');
+            return;
+        }
         $this->resetForm();
         $this->showModal = true;
     }
 
     public function edit($id): void
     {
+        if (!auth()->user()->can('update.patients')) {
+            session()->flash('error', 'You do not have permission to update patients.');
+            return;
+        }
+        
         // Close details modal if open
         if ($this->showDetailsModal) {
             $this->closeDetailsModal();
@@ -116,6 +125,18 @@ class PatientManager extends Component
 
     public function save(): void
     {
+        if ($this->editingId) {
+            if (!auth()->user()->can('update.patients')) {
+                session()->flash('error', 'You do not have permission to update patients.');
+                return;
+            }
+        } else {
+            if (!auth()->user()->can('create.patients')) {
+                session()->flash('error', 'You do not have permission to create patients.');
+                return;
+            }
+        }
+        
         $this->validate();
         
         if ($this->editingId) {
@@ -136,6 +157,11 @@ class PatientManager extends Component
 
     public function delete($id): void
     {
+        if (!auth()->user()->can('delete.patients')) {
+            session()->flash('error', 'You do not have permission to delete patients.');
+            return;
+        }
+        
         Patient::findOrFail($id)->delete();
         session()->flash('message', 'Patient deleted successfully.');
     }
@@ -184,6 +210,10 @@ class PatientManager extends Component
 
     public function render()
     {
+        if (!auth()->user()->can('view.patients')) {
+            abort(403, 'You do not have permission to view patients.');
+        }
+        
         $query = Patient::query();
         
         if (!empty(trim($this->search))) {

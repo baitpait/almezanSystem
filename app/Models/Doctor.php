@@ -18,24 +18,7 @@ class Doctor extends Model
         'user_id',
         'branch_id',
         'name',
-        'photo',
-        'email',
         'phone',
-        'specialization',
-        'notify_via_sms',
-        'notify_via_email',
-        'follow_up',
-    ];
-
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'notify_via_sms' => 'boolean',
-        'notify_via_email' => 'boolean',
-        'follow_up' => 'boolean',
     ];
 
     /**
@@ -68,5 +51,13 @@ class Doctor extends Model
     public function invoices(): HasMany
     {
         return $this->hasMany(Invoice::class);
+    }
+
+    /**
+     * Get the invoice services for the doctor.
+     */
+    public function invoiceServices(): HasMany
+    {
+        return $this->hasMany(InvoiceService::class);
     }
 }

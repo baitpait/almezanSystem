@@ -6,12 +6,14 @@
                 <h1>Patient Management</h1>
                 <p>Manage patient records and information</p>
             </div>
+            @can('create.patients')
             <button class="btn-add btn-action flex items-center gap-2" wire:click="create">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
                 </svg>
                 Add Patient
             </button>
+            @endcan
         </div>
     </div>
     
@@ -103,6 +105,7 @@
                                             <span>View</span>
                                         </button>
                                     </li>
+                                    @can('create.appointments')
                                     <li>
                                         <button type="button" class="dropdown-menu-item dropdown-menu-item-visit" wire:click="createVisit({{ $patient->id }})" onclick="closeSimpleDropdown({{ $patient->id }})">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-menu-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -111,6 +114,8 @@
                                             <span>Visit</span>
                                         </button>
                                     </li>
+                                    @endcan
+                                    @can('update.patients')
                                     <li>
                                         <button type="button" class="dropdown-menu-item dropdown-menu-item-edit" wire:click="edit({{ $patient->id }})" onclick="closeSimpleDropdown({{ $patient->id }})">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-menu-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -119,6 +124,8 @@
                                             <span>Edit</span>
                                         </button>
                                     </li>
+                                    @endcan
+                                    @can('delete.patients')
                                     <li>
                                         <button type="button" class="dropdown-menu-item dropdown-menu-item-delete" wire:click="delete({{ $patient->id }})" wire:confirm="Are you sure you want to delete this patient?" onclick="closeSimpleDropdown({{ $patient->id }})">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-menu-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -127,6 +134,7 @@
                                             <span>Delete</span>
                                         </button>
                                     </li>
+                                    @endcan
                                 </ul>
                             </div>
                         </div>

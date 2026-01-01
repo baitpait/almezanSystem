@@ -18,6 +18,7 @@ class AppointmentManager extends Component
     use WithPagination;
 
     protected $paginationTheme = 'tailwind';
+    protected $listeners = ['refreshAppointments' => '$refresh'];
 
     public string $search = '';
     public int $perPage = 10;
@@ -318,6 +319,10 @@ class AppointmentManager extends Component
 
     public function create(): void
     {
+        if (!auth()->user()->can('create.appointments')) {
+            session()->flash('error', 'You do not have permission to create appointments.');
+            return;
+        }
         $this->resetForm();
         // Set default date and time to current
         $this->form['appointment_date'] = now()->format('Y-m-d');
@@ -411,6 +416,10 @@ class AppointmentManager extends Component
 
     public function edit($id): void
     {
+        if (!auth()->user()->can('update.appointments')) {
+            session()->flash('error', 'You do not have permission to update appointments.');
+            return;
+        }
         $appointment = Appointment::with(['patient', 'doctor', 'operation'])->findOrFail($id);
         $this->editingId = $appointment->id;
         $this->selectedPatientId = $appointment->patient_id;
@@ -438,6 +447,18 @@ class AppointmentManager extends Component
 
     public function save(): void
     {
+        if ($this->editingId) {
+            if (!auth()->user()->can('update.appointments')) {
+                session()->flash('error', 'You do not have permission to update appointments.');
+                return;
+            }
+        } else {
+            if (!auth()->user()->can('create.appointments')) {
+                session()->flash('error', 'You do not have permission to create appointments.');
+                return;
+            }
+        }
+        
         $this->validate();
         
         $data = $this->form;
@@ -545,6 +566,11 @@ class AppointmentManager extends Component
 
     public function delete($id): void
     {
+        if (!auth()->user()->can('delete.appointments')) {
+            session()->flash('error', 'You do not have permission to delete appointments.');
+            return;
+        }
+        
         Appointment::findOrFail($id)->delete();
         session()->flash('message', 'Appointment deleted successfully.');
     }
@@ -691,6 +717,10 @@ class AppointmentManager extends Component
 
     public function render()
     {
+        if (!auth()->user()->can('view.appointments')) {
+            abort(403, 'You do not have permission to view appointments.');
+        }
+        
         $patients = [];
         if (!empty(trim($this->patientSearch))) {
             $searchTerm = '%'.trim($this->patientSearch).'%';

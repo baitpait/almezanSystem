@@ -103,6 +103,7 @@
                         </a>
                     </li>
                     
+                    @can('view.patients')
                     <li>
                         <a href="{{ route('patients.index') }}" class="flex items-center gap-3 px-4 py-2 rounded-lg text-white transition-all {{ request()->routeIs('patients.*') ? 'bg-blue-500 text-white shadow-lg font-semibold' : 'hover:bg-blue-500/50' }}">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -111,7 +112,9 @@
                             <span>Patients</span>
                         </a>
                     </li>
+                    @endcan
                     
+                    @can('view.appointments')
                     <li>
                         <a href="{{ route('appointments.index') }}" class="flex items-center gap-3 px-4 py-2 rounded-lg text-white transition-all {{ request()->routeIs('appointments.*') ? 'bg-blue-500 text-white shadow-lg font-semibold' : 'hover:bg-blue-500/50' }}">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -120,7 +123,9 @@
                             <span>Appointments</span>
                         </a>
                     </li>
+                    @endcan
                     
+                    @can('view.invoices')
                     <li>
                         <a href="{{ route('invoices.index') }}" class="flex items-center gap-3 px-4 py-2 rounded-lg text-white transition-all {{ request()->routeIs('invoices.*') ? 'bg-blue-500 text-white shadow-lg font-semibold' : 'hover:bg-blue-500/50' }}">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -129,7 +134,20 @@
                             <span>Invoices</span>
                         </a>
                     </li>
-                    
+                    @endcan
+
+                    @can('view.services')
+                    <li>
+                        <a href="{{ route('services.index') }}" class="flex items-center gap-3 px-4 py-2 rounded-lg text-white transition-all {{ request()->routeIs('services.*') ? 'bg-blue-500 text-white shadow-lg font-semibold' : 'hover:bg-blue-500/50' }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                            </svg>
+                            <span>Services</span>
+                        </a>
+                    </li>
+                    @endcan
+
+                    @can('view.assessment')
                     <li>
                         <a href="{{ route('operations.index') }}" class="flex items-center gap-3 px-4 py-2 rounded-lg text-white transition-all {{ request()->routeIs('operations.*') ? 'bg-blue-500 text-white shadow-lg font-semibold' : 'hover:bg-blue-500/50' }}">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -138,20 +156,24 @@
                             <span>Assessment</span>
                         </a>
                     </li>
+                    @endcan
                     
+                    @can('view.operations')
                     <li>
                         <a href="{{ route('scheduled-operations.index') }}" class="flex items-center gap-3 px-4 py-2 rounded-lg text-white transition-all {{ request()->routeIs('scheduled-operations.*') ? 'bg-blue-500 text-white shadow-lg font-semibold' : 'hover:bg-blue-500/50' }}">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
-                            <span>Scheduled Operations</span>
+                            <span>Operations</span>
                         </a>
                     </li>
+                    @endcan
 
-                    @if(auth()->user()->isAdmin())
+                    @canany(['view.users', 'view.doctors', 'view.branches'])
                     <li class="pt-2 mt-2 border-t border-blue-500/30">
                         <span class="text-blue-200 text-xs font-semibold uppercase tracking-wider px-4 py-1.5">Administration</span>
                     </li>
+                    @can('view.users')
                     <li>
                         <a href="{{ route('admin.users.index') }}" class="flex items-center gap-3 px-4 py-2 rounded-lg text-white transition-all {{ request()->routeIs('admin.users.*') ? 'bg-blue-500 text-white shadow-lg font-semibold' : 'hover:bg-blue-500/50' }}">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -160,6 +182,18 @@
                             <span>Users</span>
                         </a>
                     </li>
+                    @endcan
+                    @can('view.doctors')
+                    <li>
+                        <a href="{{ route('admin.doctors.index') }}" class="flex items-center gap-3 px-4 py-2 rounded-lg text-white transition-all {{ request()->routeIs('admin.doctors.*') ? 'bg-blue-500 text-white shadow-lg font-semibold' : 'hover:bg-blue-500/50' }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 4a4 4 0 118 0v1a4 4 0 11-8 0V4zM6 20a6 6 0 1112 0v1H6v-1z" />
+                            </svg>
+                            <span>Doctors</span>
+                        </a>
+                    </li>
+                    @endcan
+                    @can('view.branches')
                     <li>
                         <a href="{{ route('admin.branches.index') }}" class="flex items-center gap-3 px-4 py-2 rounded-lg text-white transition-all {{ request()->routeIs('admin.branches.*') ? 'bg-blue-500 text-white shadow-lg font-semibold' : 'hover:bg-blue-500/50' }}">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -168,7 +202,18 @@
                             <span>Branches</span>
                         </a>
                     </li>
-                    @endif
+                    @endcan
+                    @can('view.users')
+                    <li>
+                        <a href="{{ route('admin.roles.index') }}" class="flex items-center gap-3 px-4 py-2 rounded-lg text-white transition-all {{ request()->routeIs('admin.roles.*') ? 'bg-blue-500 text-white shadow-lg font-semibold' : 'hover:bg-blue-500/50' }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                            <span>Roles</span>
+                        </a>
+                    </li>
+                    @endcan
+                    @endcanany
                     
                     {{-- Profile Link --}}
                     <li class="mt-auto pt-1">

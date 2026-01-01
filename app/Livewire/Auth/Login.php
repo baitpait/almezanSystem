@@ -34,13 +34,22 @@ class Login extends Component
         if (Auth::attempt($credentials, $this->remember)) {
             // Update last login timestamp
             try {
-            Auth::user()->update(['last_login_at' => now()]);
+                $user = Auth::user();
+                // Save current last_login_at as previous before updating
+                $user->update([
+                    'previous_last_login_at' => $user->last_login_at,
+                    'last_login_at' => now()
+                ]);
             } catch (\Exception $e) {
-                // Ignore if column doesn't exist
+                // Ignore if columns don't exist
             }
+            
+            // Clear permission cache to ensure fresh permissions
+            app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+            
             session()->regenerate();
             session()->forget('error'); // Clear any error messages
-            
+
             // Redirect using Livewire's redirect method
             $this->redirect(route('dashboard'));
         } else {

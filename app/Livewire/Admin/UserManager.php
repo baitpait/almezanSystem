@@ -65,12 +65,14 @@ class UserManager extends Component
 
     public function create(): void
     {
+        abort_unless(auth()->user()->can('create.users'), 403);
         $this->resetForm();
         $this->showModal = true;
     }
 
     public function edit($id): void
     {
+        abort_unless(auth()->user()->can('update.users'), 403);
         $user = User::findOrFail($id);
         $this->editingId = $user->id;
         $this->form = [
@@ -88,6 +90,13 @@ class UserManager extends Component
 
     public function save(): void
     {
+        abort_unless(
+            $this->editingId 
+                ? auth()->user()->can('update.users')
+                : auth()->user()->can('create.users'),
+            403
+        );
+        
         $this->validate();
 
         $data = [
@@ -119,6 +128,7 @@ class UserManager extends Component
 
     public function delete($id): void
     {
+        abort_unless(auth()->user()->can('delete.users'), 403);
         User::findOrFail($id)->delete();
         session()->flash('message', 'User deleted successfully.');
     }

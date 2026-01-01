@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Livewire\Livewire;
 use App\Livewire\Auth\Login;
 use App\Livewire\Dashboard;
 use App\Livewire\PatientManager;
@@ -11,7 +12,11 @@ use App\Livewire\OperationNoteManager;
 use App\Livewire\ScheduledOperations;
 use App\Livewire\Admin\UserManager;
 use App\Livewire\Admin\BranchManager;
+use App\Livewire\Admin\RoleManager;
+use App\Livewire\Admin\DoctorManager;
 use App\Livewire\Profile;
+use App\Livewire\ServiceManager;
+use App\Models\Invoice;
 
 // Authentication Routes
 Route::middleware('guest')->group(function () {
@@ -21,7 +26,7 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     // Dashboard
     Route::get('/', Dashboard::class)->name('dashboard');
-    Route::get('/dashboard', Dashboard::class)->name('dashboard');
+    Route::get('/dashboard', Dashboard::class)->name('dashboard-alt');
 
     // Patients
     Route::prefix('patients')->name('patients.')->group(function () {
@@ -41,6 +46,15 @@ Route::middleware('auth')->group(function () {
     // Invoices
     Route::prefix('invoices')->name('invoices.')->group(function () {
         Route::get('/', InvoiceManager::class)->name('index');
+        Route::get('/{invoice}/print', function (Invoice $invoice) {
+            $invoice->load(['patient', 'service', 'branch']);
+            return view('invoices.print', ['invoice' => $invoice]);
+        })->name('print');
+    });
+
+    // Services
+    Route::prefix('services')->name('services.')->group(function () {
+        Route::get('/', ServiceManager::class)->name('index');
     });
 
     // Operations
@@ -62,6 +76,12 @@ Route::middleware('auth')->group(function () {
     Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {
         Route::prefix('users')->name('users.')->group(function () {
             Route::get('/', UserManager::class)->name('index');
+        });
+        Route::prefix('roles')->name('roles.')->group(function () {
+            Route::get('/', RoleManager::class)->name('index');
+        });
+        Route::prefix('doctors')->name('doctors.')->group(function () {
+            Route::get('/', DoctorManager::class)->name('index');
         });
         Route::prefix('branches')->name('branches.')->group(function () {
             Route::get('/', BranchManager::class)->name('index');

@@ -52,12 +52,14 @@ class BranchManager extends Component
 
     public function create(): void
     {
+        abort_unless(auth()->user()->can('create.branches'), 403);
         $this->resetForm();
         $this->showModal = true;
     }
 
     public function edit($id): void
     {
+        abort_unless(auth()->user()->can('update.branches'), 403);
         $branch = Branch::findOrFail($id);
         $this->editingId = $branch->id;
         $this->form = [
@@ -73,6 +75,13 @@ class BranchManager extends Component
 
     public function save(): void
     {
+        abort_unless(
+            $this->editingId 
+                ? auth()->user()->can('update.branches')
+                : auth()->user()->can('create.branches'),
+            403
+        );
+        
         $this->validate();
 
         if ($this->editingId) {
@@ -89,6 +98,7 @@ class BranchManager extends Component
 
     public function delete($id): void
     {
+        abort_unless(auth()->user()->can('delete.branches'), 403);
         Branch::findOrFail($id)->delete();
         session()->flash('message', 'Branch deleted successfully.');
     }

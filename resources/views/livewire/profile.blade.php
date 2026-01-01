@@ -76,9 +76,9 @@
         </div>
     @endif
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 gap-6">
         {{-- Left Column: Profile Information --}}
-        <div class="lg:col-span-2">
+        <div class="lg:col-span-3">
             <div class="bg-white rounded-xl shadow-md p-6 mb-6">
                 <div class="flex items-center gap-2 mb-6 pb-4 border-b border-gray-200">
                     <div class="p-2 bg-blue-100 rounded-lg">
@@ -116,14 +116,6 @@
                         </label>
                         <div class="relative">
                             <input type="email" value="{{ $user->email }}" class="input input-bordered w-full bg-gray-50" disabled>
-                            <div class="absolute right-3 top-1/2 -translate-y-1/2">
-                                <span class="badge badge-success badge-sm gap-1">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                    </svg>
-                                    Verified
-                                </span>
-                            </div>
                         </div>
                         <p class="text-xs text-gray-500 mt-2 flex items-center gap-1">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -145,6 +137,46 @@
                         </label>
                         <input type="tel" wire:model="phone" class="input input-bordered w-full focus:input-primary transition-colors" placeholder="Enter phone number">
                         @error('phone') <span class="text-error text-sm mt-1 block">{{ $message }}</span> @enderror
+                    </div>
+
+                    {{-- Status & Last Login --}}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label class="label pb-2">
+                                <span class="label-text font-semibold text-gray-700 flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                    </svg>
+                                    Account Status
+                                </span>
+                            </label>
+                            <div class="flex items-center gap-2">
+                                <span class="badge badge-success badge-lg">Active</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="label pb-2">
+                                <span class="label-text font-semibold text-gray-700 flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    Last Login
+                                </span>
+                            </label>
+                            <div class="text-sm text-gray-600">
+                                @if($user->previous_last_login_at)
+                                    <div class="space-y-1">
+                                        <div class="font-medium">{{ $user->previous_last_login_at->diffForHumans() }}</div>
+                                        <div class="text-xs text-gray-500">{{ $user->previous_last_login_at->format('M d, Y - h:i A') }}</div>
+                                    </div>
+                                @elseif($user->last_login_at)
+                                    <span class="text-gray-500">First time login</span>
+                                @else
+                                    <span class="text-gray-500">Never</span>
+                                @endif
+                            </div>
+                        </div>
                     </div>
 
                     {{-- Role & Branch Grid --}}
@@ -340,80 +372,8 @@
 
         {{-- Right Column: Quick Stats or Info Cards --}}
         <div class="space-y-6">
-            {{-- Account Status Card --}}
-            <div class="bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl shadow-lg p-6 text-white">
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="p-2 bg-white/20 rounded-lg">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                        </svg>
-                    </div>
-                    <h3 class="font-semibold text-lg">Account Status</h3>
-                </div>
-                <div class="space-y-3">
-                    <div class="flex items-center justify-between">
-                        <span class="text-white/90">Status</span>
-                        <span class="badge badge-success bg-white text-green-600 border-0">Active</span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <span class="text-white/90">Email Verified</span>
-                        <span class="badge badge-success bg-white text-green-600 border-0">Yes</span>
-                    </div>
-                    @if($user->last_login_at)
-                    <div class="flex items-center justify-between">
-                        <span class="text-white/90">Last Login</span>
-                        <span class="text-white font-medium text-sm">{{ $user->last_login_at->diffForHumans() }}</span>
-                    </div>
-                    <div class="flex items-center justify-between pt-2 border-t border-white/20">
-                        <span class="text-white/80 text-xs">{{ $user->last_login_at->format('M d, Y - h:i A') }}</span>
-                    </div>
-                    @else
-                    <div class="flex items-center justify-between">
-                        <span class="text-white/90">Last Login</span>
-                        <span class="text-white/70 text-sm">Never</span>
-                    </div>
-                    @endif
-                </div>
-            </div>
 
-            {{-- Statistics Card --}}
-            <div class="bg-white rounded-xl shadow-md p-6">
-                <h3 class="font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
-                    Statistics
-                </h3>
-                <div class="space-y-3">
-                    <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                        <div class="flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                            <span class="text-sm text-gray-700">Appointments</span>
-                        </div>
-                        <span class="font-bold text-blue-600">{{ $user->createdAppointments()->count() }}</span>
-                    </div>
-                </div>
-            </div>
 
-            {{-- Quick Actions Card --}}
-            <div class="bg-white rounded-xl shadow-md p-6">
-                <h3 class="font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
-                    Quick Actions
-                </h3>
-                <div class="space-y-2">
-                    <a href="{{ route('dashboard') }}" class="btn btn-ghost btn-sm w-full justify-start gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                        </svg>
-                        Go to Dashboard
-                    </a>
-                </div>
-            </div>
         </div>
     </div>
 </div>

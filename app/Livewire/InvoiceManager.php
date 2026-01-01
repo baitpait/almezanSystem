@@ -6,8 +6,6 @@ namespace App\Livewire;
 
 use App\Models\Invoice;
 use App\Models\Patient;
-use App\Models\Appointment;
-use App\Models\Doctor;
 use App\Models\Branch;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -29,39 +27,54 @@ class InvoiceManager extends Component
     public $selectedPatientData = null;
     public array $form = [
         'patient_id' => null,
-        'appointment_id' => null,
-        'doctor_id' => null,
+        'service_id' => null,
         'branch_id' => null,
         'invoice_date' => '',
-        'due_date' => '',
         'subtotal' => '0.00',
         'discount' => '0.00',
-        'tax' => '0.00',
         'total_amount' => '0.00',
-        'paid_amount' => '0.00',
+        'paid_amount' => '',
         'remaining_amount' => '0.00',
-        'status' => 'pending',
-        'payment_method' => null,
+        'status' => 'paid',
+        'payment_method' => 'cash',
         'notes' => '',
     ];
+
+    public function mount(?int $create = null, ?int $patient = null): void
+    {
+        // Allow query string fallback (e.g. /invoices?create=1&patient=ID)
+        $createFlag = $create ?? (int) request()->query('create', 0);
+        $patientId = $patient ?? (int) request()->query('patient', 0);
+
+        // If opened from an external action with create flag, open modal and preselect patient if provided
+        if ($createFlag) {
+            $this->resetForm();
+            $this->showModal = true;
+            $this->form['invoice_date'] = now()->format('Y-m-d');
+
+            if ($patientId) {
+                $patientModel = Patient::find($patientId);
+                if ($patientModel) {
+                    $this->selectPatient($patientModel->id);
+                }
+            }
+        }
+    }
 
     protected function rules(): array
     {
         return [
             'form.patient_id' => 'required|exists:patients,id',
-            'form.appointment_id' => 'nullable|exists:appointments,id',
-            'form.doctor_id' => 'nullable|exists:doctors,id',
+            'form.service_id' => 'nullable|exists:services,id',
             'form.branch_id' => 'nullable|exists:branches,id',
             'form.invoice_date' => 'required|date',
-            'form.due_date' => 'nullable|date|after_or_equal:form.invoice_date',
             'form.subtotal' => 'required|numeric|min:0',
             'form.discount' => 'required|numeric|min:0',
-            'form.tax' => 'required|numeric|min:0',
             'form.total_amount' => 'required|numeric|min:0',
             'form.paid_amount' => 'required|numeric|min:0',
             'form.remaining_amount' => 'required|numeric|min:0',
             'form.status' => 'required|in:draft,pending,partial,paid,cancelled',
-            'form.payment_method' => 'nullable|in:cash,card,bank_transfer,cheque,other',
+            'form.payment_method' => 'required|in:cash,card,bank_transfer,cheque,other',
             'form.notes' => 'nullable|string|max:1000',
         ];
     }
@@ -105,21 +118,19 @@ class InvoiceManager extends Component
     {
         $subtotal = (float) ($this->form['subtotal'] ?? 0);
         $discount = (float) ($this->form['discount'] ?? 0);
-        $tax = (float) ($this->form['tax'] ?? 0);
 
-        $total = $subtotal - $discount + $tax;
+        // No tax - simplified calculation
+        $total = $subtotal - $discount;
         $this->form['total_amount'] = number_format($total, 2, '.', '');
 
         $paid = (float) ($this->form['paid_amount'] ?? 0);
         $remaining = max(0, $total - $paid);
         $this->form['remaining_amount'] = number_format($remaining, 2, '.', '');
 
-        // Auto-update status based on payment
+        // Since all payments are cash on same day, status is usually 'paid'
         if ($remaining <= 0 && $paid > 0) {
             $this->form['status'] = 'paid';
         } elseif ($paid > 0 && $remaining > 0) {
-            $this->form['status'] = 'partial';
-        } elseif ($this->form['status'] === 'paid' && $remaining > 0) {
             $this->form['status'] = 'partial';
         }
     }
@@ -144,23 +155,32 @@ class InvoiceManager extends Component
         $this->calculateTotal();
     }
 
+    public function updatedFormServiceId(): void
+    {
+        if ($this->form['service_id']) {
+            $service = \App\Models\Service::find($this->form['service_id']);
+            if ($service) {
+                $this->form['subtotal'] = number_format((float) $service->base_price, 2, '.', '');
+                $this->calculateTotal();
+            }
+        }
+    }
+
     public function resetForm(): void
     {
         $this->form = [
             'patient_id' => null,
-            'appointment_id' => null,
-            'doctor_id' => null,
+            'service_id' => null,
             'branch_id' => auth()->user()?->branch_id,
             'invoice_date' => now()->format('Y-m-d'),
             'due_date' => '',
             'subtotal' => '0.00',
             'discount' => '0.00',
-            'tax' => '0.00',
             'total_amount' => '0.00',
-            'paid_amount' => '0.00',
+            'paid_amount' => '',
             'remaining_amount' => '0.00',
-            'status' => 'pending',
-            'payment_method' => null,
+            'status' => 'paid',
+            'payment_method' => 'cash',
             'notes' => '',
         ];
         $this->selectedPatientId = null;
@@ -172,27 +192,36 @@ class InvoiceManager extends Component
 
     public function create(): void
     {
+        if (!auth()->user()->can('create.invoices')) {
+            session()->flash('error', 'You do not have permission to create invoices.');
+            return;
+        }
         $this->resetForm();
         $this->showModal = true;
     }
 
     public function edit($id): void
     {
-        $invoice = Invoice::with(['patient', 'appointment', 'doctor'])->findOrFail($id);
+        if (!auth()->user()->can('update.invoices')) {
+            session()->flash('error', 'You do not have permission to update invoices.');
+            return;
+        }
+        $invoice = Invoice::with(['patient'])->findOrFail($id);
         $this->editingId = $invoice->id;
+        // Prefer invoice service_id; fallback to first invoice service (if exists)
+        $invoiceServiceId = $invoice->service_id ?: optional($invoice->invoiceServices->first())->service_id;
+
         $this->form = [
             'patient_id' => $invoice->patient_id,
-            'appointment_id' => $invoice->appointment_id,
-            'doctor_id' => $invoice->doctor_id,
+            'service_id' => $invoiceServiceId,
             'branch_id' => $invoice->branch_id,
             'invoice_date' => $invoice->invoice_date->format('Y-m-d'),
             'due_date' => $invoice->due_date?->format('Y-m-d'),
-            'subtotal' => number_format($invoice->subtotal, 2, '.', ''),
-            'discount' => number_format($invoice->discount, 2, '.', ''),
-            'tax' => number_format($invoice->tax, 2, '.', ''),
-            'total_amount' => number_format($invoice->total_amount, 2, '.', ''),
-            'paid_amount' => number_format($invoice->paid_amount, 2, '.', ''),
-            'remaining_amount' => number_format($invoice->remaining_amount, 2, '.', ''),
+            'subtotal' => number_format((float) $invoice->subtotal, 2, '.', ''),
+            'discount' => number_format((float) $invoice->discount, 2, '.', ''),
+            'total_amount' => number_format((float) $invoice->total_amount, 2, '.', ''),
+            'paid_amount' => number_format((float) $invoice->paid_amount, 2, '.', ''),
+            'remaining_amount' => number_format((float) $invoice->remaining_amount, 2, '.', ''),
             'status' => $invoice->status,
             'payment_method' => $invoice->payment_method,
             'notes' => $invoice->notes,
@@ -214,6 +243,18 @@ class InvoiceManager extends Component
 
     public function save(): void
     {
+        if ($this->editingId) {
+            if (!auth()->user()->can('update.invoices')) {
+                session()->flash('error', 'You do not have permission to update invoices.');
+                return;
+            }
+        } else {
+            if (!auth()->user()->can('create.invoices')) {
+                session()->flash('error', 'You do not have permission to create invoices.');
+                return;
+            }
+        }
+        
         $this->validate();
 
         $data = $this->form;
@@ -227,17 +268,17 @@ class InvoiceManager extends Component
         // Convert string amounts to decimal
         $data['subtotal'] = (float) $data['subtotal'];
         $data['discount'] = (float) $data['discount'];
-        $data['tax'] = (float) $data['tax'];
         $data['total_amount'] = (float) $data['total_amount'];
         $data['paid_amount'] = (float) $data['paid_amount'];
         $data['remaining_amount'] = (float) $data['remaining_amount'];
+        $data['service_id'] = $data['service_id'] ? (int) $data['service_id'] : null;
 
         if ($this->editingId) {
             $invoice = Invoice::findOrFail($this->editingId);
             $invoice->update($data);
             $message = 'Invoice updated successfully.';
         } else {
-            Invoice::create($data);
+            $invoice = Invoice::create($data);
             $message = 'Invoice created successfully.';
         }
 
@@ -248,6 +289,11 @@ class InvoiceManager extends Component
 
     public function delete($id): void
     {
+        if (!auth()->user()->can('delete.invoices')) {
+            session()->flash('error', 'You do not have permission to delete invoices.');
+            return;
+        }
+        
         $invoice = Invoice::findOrFail($id);
         $invoice->delete();
         session()->flash('message', 'Invoice deleted successfully.');
@@ -275,10 +321,14 @@ class InvoiceManager extends Component
 
     public function render()
     {
+        if (!auth()->user()->can('view.invoices')) {
+            abort(403, 'You do not have permission to view invoices.');
+        }
+        
         $user = auth()->user();
         $branchId = $user?->branch_id;
 
-        $query = Invoice::with(['patient', 'doctor', 'appointment', 'branch'])
+        $query = Invoice::with(['patient', 'branch', 'service', 'invoiceServices.service'])
             ->when($branchId, function ($q) use ($branchId) {
                 $q->where('branch_id', $branchId);
             })
@@ -308,27 +358,18 @@ class InvoiceManager extends Component
             ->limit(10)
             ->get();
 
-        $doctors = Doctor::when($branchId, function ($q) use ($branchId) {
-            $q->where('branch_id', $branchId);
-        })->get();
+        $doctors = collect(); // No doctors needed
 
-        $appointments = Appointment::when($this->selectedPatientId, function ($q) {
-            $q->where('patient_id', $this->selectedPatientId);
-        })
-            ->when($branchId, function ($q) use ($branchId) {
-                $q->where('branch_id', $branchId);
-            })
-            ->orderBy('appointment_date', 'desc')
-            ->limit(20)
-            ->get();
+        $appointments = collect(); // No appointments needed
 
         $branches = Branch::where('is_active', true)->get();
+
+        $services = \App\Models\Service::active()->orderBy('name')->get();
 
         return view('livewire.invoice-manager', [
             'invoices' => $invoices,
             'patients' => $patients,
-            'doctors' => $doctors,
-            'appointments' => $appointments,
+            'services' => $services,
             'branches' => $branches,
         ])->layout('components.layouts.app');
     }
