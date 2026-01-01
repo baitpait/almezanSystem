@@ -1,95 +1,227 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
-
 <p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+  <a href="#bait-pait-software">
+    <img src="public/images/logo.png" width="200" alt="بيت البرمجيات وتكنولوجيا المعلومات">
+  </a>
 </p>
 
-## 🏥 Almezan Medical Management System
+<p align="center">
+  <strong>بيت البرمجيات وتكنولوجيا المعلومات</strong><br>
+  إدارة مصطفى البستنجي
+</p>
 
-A comprehensive medical management system for Al-Ghad Eye Surgery Center built with Laravel 11.
+<p align="center">
+  <img src="https://img.shields.io/badge/PHP-8.2+-777BB4?style=flat&logo=php" alt="PHP">
+  <img src="https://img.shields.io/badge/Laravel-11.x-FF2D20?style=flat&logo=laravel" alt="Laravel">
+  <img src="https://img.shields.io/badge/Livewire-3.x-FB70A9?style=flat&logo=laravel" alt="Livewire">
+  <img src="https://img.shields.io/badge/Tailwind_CSS-3.x-38B2AC?style=flat&logo=tailwind-css" alt="Tailwind CSS">
+  <img src="https://img.shields.io/badge/MySQL-8.0+-4479A1?style=flat&logo=mysql" alt="MySQL">
+  <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License">
+</p>
 
-### 📋 Key Features
-- **Patient Management** - Complete patient records and medical history
-- **Appointment Scheduling** - Advanced booking and visit management
-- **Surgical Operations** - Pre-operative assessment and operation tracking
-- **File Management** - Secure medical document upload and storage
-- **Invoice System** - Automated billing and payment tracking
-- **User Roles & Permissions** - Advanced access control system
+## 🏥 نظام الغد الطبي - إدارة مركز جراحة العيون
 
-### 🔗 Quick Links
-- **[📚 Complete Documentation](SYSTEM_SPECIFICATIONS.md)** - Full technical specifications
-- **[🇸🇦 Arabic Installation Guide](README_AR.md)** - دليل التثبيت بالعربية
-- **[📖 Installation Guide](docs/INSTALLATION_GUIDE_MAC.md)** - Complete setup instructions
+نظام إدارة طبية شامل لمركز الغد لجراحة العيون والليزك، مطور بإطار عمل Laravel 11 بواسطة **بيت البرمجيات وتكنولوجيا المعلومات**.
 
-### 🚀 Quick Start
+### 📋 الميزات الرئيسية
+- **📊 إدارة المرضى** - سجلات شاملة وتاريخ طبي مفصل
+- **📅 جدولة المواعيد** - نظام متقدم لحجز وإدارة الزيارات
+- **🔪 العمليات الجراحية** - تقييم ما قبل العملية وتتبع العمليات
+- **📁 إدارة الملفات** - رفع وتخزين آمن للوثائق الطبية
+- **💰 نظام الفواتير** - فوترة تلقائية وتتبع المدفوعات
+- **🔐 الأدوار والصلاحيات** - نظام تحكم متقدم في الوصول
+
+### 🔗 روابط مهمة
+- **[📚 المواصفات التقنية الكاملة](SYSTEM_SPECIFICATIONS.md)** - تفاصيل فنية شاملة
+- **[🇸🇦 دليل التثبيت بالعربية](README_AR.md)** - تعليمات التثبيت المفصلة
+- **[📖 دليل التثبيت التقني](docs/INSTALLATION_GUIDE_MAC.md)** - إرشادات التثبيت الكاملة
+
+### 🚀 البدء السريع
 ```bash
+# تحميل المشروع
 git clone https://github.com/baiitpait/almezanSystem.git
 cd almezanSystem
+
+# تثبيت التبعيات
 composer install && npm install
+
+# إعداد البيئة
 cp .env.example .env && php artisan key:generate
+
+# إعداد قاعدة البيانات
 php artisan migrate --seed
+
+# تشغيل الخادم
 php artisan serve
 ```
 
 ---
 
-## About Laravel
+## 🏢 عن الشركة
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### بيت البرمجيات وتكنولوجيا المعلومات
+**إدارة مصطفى البستنجي**
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+نحن شركة متخصصة في تطوير البرمجيات والحلول التقنية المتقدمة، نقدم خدمات شاملة تشمل:
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **💻 تطوير تطبيقات الويب والموبايل**
+- **🗄️ تصميم وتطوير قواعد البيانات**
+- **🔒 أنظمة الأمان والحماية**
+- **📊 حلول الأعمال الذكية**
+- **🏥 أنظمة إدارة المستشفيات والعيادات**
 
-## Learning Laravel
+### 📞 معلومات التواصل
+- **📧 البريد الإلكتروني:** info@baitpait.com
+- **🌐 الموقع الإلكتروني:** [baitpait.com](https://baitpait.com)
+- **📱 الهاتف:** +966 XX XXX XXXX
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+---
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## 🛠️ التقنيات المستخدمة
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Backend
+- **Laravel 11** - إطار عمل PHP متقدم
+- **PHP 8.2+** - أحدث إصدارات PHP
+- **MySQL 8.0+** - قاعدة بيانات قوية وموثوقة
 
-## Laravel Sponsors
+### Frontend
+- **Livewire 3.x** - إطار عمل تفاعلي للواجهات
+- **Tailwind CSS 3.x** - نظام تصميم حديث
+- **DaisyUI** - مكتبة مكونات جاهزة
+- **Alpine.js** - JavaScript تفاعلي
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### أدوات التطوير
+- **Composer** - إدارة تبعيات PHP
+- **NPM** - إدارة تبعيات JavaScript
+- **Vite** - أداة بناء سريعة
+- **Git** - نظام التحكم في الإصدارات
 
-### Premium Partners
+---
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+## 📈 إحصائيات المشروع
 
-## Contributing
+| المقياس | القيمة |
+|---------|--------|
+| 📁 عدد الملفات | 264+ ملف |
+| 📝 سطور الكود | 43,000+ سطر |
+| 🗄️ جداول قاعدة البيانات | 25+ جدول |
+| 🔄 ملفات الهجرة | 65+ ملف |
+| 🎯 مكونات Livewire | 20+ مكون |
+| 📚 ملفات التوثيق | 30+ ملف |
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+---
 
-## Code of Conduct
+## 🎯 مراحل التطوير
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### ✅ المرحلة الأولى (مكتملة)
+- [x] إدارة شاملة للمرضى
+- [x] نظام المواعيد المتقدم
+- [x] تقييم ما قبل العملية الجراحية
+- [x] رفع وإدارة الملفات الطبية
+- [x] نظام الفواتير والمدفوعات
+- [x] لوحة تحكم إحصائية
 
-## Security Vulnerabilities
+### 🚧 المرحلة الثانية (قريباً)
+- [ ] تطبيق الموبايل
+- [ ] تحليلات متقدمة
+- [ ] دعم عدة لغات
+- [ ] تكامل مع الأجهزة الطبية
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### 🔮 المرحلة الثالثة (مستقبلية)
+- [ ] ذكاء اصطناعي للتشخيص
+- [ ] telemedicine
+- [ ] تطبيقات الواقع المعزز
 
-## License
+---
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## 📋 متطلبات التشغيل
+
+### الحد الأدنى للمتطلبات
+- **المعالج:** Dual-core 2.4 GHz
+- **الذاكرة:** 4GB RAM
+- **التخزين:** 1GB مساحة فارغة
+- **النظام:** Windows 10+ أو macOS 12+ أو Ubuntu 20.04+
+
+### المتطلبات البرمجية
+- **PHP:** 8.2.12 أو أحدث
+- **MySQL/MariaDB:** 8.0 أو أحدث
+- **Composer:** أحدث إصدار
+- **Node.js & NPM:** أحدث إصدار
+
+---
+
+## 🔒 الأمان والحماية
+
+### ميزات الأمان المطبقة
+- ✅ **تشفير كامل للبيانات**
+- ✅ **حماية CSRF**
+- ✅ **نظام الأدوار والصلاحيات**
+- ✅ **التحقق من صحة البيانات**
+- ✅ **حماية من SQL Injection**
+- ✅ **تشفير كلمات المرور**
+
+### نسخ احتياطي تلقائي
+- **يومي:** نسخ احتياطية لقاعدة البيانات
+- **أسبوعي:** نسخ احتياطية كاملة للملفات
+- **سحابي:** تخزين آمن في السحابة
+
+---
+
+## 🤝 المساهمة والتطوير
+
+نرحب بالمساهمات من المطورين المحترفين! للمشاركة في تطوير المشروع:
+
+### طرق المساهمة
+- **🐛 الإبلاغ عن الأخطاء** - استخدم Issues في GitHub
+- **💡 اقتراح ميزات جديدة** - شارك أفكارك
+- **🔧 تطوير الكود** - أرسل Pull Requests
+- **📚 تحسين التوثيق** - ساعد في توثيق المشروع
+
+### متطلبات المساهمين
+```bash
+# التأكد من جودة الكود
+composer run-script test
+npm run test
+
+# فحص أسلوب الكتابة
+./vendor/bin/pint --test
+
+# فحص الأمان
+./vendor/bin/security-checker
+```
+
+---
+
+## 📄 الترخيص
+
+هذا المشروع مرخص تحت رخصة **MIT License**.
+
+**© 2025 بيت البرمجيات وتكنولوجيا المعلومات - إدارة مصطفى البستنجي**
+
+---
+
+## 📞 الدعم الفني
+
+### قنوات الدعم
+- **📧 البريد الإلكتروني:** support@baitpait.com
+- **💬 GitHub Issues:** [إبلاغ عن مشاكل](https://github.com/baiitpait/almezanSystem/issues)
+- **📱 الهاتف:** +966 XX XXX XXXX
+
+### أوقات الدعم
+- **السبت - الخميس:** 9:00 ص - 6:00 م
+- **الجمعة:** 4:00 م - 10:00 م
+- **استجابة:** خلال 24 ساعة
+
+---
+
+## 🔗 روابط مفيدة
+
+- **📖 التوثيق الكامل:** [SYSTEM_SPECIFICATIONS.md](SYSTEM_SPECIFICATIONS.md)
+- **🚀 دليل التثبيت:** [docs/INSTALLATION_GUIDE_MAC.md](docs/INSTALLATION_GUIDE_MAC.md)
+- **🇸🇦 التثبيت بالعربية:** [README_AR.md](README_AR.md)
+- **🌐 موقع الشركة:** [baitpait.com](https://baitpait.com)
+
+---
+
+<p align="center">
+  <strong>تم التطوير بكل ❤️ من قبل فريق بيت البرمجيات وتكنولوجيا المعلومات</strong>
+</p>
