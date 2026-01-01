@@ -7,6 +7,35 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
+## 🏥 Almezan Medical Management System
+
+A comprehensive medical management system for Al-Ghad Eye Surgery Center built with Laravel 11.
+
+### 📋 Key Features
+- **Patient Management** - Complete patient records and medical history
+- **Appointment Scheduling** - Advanced booking and visit management
+- **Surgical Operations** - Pre-operative assessment and operation tracking
+- **File Management** - Secure medical document upload and storage
+- **Invoice System** - Automated billing and payment tracking
+- **User Roles & Permissions** - Advanced access control system
+
+### 🔗 Quick Links
+- **[📚 Complete Documentation](SYSTEM_SPECIFICATIONS.md)** - Full technical specifications
+- **[🇸🇦 Arabic Installation Guide](README_AR.md)** - دليل التثبيت بالعربية
+- **[📖 Installation Guide](docs/INSTALLATION_GUIDE_MAC.md)** - Complete setup instructions
+
+### 🚀 Quick Start
+```bash
+git clone https://github.com/baiitpait/almezanSystem.git
+cd almezanSystem
+composer install && npm install
+cp .env.example .env && php artisan key:generate
+php artisan migrate --seed
+php artisan serve
+```
+
+---
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
