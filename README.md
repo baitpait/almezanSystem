@@ -1,6 +1,6 @@
 <p align="center">
   <a href="#bait-pait-software">
-    <img src="public/images/logo.png" width="200" alt="بيت البرمجيات وتكنولوجيا المعلومات">
+    <img src="baitpait.png" width="300" alt="بيت البرمجيات وتكنولوجيا المعلومات">
   </a>
 </p>
 
