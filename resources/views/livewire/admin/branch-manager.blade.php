@@ -2,17 +2,17 @@
     {{-- Page Header --}}
     <div class="page-header">
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div>
+        <div>
                 <h1>Branch Management</h1>
                 <p>Manage clinic branches</p>
-            </div>
+        </div>
             @can('create.branches')
             <button class="btn-add btn-action flex items-center gap-2" wire:click="create">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-                </svg>
-                Add Branch
-            </button>
+            </svg>
+            Add Branch
+        </button>
             @endcan
         </div>
     </div>
@@ -34,9 +34,9 @@
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
-                <input type="text"
-                       wire:model.live.debounce.300ms="search"
-                       placeholder="Search branches...">
+            <input type="text" 
+                   wire:model.live.debounce.300ms="search" 
+                   placeholder="Search branches...">
             </div>
         </div>
     </div>
@@ -44,18 +44,18 @@
     {{-- Branches Table --}}
     <div class="data-table-container overflow-x-auto">
         <table class="data-table min-w-full">
-            <thead>
+                    <thead>
                 <tr>
                     <th class="sticky left-0 z-10 bg-gray-50">Name</th>
-                    <th>Address</th>
-                    <th>Phone</th>
-                    <th>Email</th>
-                    <th>Status</th>
+                            <th>Address</th>
+                            <th>Phone</th>
+                            <th>Email</th>
+                            <th>Status</th>
                     <th class="text-right sticky right-0 z-10 bg-gray-50">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($branches as $branch)
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($branches as $branch)
                 <tr>
                     <td class="sticky left-0 z-10 bg-white font-semibold text-gray-900">
                         {{ $branch->name }}
@@ -63,13 +63,13 @@
                     <td class="text-sm text-gray-800">{{ $branch->address ?? '-' }}</td>
                     <td class="text-sm text-gray-800">{{ $branch->phone ?? '-' }}</td>
                     <td class="text-sm text-gray-800">{{ $branch->email ?? '-' }}</td>
-                    <td>
-                        @if($branch->is_active)
+                            <td>
+                                @if($branch->is_active)
                             <span class="badge-status bg-green-100 text-green-800">Active</span>
-                        @else
+                                @else
                             <span class="badge-status bg-red-100 text-red-800">Inactive</span>
-                        @endif
-                    </td>
+                                @endif
+                            </td>
                     <td class="sticky right-0 z-10 bg-white" style="display: flex; justify-content: flex-end; align-items: center;">
                         <div class="relative inline-block" data-dropdown-container="{{ $branch->id }}">
                             <button type="button"
@@ -109,11 +109,11 @@
                                     @endcan
                                 </ul>
                             </div>
-                        </div>
-                    </td>
-                </tr>
-                @empty
-                <tr>
+                                </div>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
                     <td colspan="6">
                         <div class="empty-state">
                             <svg xmlns="http://www.w3.org/2000/svg" class="empty-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -123,11 +123,11 @@
                             <p>Get started by creating a new branch</p>
                         </div>
                     </td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
 
     {{-- Pagination --}}
     @if($branches->hasPages())
@@ -151,55 +151,55 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form wire:submit.prevent="save" autocomplete="off">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="md:col-span-2">
+            <form wire:submit.prevent="save" autocomplete="off">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="md:col-span-2">
                             <label class="form-label">Branch Name <span class="text-red-500">*</span></label>
                             <input type="text" class="form-input" wire:model.defer="form.name" required>
                             @error('form.name') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
-                        </div>
+                    </div>
 
-                        <div class="md:col-span-2">
+                    <div class="md:col-span-2">
                             <label class="form-label">Address</label>
                             <input type="text" class="form-input" wire:model.defer="form.address">
                             @error('form.address') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
-                        </div>
+                    </div>
 
-                        <div>
+                    <div>
                             <label class="form-label">Phone</label>
                             <input type="text" class="form-input" wire:model.defer="form.phone">
                             @error('form.phone') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
-                        </div>
+                    </div>
 
-                        <div>
+                    <div>
                             <label class="form-label">Email</label>
                             <input type="email" class="form-input" wire:model.defer="form.email">
                             @error('form.email') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
-                        </div>
+                    </div>
 
-                        <div class="md:col-span-2">
+                    <div class="md:col-span-2">
                             <label class="form-label">Notes</label>
                             <textarea class="form-input" wire:model.defer="form.notes" rows="2"></textarea>
                             @error('form.notes') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
-                        </div>
+                    </div>
 
-                        <div>
+                    <div>
                             <label class="form-label">Status</label>
                             <select class="form-select" wire:model.defer="form.is_active">
-                                <option value="1">Active</option>
-                                <option value="0">Inactive</option>
-                            </select>
-                        </div>
+                            <option value="1">Active</option>
+                            <option value="0">Inactive</option>
+                        </select>
                     </div>
+                </div>
 
                     <div class="modal-footer">
                         <button type="button" class="btn-cancel btn-action" wire:click="resetForm">Cancel</button>
                         <button type="submit" class="btn-add btn-action">
-                            {{ $editingId ? 'Update' : 'Create' }}
-                        </button>
-                    </div>
-                </form>
-            </div>
+                        {{ $editingId ? 'Update' : 'Create' }}
+                    </button>
+                </div>
+            </form>
+        </div>
         </div>
     </div>
     @endif

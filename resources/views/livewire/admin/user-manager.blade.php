@@ -2,17 +2,17 @@
     {{-- Page Header --}}
     <div class="page-header">
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div>
+        <div>
                 <h1>User Management</h1>
                 <p>Manage system users and their permissions</p>
-            </div>
+        </div>
             @can('create.users')
             <button class="btn-add btn-action flex items-center gap-2" wire:click="create">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-                </svg>
-                Add User
-            </button>
+            </svg>
+            Add User
+        </button>
             @endcan
         </div>
     </div>
@@ -34,9 +34,9 @@
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
-                <input type="text"
-                       wire:model.live.debounce.300ms="search"
-                       placeholder="Search by name or email...">
+            <input type="text" 
+                   wire:model.live.debounce.300ms="search" 
+                   placeholder="Search by name or email...">
             </div>
         </div>
     </div>
@@ -44,34 +44,34 @@
     {{-- Users Table --}}
     <div class="data-table-container overflow-x-auto">
         <table class="data-table min-w-full">
-            <thead>
+                    <thead>
                 <tr>
                     <th class="sticky left-0 z-10 bg-gray-50">Name</th>
-                    <th>Email</th>
-                    <th>Role</th>
-                    <th>Branch</th>
-                    <th>Status</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Branch</th>
+                            <th>Status</th>
                     <th class="text-right sticky right-0 z-10 bg-gray-50">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($users as $user)
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($users as $user)
                 <tr>
                     <td class="sticky left-0 z-10 bg-white font-semibold text-gray-900">
                         {{ $user->name }}
                     </td>
                     <td class="font-mono text-sm text-gray-800">{{ $user->email }}</td>
-                    <td>
+                            <td>
                         <span class="badge-status bg-blue-100 text-blue-800">{{ ucfirst($user->role) }}</span>
-                    </td>
-                    <td>{{ $user->branch->name ?? '-' }}</td>
-                    <td>
-                        @if($user->is_active)
+                            </td>
+                            <td>{{ $user->branch->name ?? '-' }}</td>
+                            <td>
+                                @if($user->is_active)
                             <span class="badge-status bg-green-100 text-green-800">Active</span>
-                        @else
+                                @else
                             <span class="badge-status bg-red-100 text-red-800">Inactive</span>
-                        @endif
-                    </td>
+                                @endif
+                            </td>
                     <td class="sticky right-0 z-10 bg-white" style="display: flex; justify-content: flex-end; align-items: center;">
                         <div class="relative inline-block" data-dropdown-container="{{ $user->id }}">
                             <button type="button"
@@ -111,11 +111,11 @@
                                     @endcan
                                 </ul>
                             </div>
-                        </div>
-                    </td>
-                </tr>
-                @empty
-                <tr>
+                                </div>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
                     <td colspan="6">
                         <div class="empty-state">
                             <svg xmlns="http://www.w3.org/2000/svg" class="empty-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -125,11 +125,11 @@
                             <p>Get started by creating a new user</p>
                         </div>
                     </td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
 
     {{-- Pagination --}}
     @if($users->hasPages())
@@ -153,80 +153,80 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form wire:submit.prevent="save" autocomplete="off">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="md:col-span-2">
+            <form wire:submit.prevent="save" autocomplete="off">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="md:col-span-2">
                             <label class="form-label">Full Name <span class="text-red-500">*</span></label>
                             <input type="text" class="form-input" wire:model.defer="form.name" required>
                             @error('form.name') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
-                        </div>
+                    </div>
 
-                        <div class="md:col-span-2">
+                    <div class="md:col-span-2">
                             <label class="form-label">Email <span class="text-red-500">*</span></label>
                             <input type="email" class="form-input" wire:model.defer="form.email" required>
                             @error('form.email') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
-                        </div>
+                    </div>
 
-                        <div>
+                    <div>
                             <label class="form-label">Phone Number</label>
                             <input type="tel" class="form-input" wire:model.defer="form.phone" placeholder="Enter phone number">
                             @error('form.phone') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
-                        </div>
+                    </div>
 
-                        <div>
+                    <div>
                             <label class="form-label">Password @if(!$editingId)<span class="text-red-500">*</span>@endif</label>
                             <input type="password" class="form-input" wire:model.defer="form.password" @if(!$editingId) required @endif>
                             @error('form.password') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
-                            @if($editingId)
+                        @if($editingId)
                                 <div class="text-xs text-gray-500 mt-1">Leave blank to keep current password</div>
-                            @endif
-                        </div>
+                        @endif
+                    </div>
 
-                        <div>
+                    <div>
                             <label class="form-label">Role <span class="text-red-500">*</span></label>
                             <select class="form-select" wire:model.defer="form.role" required>
-                                <option value="secretary">Secretary</option>
-                                <option value="doctor">Doctor</option>
-                                <option value="admin">Admin</option>
-                            </select>
+                            <option value="secretary">Secretary</option>
+                            <option value="doctor">Doctor</option>
+                            <option value="admin">Admin</option>
+                        </select>
                             @error('form.role') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
-                        </div>
+                    </div>
 
-                        <div>
+                    <div>
                             <label class="form-label">Branch</label>
                             <select class="form-select" wire:model.defer="form.branch_id">
-                                <option value="">Select Branch</option>
-                                @foreach($branches as $branch)
-                                    <option value="{{ $branch->id }}">{{ $branch->name }}</option>
-                                @endforeach
-                            </select>
+                            <option value="">Select Branch</option>
+                            @foreach($branches as $branch)
+                            <option value="{{ $branch->id }}">{{ $branch->name }}</option>
+                            @endforeach
+                        </select>
                             @error('form.branch_id') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
-                        </div>
+                    </div>
 
-                        <div>
+                    <div>
                             <label class="form-label">Status</label>
                             <select class="form-select" wire:model.defer="form.is_active">
-                                <option value="1">Active</option>
-                                <option value="0">Inactive</option>
-                            </select>
-                        </div>
+                            <option value="1">Active</option>
+                            <option value="0">Inactive</option>
+                        </select>
+                    </div>
 
-                        <div class="md:col-span-2">
+                    <div class="md:col-span-2">
                             <label class="form-label">Notes</label>
                             <textarea class="form-input" wire:model.defer="form.notes" rows="3" placeholder="Enter any general notes about this user..."></textarea>
                             @error('form.notes') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                             <div class="text-xs text-gray-500 mt-1">These notes are private and only visible to administrators</div>
-                        </div>
                     </div>
+                </div>
 
                     <div class="modal-footer">
                         <button type="button" class="btn-cancel btn-action" wire:click="resetForm">Cancel</button>
                         <button type="submit" class="btn-add btn-action">
-                            {{ $editingId ? 'Update' : 'Create' }}
-                        </button>
-                    </div>
-                </form>
-            </div>
+                        {{ $editingId ? 'Update' : 'Create' }}
+                    </button>
+                </div>
+            </form>
+        </div>
         </div>
     </div>
     @endif

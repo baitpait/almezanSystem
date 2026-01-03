@@ -1,4 +1,51 @@
 <div class="container mx-auto p-4">
+    <!-- Calendar Styles -->
+    <style>
+        .calendar-container {
+            max-width: 100%;
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+        }
+        .calendar-day-header {
+            background-color: #f3f4f6;
+            padding: 12px;
+            text-align: center;
+            font-weight: 600;
+            color: #374151;
+            border: 1px solid #e5e7eb;
+        }
+        .calendar-day {
+            position: relative;
+            min-height: 120px;
+            padding: 8px;
+            border: 1px solid #e5e7eb;
+            background-color: white;
+        }
+        .calendar-day:not(.bg-white) {
+            background-color: #f9fafb;
+        }
+        .day-number {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        .appointment-item {
+            font-size: 11px;
+            padding: 4px;
+            border-radius: 4px;
+            background-color: #dbeafe;
+            color: #1e40af;
+            border-left: 2px solid #3b82f6;
+            margin-bottom: 2px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .appointment-item:hover {
+            background-color: #bfdbfe;
+        }
+    </style>
     {{-- Page Header --}}
     <div class="page-header">
         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -14,6 +61,26 @@
             Add Appointment
         </button>
         @endcan
+        </div>
+    </div>
+
+    {{-- View Mode Tabs --}}
+    <div class="mb-6">
+        <div class="tabs tabs-boxed">
+            <button class="tab {{ $viewMode === 'list' ? 'tab-active' : '' }}"
+                    wire:click="setViewMode('list')">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                </svg>
+                List View
+            </button>
+            <button class="tab {{ $viewMode === 'calendar' ? 'tab-active' : '' }}"
+                    wire:click="setViewMode('calendar')">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                Calendar View
+            </button>
         </div>
     </div>
 
@@ -37,8 +104,10 @@
         </div>
     @endif
     
-    {{-- Search Bar and Filters --}}
-    <div class="search-container">
+    {{-- List View --}}
+    @if($viewMode === 'list')
+        {{-- Search Bar and Filters --}}
+        <div class="search-container">
         <div class="flex flex-col gap-4">
             {{-- Search with Per Page --}}
             <div>
@@ -144,9 +213,76 @@
             @endif
         </div>
     </div>
+    @endif
+
+    {{-- Calendar View --}}
+    @if($viewMode === 'calendar')
+        <div class="calendar-container bg-white rounded-lg shadow-md p-6">
+            <div class="calendar-header flex items-center justify-between mb-6">
+                <h3 class="text-xl font-semibold text-gray-800">Doctor Appointments Calendar</h3>
+                <div class="text-sm text-gray-600">
+                    {{ today()->format('F Y') }}
+                </div>
+            </div>
+
+            <div class="calendar-grid grid grid-cols-7 gap-1">
+                {{-- Day Headers --}}
+                @php
+                    $days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                @endphp
+                @foreach($days as $day)
+                    <div class="calendar-day-header bg-gray-100 p-3 text-center font-semibold text-gray-700 border">
+                        {{ $day }}
+                    </div>
+                @endforeach
+
+                {{-- Calendar Days --}}
+                @php
+                    $startOfMonth = today()->startOfMonth();
+                    $endOfMonth = today()->endOfMonth();
+                    $startDate = $startOfMonth->copy()->startOfWeek();
+                    $endDate = $endOfMonth->copy()->endOfWeek();
+                    $currentDate = $startDate->copy();
+                @endphp
+
+                @while($currentDate->lte($endDate))
+                    @php
+                        $isCurrentMonth = $currentDate->month === today()->month;
+                        $isToday = $currentDate->isToday();
+                        $dateKey = $currentDate->format('Y-m-d');
+                        $dayAppointments = $calendarData[$dateKey] ?? [];
+                    @endphp
+
+                    <div class="calendar-day {{ $isCurrentMonth ? 'bg-white' : 'bg-gray-50' }} {{ $isToday ? 'ring-2 ring-blue-500' : '' }} min-h-[120px] p-2 border border-gray-200 hover:bg-gray-50 transition-colors">
+                        <div class="day-number text-sm font-medium {{ $isCurrentMonth ? 'text-gray-900' : 'text-gray-400' }} mb-2">
+                            {{ $currentDate->format('j') }}
+                        </div>
+
+                        @if(count($dayAppointments) > 0)
+                            <div class="appointments space-y-1">
+                                @foreach($dayAppointments as $appointment)
+                                    <div class="appointment-item text-xs p-1 rounded bg-blue-100 text-blue-800 border-l-2 border-blue-500"
+                                         title="{{ $appointment->patient->full_name }} - {{ $appointment->visit_type }} - {{ $appointment->appointment_time }}">
+                                        <div class="font-medium">{{ $appointment->appointment_time }}</div>
+                                        <div class="truncate">{{ $appointment->patient->full_name }}</div>
+                                        <div class="text-blue-600">{{ $appointment->doctor->name }}</div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+                    </div>
+
+                    @php
+                        $currentDate->addDay();
+                    @endphp
+                @endwhile
+            </div>
+        </div>
+    @endif
 
     {{-- Appointments List --}}
-    <div class="data-table-container overflow-x-auto">
+    @if($viewMode === 'list')
+        <div class="data-table-container overflow-x-auto">
         <table class="data-table min-w-full">
                     <thead>
                 <tr>
@@ -320,6 +456,7 @@
         </div>
         @endif
     </div>
+    @endif
     @endif
 
     {{-- Modal for Create/Edit Appointment --}}

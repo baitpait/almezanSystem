@@ -29,6 +29,7 @@ class AppointmentManager extends Component
     public string $dateFilter = 'today';
     public string $dateFrom = '';
     public string $dateTo = '';
+    public string $viewMode = 'list'; // 'list' or 'calendar'
     public $selectedPatientId = null;
     public $selectedPatientData = null;
     public $showModal = false;
@@ -817,10 +818,68 @@ class AppointmentManager extends Component
             ->orderBy('appointment_time', 'desc')
             ->paginate($perPageValue);
 
-        return view('livewire.appointment-manager', [
+        $data = [
             'patients' => $patients,
             'appointments' => $appointments,
             'doctors' => Doctor::orderBy('name')->get(),
-        ])->layout('components.layouts.app');
+            'viewMode' => $this->viewMode,
+        ];
+
+        // Add calendar data if in calendar mode
+        if ($this->viewMode === 'calendar') {
+            $data['calendarData'] = $this->getCalendarData();
+        }
+
+        return view('livewire.appointment-manager', $data)->layout('components.layouts.app');
+    }
+
+
+    // View mode methods
+    public function setViewMode($mode)
+    {
+        $this->viewMode = $mode;
+    }
+
+    // Get calendar data
+    public function getCalendarData()
+    {
+        $query = Appointment::with(['patient', 'doctor']);
+
+        // Apply branch filter if user has branch
+        if ($this->branchId = auth()->user()->branch_id) {
+            $query->where('branch_id', $this->branchId);
+        }
+
+        // Apply filters
+        if ($this->visitTypeFilter) {
+            $query->where('visit_type', $this->visitTypeFilter);
+        }
+        if ($this->visitStageFilter) {
+            $query->where('visit_stage', $this->visitStageFilter);
+        }
+        if ($this->doctorFilter) {
+            $query->where('doctor_id', $this->doctorFilter);
+        }
+
+        // Get appointments for current month
+        $startOfMonth = today()->startOfMonth();
+        $endOfMonth = today()->endOfMonth();
+
+        $appointments = $query->whereBetween('appointment_date', [$startOfMonth, $endOfMonth])
+            ->orderBy('appointment_date')
+            ->orderBy('appointment_time')
+            ->get();
+
+        // Group by date
+        $calendarData = [];
+        foreach ($appointments as $appointment) {
+            $date = $appointment->appointment_date->format('Y-m-d');
+            if (!isset($calendarData[$date])) {
+                $calendarData[$date] = [];
+            }
+            $calendarData[$date][] = $appointment;
+        }
+
+        return $calendarData;
     }
 }

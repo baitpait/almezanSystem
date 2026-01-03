@@ -61,22 +61,22 @@
     <div class="data-table-container overflow-x-auto">
         <table class="data-table min-w-full">
             <thead>
-                <tr>
+            <tr>
                     <th class="sticky left-0 z-10 bg-gray-50">Patient</th>
-                    <th>Service</th>
-                    <th>Date</th>
+                <th>Service</th>
+                <th>Date</th>
                     <th>Amounts</th>
-                    <th>Payment Method</th>
-                    <th>Status</th>
-                    <th class="text-right sticky right-0 z-10 bg-gray-50">Actions</th>
-                </tr>
+                <th>Payment Method</th>
+                <th>Status</th>
+                <th class="text-right sticky right-0 z-10 bg-gray-50">Actions</th>
+            </tr>
             </thead>
                     <tbody>
                         @forelse($invoices as $invoice)
                 <tr>
                     <td class="sticky left-0 z-10 bg-white">
                         <div class="font-medium text-gray-900">{{ $invoice->patient->full_name }}</div>
-                    </td>
+                            </td>
                     <td>
                         <div class="text-sm text-gray-700">
                             @if($invoice->service)
@@ -106,26 +106,26 @@
                         <span class="badge badge-info">{{ $paymentLabel }}</span>
                     </td>
                     <td>
-                        @php
-                            $statusLabels = [
+                                @php
+                                    $statusLabels = [
                                 'draft' => 'Draft',
                                 'pending' => 'Pending',
                                 'partial' => 'Partial',
                                 'paid' => 'Paid',
                                 'cancelled' => 'Cancelled',
-                            ];
-                            $statusColors = [
-                                'draft' => 'bg-gray-100 text-gray-800',
-                                'pending' => 'bg-yellow-100 text-yellow-800',
-                                'partial' => 'bg-blue-100 text-blue-800',
-                                'paid' => 'bg-green-100 text-green-800',
-                                'cancelled' => 'bg-red-100 text-red-800',
-                            ];
+                                    ];
+                                    $statusColors = [
+                                        'draft' => 'bg-gray-100 text-gray-800',
+                                        'pending' => 'bg-yellow-100 text-yellow-800',
+                                        'partial' => 'bg-blue-100 text-blue-800',
+                                        'paid' => 'bg-green-100 text-green-800',
+                                        'cancelled' => 'bg-red-100 text-red-800',
+                                    ];
                             $label = $statusLabels[$invoice->status] ?? ucfirst($invoice->status);
-                            $color = $statusColors[$invoice->status] ?? 'bg-gray-100 text-gray-800';
-                        @endphp
+                                    $color = $statusColors[$invoice->status] ?? 'bg-gray-100 text-gray-800';
+                                @endphp
                         <span class="badge-status {{ $color }}">{{ $label }}</span>
-                    </td>
+                            </td>
                     <td class="sticky right-0 z-10 bg-white" style="display: flex; justify-content: flex-end; align-items: center;">
                         <div class="relative inline-block" data-dropdown-container="{{ $invoice->id }}">
                             <button type="button"
@@ -147,10 +147,10 @@
                                     <li>
                                         <button type="button" class="dropdown-menu-item dropdown-menu-item-edit" wire:click="edit({{ $invoice->id }})" onclick="closeSimpleDropdown({{ $invoice->id }})">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-menu-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                            </svg>
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
                                             <span>Edit</span>
-                                        </button>
+                                    </button>
                                     </li>
                                     @endcan
                                     @can('print.invoices')
@@ -168,26 +168,26 @@
                                         <button type="button" class="dropdown-menu-item dropdown-menu-item-delete"
                                                 onclick="if(confirm('Are you sure you want to delete this invoice?')) { @this.delete({{ $invoice->id }}) } closeSimpleDropdown({{ $invoice->id }});">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-menu-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                            </svg>
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
                                             <span>Delete</span>
-                                        </button>
+                                    </button>
                                     </li>
                                     @endcan
                                 </ul>
                             </div>
-                        </div>
-                    </td>
+                                </div>
+                            </td>
                         </tr>
                         @empty
                         <tr>
                             <td colspan="7">
-                                <div class="empty-state">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="empty-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <div class="empty-state">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="empty-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                     </svg>
-                                    <h3>No invoices found</h3>
-                                    <p>Get started by creating a new invoice</p>
+                            <h3>No invoices found</h3>
+                            <p>Get started by creating a new invoice</p>
                                 </div>
                             </td>
                         </tr>
