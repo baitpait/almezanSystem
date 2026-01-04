@@ -227,6 +227,41 @@
     font-weight: 600;
 }
 
+/* Primary Action Button - Gradient Style for Main Actions */
+.btn-primary {
+    @apply inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-lg;
+    @apply hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl;
+    @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+}
+
+.btn-primary-lg {
+    @apply inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-xl;
+    @apply hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl;
+    @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+}
+
+/* Secondary Action Buttons */
+.btn-secondary {
+    @apply inline-flex items-center gap-2 px-4 py-2 bg-white text-gray-700 font-medium rounded-lg border-2 border-gray-300;
+    @apply hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 shadow-sm hover:shadow-md;
+    @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+}
+
+/* Small Primary Button */
+.btn-primary-sm {
+    @apply inline-flex items-center gap-1 px-3 py-1.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-md text-sm;
+    @apply hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg;
+    @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+}
+
 /* Table Styles */
 .data-table-container {
     @apply bg-white rounded-lg shadow-sm border border-gray-200;

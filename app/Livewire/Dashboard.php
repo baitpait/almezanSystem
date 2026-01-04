@@ -14,6 +14,14 @@ use Illuminate\Support\Facades\DB;
 
 class Dashboard extends Component
 {
+    protected $listeners = ['refresh-dashboard' => '$refresh'];
+
+    // Filter properties for today's appointments
+    public string $visitStageFilter = '';
+    public string $visitTypeFilter = '';
+    public string $doctorFilter = '';
+    public $showAppointmentModal = false;
+    public $editingAppointmentId = null;
     public function render()
     {
         $user = auth()->user();
@@ -59,6 +67,90 @@ class Dashboard extends Component
         ], $dashboardData))->layout('components.layouts.app');
     }
 
+    // Get filtered today's appointments
+    public function getFilteredTodayAppointmentsProperty()
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return collect();
+        }
+
+        $query = Appointment::with(['patient', 'doctor'])
+            ->whereDate('appointment_date', today());
+
+        // Filter by branch if user has a branch
+        if ($user->branch_id) {
+            $query->where('branch_id', $user->branch_id);
+        }
+
+        // Apply filters
+        if (!empty($this->visitStageFilter)) {
+            $query->where('visit_stage', $this->visitStageFilter);
+        }
+
+        if (!empty($this->visitTypeFilter)) {
+            $query->where('visit_type', $this->visitTypeFilter);
+        }
+
+        if (!empty($this->doctorFilter)) {
+            $query->where('doctor_id', $this->doctorFilter);
+        }
+
+        return $query->orderBy('appointment_time')->get();
+    }
+
+    // Get all doctors for filter
+    public function getDoctorsProperty()
+    {
+        $user = auth()->user();
+        $query = Doctor::query();
+
+        if ($user && $user->branch_id) {
+            $query->where('branch_id', $user->branch_id);
+        }
+
+        return $query->get();
+    }
+
+    // Appointment actions
+    public function editAppointment($appointmentId)
+    {
+        if (!auth()->user()->can('update.appointments')) {
+            $this->dispatch('show-error', 'You do not have permission to edit appointments.');
+            return;
+        }
+
+        $this->editingAppointmentId = $appointmentId;
+        $this->showAppointmentModal = true;
+        // Redirect to appointment manager page
+        return redirect()->route('appointments.index', ['edit' => $appointmentId]);
+    }
+
+    public function deleteAppointment($appointmentId)
+    {
+        if (!auth()->user()->can('delete.appointments')) {
+            $this->dispatch('show-error', 'You do not have permission to delete appointments.');
+            return;
+        }
+
+        $appointment = Appointment::find($appointmentId);
+        if ($appointment) {
+            $appointment->delete();
+            session()->flash('message', 'Appointment deleted successfully!');
+            $this->dispatch('refresh-dashboard');
+        }
+    }
+
+    public function goToAssessment($appointmentId)
+    {
+        if (!auth()->user()->can('view.assessment')) {
+            $this->dispatch('show-error', 'You do not have permission to view assessments.');
+            return;
+        }
+
+        return redirect()->route('assessments.index', ['appointment' => $appointmentId]);
+    }
+
     private function getRoleBasedStats($role, $baseStats, $user, $appointmentQuery, $invoiceQuery, $patientQuery)
     {
         $stats = [];
@@ -101,15 +193,35 @@ class Dashboard extends Component
     {
         $data = [];
 
+        // Add today's appointments for all roles (for the new dashboard section)
+        $todayAppointments = (clone $appointmentQuery)
+            ->with(['patient', 'doctor'])
+            ->whereDate('appointment_date', today())
+            ->orderBy('appointment_time')
+            ->get();
+
+        // Add pending invoices for all roles that need it
+        $pendingInvoices = (clone $invoiceQuery)
+            ->with(['patient'])
+            ->where('status', 'pending')
+            ->where('created_at', '<', now()->subDays(7))
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get();
+
+        // Get doctors for filter
+        $doctors = Doctor::when($branchId, function ($query) use ($branchId) {
+            $query->where('branch_id', $branchId);
+        })->get();
+
+        $data['todayAppointments'] = $todayAppointments;
+        $data['pendingInvoices'] = $pendingInvoices;
+        $data['doctors'] = $doctors;
+
         switch ($role) {
             case 'admin':
-                // Get today's appointments grouped by doctor
-                $todayAppointments = (clone $appointmentQuery)
-                    ->with(['patient', 'doctor'])
-                    ->whereDate('appointment_date', today())
-                    ->orderBy('appointment_time')
-                    ->get()
-                    ->groupBy('doctor_id');
+                // Get today's appointments grouped by doctor (for existing admin view)
+                $todayAppointmentsGrouped = $todayAppointments->groupBy('doctor_id');
 
                 // Get recent appointments for the table
                 $recentAppointments = (clone $appointmentQuery)
@@ -127,21 +239,16 @@ class Dashboard extends Component
                     ->orderBy('appointment_time')
                     ->get();
 
-                // Get active doctors
-                $doctors = Doctor::when($branchId, function ($query) use ($branchId) {
-                    $query->where('branch_id', $branchId);
-                })->get();
-
                 // Get alerts
                 $alerts = $this->getAdminAlerts($appointmentQuery, $invoiceQuery);
 
-                $data = [
+                $data = array_merge($data, [
                     'recentAppointments' => $recentAppointments,
-                    'todayAppointments' => $todayAppointments,
+                    'todayAppointmentsGrouped' => $todayAppointmentsGrouped,
                     'todayQueue' => $todayQueue,
-                    'doctors' => $doctors,
                     'alerts' => $alerts,
-                ];
+                ]);
+                break;
                 break;
 
             case 'doctor':
@@ -177,23 +284,15 @@ class Dashboard extends Component
 
             case 'secretary':
             default:
-                // Get today's appointments for secretary
-                $todayAppointments = (clone $appointmentQuery)
-                    ->with(['patient', 'doctor'])
-                    ->whereDate('appointment_date', today())
-                    ->orderBy('appointment_time')
-                    ->get();
-
                 // Get quick actions data
                 $quickActions = [
                     'can_create_patients' => $user->can('create.patients'),
                     'can_create_appointments' => $user->can('create.appointments'),
                 ];
 
-                $data = [
-                    'todayAppointments' => $todayAppointments,
+                $data = array_merge($data, [
                     'quickActions' => $quickActions,
-                ];
+                ]);
                 break;
         }
 
