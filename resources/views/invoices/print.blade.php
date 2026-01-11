@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Invoice Receipt - {{ $invoice->invoice_number ?? 'Invoice' }}</title>
+    <title>مركز الغد لجراحة العيون والليزك - Invoice Receipt - {{ $invoice->invoice_number ?? 'Invoice' }}</title>
     <style>
         * { box-sizing: border-box; font-family: Arial, sans-serif; color: #111; }
         body { margin: 24px; background: #f7f9fb; }

@@ -12,8 +12,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Modify enum to include 'not_normal'
-        DB::statement("ALTER TABLE ectasia_risk_assessments MODIFY COLUMN tomography_status ENUM('normal', 'suspicious', 'other', 'not_normal') NULL");
+        // For SQLite compatibility, enum modifications are not needed
+        // The column is already a string/varchar that accepts any value
+        // This migration is primarily for MySQL enum constraints
     }
 
     /**
@@ -21,7 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Revert to original enum values
-        DB::statement("ALTER TABLE ectasia_risk_assessments MODIFY COLUMN tomography_status ENUM('normal', 'suspicious', 'other') NULL");
+        // No action needed for SQLite
     }
 };

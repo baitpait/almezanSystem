@@ -115,6 +115,17 @@ class OperationNoteManager extends Component
         }
     }
 
+    /**
+     * Cancel and redirect to Scheduled Operations page
+     * 
+     * Business Purpose: When user clicks Cancel button, redirect them back to the Scheduled Operations page
+     * instead of just resetting the form.
+     */
+    public function cancel(): void
+    {
+        $this->redirect(route('scheduled-operations.index'));
+    }
+
     public function resetForm(): void
     {
         $this->editingId = null;
@@ -414,8 +425,8 @@ class OperationNoteManager extends Component
         try {
             $data = $this->form;
             
-            // Remove checkbox from data (not a database field)
-            unset($data['same_operation_type_both_eyes']);
+            // Convert same_operation_type_both_eyes to boolean
+            $data['same_operation_type_both_eyes'] = in_array($data['same_operation_type_both_eyes'], ['1', 1, true, 'yes', 'on'], true);
             
             // Operation Note is always for both eyes (OU)
             $data['operation_eye'] = 'OU';
@@ -678,15 +689,23 @@ class OperationNoteManager extends Component
             }
 
             if ($this->editingId) {
+                // Updating existing operation note
                 $operationNote = OperationNote::findOrFail($this->editingId);
                 $operationNote->update($data);
                 session()->flash('message', 'Operation note updated successfully.');
+                
+                // Reload the data to keep editing mode
+                $this->edit($this->editingId);
             } else {
-                OperationNote::create($data);
+                // Creating new operation note
+                $newOperationNote = OperationNote::create($data);
                 session()->flash('message', 'Operation note created successfully.');
+                
+                // Set editingId and reload the data to switch to edit mode
+                $this->editingId = $newOperationNote->id;
+                $this->edit($this->editingId);
             }
 
-            $this->resetForm();
             $this->dispatch('operation-note-saved');
         } catch (\Exception $e) {
             session()->flash('error', 'Failed to save operation note: ' . $e->getMessage());
@@ -707,10 +726,7 @@ class OperationNoteManager extends Component
             'operation_type_os' => $operationNote->operation_type_os ?? '',
             'operation_eye' => $operationNote->operation_eye ?? 'OU',
             'monovision_eye' => $operationNote->monovision_eye ?? '',
-            'same_operation_type_both_eyes' => ($operationNote->operation_eye === 'OU' && 
-                                                 !empty($operationNote->operation_type_od) && 
-                                                 !empty($operationNote->operation_type_os) &&
-                                                 $operationNote->operation_type_od === $operationNote->operation_type_os),
+            'same_operation_type_both_eyes' => $operationNote->same_operation_type_both_eyes ?? false,
             
             // Load old shared fields if new separate fields are empty (for backward compatibility)
             'prk_epithelial_removal' => $operationNote->prk_epithelial_removal_od ?? $operationNote->prk_epithelial_removal ?? '',

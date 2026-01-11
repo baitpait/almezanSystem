@@ -29,14 +29,22 @@
 
     {{-- Search --}}
     <div class="search-container">
-        <div class="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-            <div class="search-input-wrapper flex-1 w-full md:w-auto order-1 md:order-1">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-            <input type="text" 
-                   wire:model.live.debounce.300ms="search" 
-                   placeholder="Search branches...">
+        <div class="flex flex-col gap-4">
+            {{-- Search --}}
+            <div>
+                <div class="flex items-end gap-2">
+                    <div class="flex-1">
+                        <label class="form-label">Search</label>
+                        <div class="search-input-wrapper">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                            <input type="text" 
+                                   wire:model.live.debounce.300ms="search" 
+                                   placeholder="Search branches...">
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

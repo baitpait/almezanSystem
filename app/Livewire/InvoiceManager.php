@@ -24,6 +24,7 @@ class InvoiceManager extends Component
     public $showModal = false;
     public $patientSearch = '';
     public $selectedPatientId = null;
+    public $filterPatientId = null;
     public $selectedPatientData = null;
     public array $form = [
         'patient_id' => null,
@@ -42,7 +43,7 @@ class InvoiceManager extends Component
 
     public function mount(?int $create = null, ?int $patient = null): void
     {
-        // Allow query string fallback (e.g. /invoices?create=1&patient=ID)
+        // Allow query string fallback (e.g. /invoices?create=1&patient=ID or /invoices?patient=ID)
         $createFlag = $create ?? (int) request()->query('create', 0);
         $patientId = $patient ?? (int) request()->query('patient', 0);
 
@@ -58,6 +59,9 @@ class InvoiceManager extends Component
                     $this->selectPatient($patientModel->id);
                 }
             }
+        } elseif ($patientId) {
+            // If patient is provided without create flag, filter invoices by patient
+            $this->filterPatientId = $patientId;
         }
     }
 
@@ -321,8 +325,9 @@ class InvoiceManager extends Component
 
     public function render()
     {
+        // Check permission - if not authorized, return empty view
         if (!auth()->user()->can('view.invoices')) {
-            abort(403, 'You do not have permission to view invoices.');
+            return view('livewire.unauthorized')->layout('components.layouts.app');
         }
         
         $user = auth()->user();
@@ -331,6 +336,9 @@ class InvoiceManager extends Component
         $query = Invoice::with(['patient', 'branch', 'service', 'invoiceServices.service'])
             ->when($branchId, function ($q) use ($branchId) {
                 $q->where('branch_id', $branchId);
+            })
+            ->when($this->filterPatientId, function ($q) {
+                $q->where('patient_id', $this->filterPatientId);
             })
             ->when($this->search, function ($q) {
                 $q->where(function ($query) {

@@ -59,30 +59,40 @@
         </div>
     </div>
 
-    {{-- Operations List --}}
+    {{-- Appointments List --}}
     <div class="data-table-container overflow-x-auto">
         <table class="data-table min-w-full">
             <thead>
                 <tr>
-                    <th class="hidden md:table-cell">Date</th>
+                    <th class="hidden md:table-cell">Date & Time</th>
                     <th class="sticky left-0 z-10 bg-gray-50 min-w-[200px]">Patient</th>
                     <th class="hidden lg:table-cell">Doctor</th>
-                    <th class="hidden lg:table-cell">Operation Type</th>
-                    <th class="hidden md:table-cell">Eye</th>
+                    <th class="hidden md:table-cell">Duration</th>
                     <th>Status</th>
-                    <th class="hidden xl:table-cell">Cost</th>
-                    <th class="text-right sticky right-0 z-10 bg-gray-50 min-w-[180px]">Actions</th>
+                    <th class="text-right sticky right-0 z-10 bg-gray-50" style="min-width: 100px; max-width: 120px;">Actions</th>
                 </tr>
             </thead>
             <tbody>
-                @forelse($operations as $operation)
+                @forelse($appointments as $appointment)
                 <tr>
                     <td class="hidden md:table-cell">
-                        @if($operation->start_date)
-                            <div class="font-bold text-gray-900 text-base">{{ $operation->start_date->format('d-m-Y') }}</div>
-                            @if($operation->start_date->isToday())
+                        @if($appointment->appointment_date)
+                            <div class="font-bold text-gray-900 text-base">{{ $appointment->appointment_date->format('d-m-Y') }}</div>
+                            @php
+                                try {
+                                    $time = \Carbon\Carbon::createFromFormat('H:i:s', $appointment->appointment_time);
+                                } catch (\Carbon\Exceptions\InvalidFormatException $e) {
+                                    try {
+                                        $time = \Carbon\Carbon::createFromFormat('H:i', $appointment->appointment_time);
+                                    } catch (\Carbon\Exceptions\InvalidFormatException $e2) {
+                                        $time = \Carbon\Carbon::parse($appointment->appointment_time);
+                                    }
+                                }
+                            @endphp
+                            <div class="text-sm text-gray-600 font-medium mt-0.5">{{ $time->format('h:i A') }}</div>
+                            @if($appointment->appointment_date->isToday())
                                 <span class="badge-status bg-green-100 text-green-800 text-xs font-semibold mt-1 inline-block">Today</span>
-                            @elseif($operation->start_date->isPast())
+                            @elseif($appointment->appointment_date->isPast())
                                 <span class="badge-status bg-yellow-100 text-yellow-800 text-xs font-semibold mt-1 inline-block">Past</span>
                             @else
                                 <span class="badge-status bg-blue-100 text-blue-800 text-xs font-semibold mt-1 inline-block">Upcoming</span>
@@ -92,19 +102,31 @@
                         @endif
                     </td>
                     <td class="sticky left-0 z-10 bg-white">
-                        <div class="font-bold text-gray-900 text-base">{{ $operation->patient->full_name }}</div>
-                        @if($operation->patient->id_number)
-                        <div class="text-xs text-gray-600 font-mono mt-0.5">ID: {{ $operation->patient->id_number }}</div>
+                        <div class="font-bold text-gray-900 text-base">{{ $appointment->patient->full_name }}</div>
+                        @if($appointment->patient->id_number)
+                        <div class="text-xs text-gray-600 font-mono mt-0.5">ID: {{ $appointment->patient->id_number }}</div>
                         @endif
-                        @if($operation->patient->phone)
-                        <div class="text-xs text-gray-600 font-medium mt-0.5">{{ $operation->patient->phone }}</div>
+                        @if($appointment->patient->phone)
+                        <div class="text-xs text-gray-600 font-medium mt-0.5">{{ $appointment->patient->phone }}</div>
                         @endif
-                        @if($operation->start_date)
+                        @if($appointment->appointment_date)
                             <div class="md:hidden mt-1">
-                                <div class="font-semibold text-gray-800 text-xs">{{ $operation->start_date->format('d-m-Y') }}</div>
-                                @if($operation->start_date->isToday())
+                                <div class="font-semibold text-gray-800 text-xs">{{ $appointment->appointment_date->format('d-m-Y') }}</div>
+                                @php
+                                    try {
+                                        $time = \Carbon\Carbon::createFromFormat('H:i:s', $appointment->appointment_time);
+                                    } catch (\Carbon\Exceptions\InvalidFormatException $e) {
+                                        try {
+                                            $time = \Carbon\Carbon::createFromFormat('H:i', $appointment->appointment_time);
+                                        } catch (\Carbon\Exceptions\InvalidFormatException $e2) {
+                                            $time = \Carbon\Carbon::parse($appointment->appointment_time);
+                                        }
+                                    }
+                                @endphp
+                                <div class="text-xs text-gray-600">{{ $time->format('h:i A') }}</div>
+                                @if($appointment->appointment_date->isToday())
                                     <span class="badge-status bg-green-100 text-green-800 text-xs font-semibold mt-0.5 inline-block">Today</span>
-                                @elseif($operation->start_date->isPast())
+                                @elseif($appointment->appointment_date->isPast())
                                     <span class="badge-status bg-yellow-100 text-yellow-800 text-xs font-semibold mt-0.5 inline-block">Past</span>
                                 @else
                                     <span class="badge-status bg-blue-100 text-blue-800 text-xs font-semibold mt-0.5 inline-block">Upcoming</span>
@@ -112,81 +134,53 @@
                             </div>
                         @endif
                     </td>
-                    <td class="font-medium text-gray-800 hidden lg:table-cell">{{ $operation->doctor->name ?? 'N/A' }}</td>
-                    <td class="hidden lg:table-cell">
-                        @php
-                            $typeColors = [
-                                'PRK' => 'bg-blue-100 text-blue-800',
-                                'Femto-LASIK' => 'bg-purple-100 text-purple-800',
-                                'SMILE' => 'bg-green-100 text-green-800',
-                                'PTK' => 'bg-yellow-100 text-yellow-800',
-                                'LASIK' => 'bg-indigo-100 text-indigo-800',
-                                'Trans-PRK' => 'bg-cyan-100 text-cyan-800',
-                            ];
-                            $typeColor = $typeColors[$operation->operation_type] ?? 'bg-gray-100 text-gray-800';
-                        @endphp
-                        <span class="badge-status {{ $typeColor }} font-semibold">{{ $operation->operation_type }}</span>
-                        @if($operation->operation_type_od && $operation->operation_type_os)
-                            @if($operation->operation_type_od !== $operation->operation_type_os)
-                                <div class="text-xs mt-1 space-y-0.5">
-                                    <div class="text-gray-700"><span class="font-semibold">OD:</span> {{ $operation->operation_type_od }}</div>
-                                    <div class="text-gray-700"><span class="font-semibold">OS:</span> {{ $operation->operation_type_os }}</div>
-                                </div>
-                            @endif
-                        @endif
-                    </td>
+                    <td class="font-medium text-gray-800 hidden lg:table-cell">{{ $appointment->doctor->name ?? 'N/A' }}</td>
                     <td class="hidden md:table-cell">
-                        @php
-                            $eyeColors = [
-                                'OD' => 'bg-blue-100 text-blue-800',
-                                'OS' => 'bg-green-100 text-green-800',
-                                'OU' => 'bg-indigo-100 text-indigo-800',
-                            ];
-                            $eyeColor = $eyeColors[$operation->operation_eye] ?? 'bg-gray-100 text-gray-800';
-                        @endphp
-                        <span class="badge-status {{ $eyeColor }} font-semibold">{{ $operation->operation_eye }}</span>
-                    </td>
-                    <td>
-                        @php
-                            $statusColors = [
-                                'scheduled' => 'bg-blue-100 text-blue-800',
-                                'in_progress' => 'bg-yellow-100 text-yellow-800',
-                                'completed' => 'bg-green-100 text-green-800',
-                                'cancelled' => 'bg-red-100 text-red-800',
-                                'postponed' => 'bg-orange-100 text-orange-800',
-                            ];
-                            $statusColor = $statusColors[$operation->status] ?? 'bg-gray-100 text-gray-800';
-                        @endphp
-                        <span class="badge-status {{ $statusColor }} font-semibold">{{ ucfirst(str_replace('_', ' ', $operation->status)) }}</span>
-                    </td>
-                    <td class="hidden xl:table-cell">
-                        @if($operation->cost > 0)
-                            <span class="font-bold text-gray-900">{{ number_format($operation->cost, 2) }} SAR</span>
+                        @if($appointment->duration)
+                            <span class="text-gray-700 font-medium">{{ $appointment->duration }} min</span>
                         @else
                             <span class="text-gray-500 text-sm font-medium">Not set</span>
                         @endif
                     </td>
-                    <td class="sticky right-0 z-10 bg-white text-right">
-                        <div class="flex items-center justify-end gap-2 flex-wrap whitespace-nowrap">
-                            <a href="{{ route('operations.edit', ['id' => $operation->id]) }}" class="btn-edit btn-action whitespace-nowrap" title="View Operation">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                </svg>
-                                <span class="hidden sm:inline">View</span>
-                            </a>
-                        </div>
+                    <td>
+                        @if($appointment->operation)
+                            @php
+                                $statusColors = [
+                                    'scheduled' => 'bg-blue-100 text-blue-800',
+                                    'in_progress' => 'bg-yellow-100 text-yellow-800',
+                                    'completed' => 'bg-green-100 text-green-800',
+                                    'cancelled' => 'bg-red-100 text-red-800',
+                                    'postponed' => 'bg-orange-100 text-orange-800',
+                                ];
+                                $statusColor = $statusColors[$appointment->operation->status] ?? 'bg-gray-100 text-gray-800';
+                            @endphp
+                            <span class="badge-status {{ $statusColor }} font-semibold">{{ ucfirst(str_replace('_', ' ', $appointment->operation->status)) }}</span>
+                        @else
+                            <span class="badge-status bg-gray-100 text-gray-800 font-semibold">No Operation</span>
+                        @endif
+                    </td>
+                    <td class="sticky right-0 z-10 bg-white text-right" style="min-width: 100px; max-width: 120px;">
+                        <button type="button" 
+                                class="btn-add btn-action flex items-center gap-1.5 px-3 py-1.5 text-sm whitespace-nowrap"
+                                wire:click="viewOperation({{ $appointment->id }})"
+                                title="View Operation">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                            <span>View</span>
+                        </button>
                     </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="8" class="text-center py-16">
+                    <td colspan="6" class="text-center py-16">
                         <div class="empty-state">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                             </svg>
-                            <p class="text-gray-700 font-bold text-lg mb-2">No operations found</p>
-                            <p class="text-gray-500 text-sm">Try adjusting your filters or search criteria to find operations.</p>
+                            <p class="text-gray-700 font-bold text-lg mb-2">No appointments found</p>
+                            <p class="text-gray-500 text-sm">Try adjusting your filters or search criteria to find appointments.</p>
                         </div>
                     </td>
                 </tr>
@@ -196,9 +190,9 @@
     </div>
     
     {{-- Pagination --}}
-    @if($operations->hasPages())
+    @if($appointments->hasPages())
     <div class="pagination-container mt-6">
-        {{ $operations->links() }}
+        {{ $appointments->links() }}
     </div>
     @endif
 </div>

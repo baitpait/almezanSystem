@@ -49,15 +49,9 @@ class OperationManager extends Component
         'doctor_id' => null,
         'branch_id' => null,
         'appointment_id' => null,
-        'operation_type' => 'Femto-LASIK',
-        'operation_type_od' => '',
-        'operation_type_os' => '',
-        'operation_eye' => 'OU',
-        'cost' => '0.00',
         'start_date' => '',
         'status' => 'scheduled',
         'pre_op_assessment_date' => '',
-        'same_operation_type_both_eyes' => false,
     ];
 
     // Refractive Profile Form
@@ -348,15 +342,9 @@ class OperationManager extends Component
             'doctor_id' => null,
             'branch_id' => auth()->user()?->branch_id,
             'appointment_id' => null,
-            'operation_type' => 'Femto-LASIK',
-            'operation_type_od' => '',
-            'operation_type_os' => '',
-            'operation_eye' => 'OU',
-            'cost' => '0.00',
             'start_date' => now()->format('Y-m-d'),
             'status' => 'scheduled',
             'pre_op_assessment_date' => now()->format('Y-m-d'),
-            'same_operation_type_both_eyes' => false,
         ];
 
         $this->refractiveForm = array_fill_keys(array_keys($this->refractiveForm), '');
@@ -449,85 +437,6 @@ class OperationManager extends Component
         $this->recommendationForm['decision'] = $value;
     }
 
-    /**
-     * When operation_eye changes, sync decisions and operation types appropriately.
-     */
-    public function updatedOperationFormOperationEye($value): void
-    {
-        if ($value === 'OU') {
-            // For both eyes, initialize decision_od and decision_os from decision if set
-            if (!empty($this->recommendationForm['decision']) && empty($this->recommendationForm['decision_od'])) {
-                $this->recommendationForm['decision_od'] = $this->recommendationForm['decision'];
-            }
-            if (!empty($this->recommendationForm['decision']) && empty($this->recommendationForm['decision_os'])) {
-                $this->recommendationForm['decision_os'] = $this->recommendationForm['decision'];
-            }
-            
-            // Sync operation_type to operation_type_od and operation_type_os if not set
-            if (!empty($this->operationForm['operation_type'])) {
-                if (empty($this->operationForm['operation_type_od'])) {
-                    $this->operationForm['operation_type_od'] = $this->operationForm['operation_type'];
-                }
-                if (empty($this->operationForm['operation_type_os'])) {
-                    $this->operationForm['operation_type_os'] = $this->operationForm['operation_type'];
-                }
-            }
-        } else {
-            // For single eye, sync decision from decision_od or decision_os
-            if ($value === 'OD' && !empty($this->recommendationForm['decision_od'])) {
-                $this->recommendationForm['decision'] = $this->recommendationForm['decision_od'];
-            } elseif ($value === 'OS' && !empty($this->recommendationForm['decision_os'])) {
-                $this->recommendationForm['decision'] = $this->recommendationForm['decision_os'];
-            }
-            
-            // Sync operation_type_od or operation_type_os to operation_type
-            if ($value === 'OD' && !empty($this->operationForm['operation_type_od'])) {
-                $this->operationForm['operation_type'] = $this->operationForm['operation_type_od'];
-            } elseif ($value === 'OS' && !empty($this->operationForm['operation_type_os'])) {
-                $this->operationForm['operation_type'] = $this->operationForm['operation_type_os'];
-            }
-        }
-    }
-
-    /**
-     * When operation_type_od changes, sync to OS if same_operation_type_both_eyes is checked.
-     */
-    public function updatedOperationFormOperationTypeOd($value): void
-    {
-        $this->operationForm['operation_type_od'] = $value;
-        
-        // If same_operation_type_both_eyes is checked, sync OS
-        if ($this->operationForm['same_operation_type_both_eyes']) {
-            $this->operationForm['operation_type_os'] = $value;
-        }
-    }
-
-    /**
-     * When operation_type_os changes, uncheck same_operation_type_both_eyes if different.
-     */
-    public function updatedOperationFormOperationTypeOs($value): void
-    {
-        $this->operationForm['operation_type_os'] = $value;
-        
-        // If same_operation_type_both_eyes is checked but values are different, uncheck it
-        if ($this->operationForm['same_operation_type_both_eyes'] && 
-            $value !== $this->operationForm['operation_type_od']) {
-            $this->operationForm['same_operation_type_both_eyes'] = false;
-        }
-    }
-
-    /**
-     * When same_operation_type_both_eyes checkbox changes.
-     */
-    public function updatedOperationFormSameOperationTypeBothEyes($value): void
-    {
-        if ($value) {
-            // Copy OD operation type to OS
-            if (!empty($this->operationForm['operation_type_od'])) {
-                $this->operationForm['operation_type_os'] = $this->operationForm['operation_type_od'];
-            }
-        }
-    }
 
     /**
      * When decision_od changes, sync to OS if same_decision_both_eyes is checked.
@@ -833,21 +742,15 @@ class OperationManager extends Component
      */
     private function getEffectiveDecision(string $eye = null): string
     {
-        $operationEye = $this->operationForm['operation_eye'] ?? 'OU';
-        
-        if ($operationEye === 'OU') {
-            // For both eyes, use eye-specific decisions
-            if ($eye === 'OD') {
-                return $this->recommendationForm['decision_od'] ?? $this->recommendationForm['decision'] ?? '';
-            } elseif ($eye === 'OS') {
-                return $this->recommendationForm['decision_os'] ?? $this->recommendationForm['decision'] ?? '';
-            }
-        } else {
-            // For single eye, use general decision
-            return $this->recommendationForm['decision'] ?? '';
+        // Use eye-specific decisions
+        if ($eye === 'OD') {
+            return $this->recommendationForm['decision_od'] ?? $this->recommendationForm['decision'] ?? '';
+        } elseif ($eye === 'OS') {
+            return $this->recommendationForm['decision_os'] ?? $this->recommendationForm['decision'] ?? '';
         }
         
-        return '';
+        // Default to general decision
+        return $this->recommendationForm['decision'] ?? '';
     }
 
     public function create(): void
@@ -868,33 +771,29 @@ class OperationManager extends Component
             }
 
             // Validate basic operation
-            $operationEye = $this->operationForm['operation_eye'] ?? 'OU';
             $validationRules = [
                 'operationForm.patient_id' => 'required|exists:patients,id',
                 'operationForm.doctor_id' => 'required|exists:doctors,id',
                 'operationForm.branch_id' => 'nullable|exists:branches,id',
                 'operationForm.appointment_id' => 'nullable|exists:appointments,id',
-                'operationForm.operation_eye' => 'required',
-                'operationForm.cost' => 'required|numeric|min:0',
                 'operationForm.start_date' => 'nullable|date',
                 'operationForm.status' => 'required',
             ];
-
-            // Make operation_type optional - allow saving with partial data
-            // No required validation for operation_type fields
 
             $this->validate($validationRules, [
                 'operationForm.patient_id.required' => 'Please select a patient.',
                 'operationForm.patient_id.exists' => 'Selected patient does not exist.',
                 'operationForm.doctor_id.required' => 'Please select a doctor.',
                 'operationForm.doctor_id.exists' => 'Selected doctor does not exist.',
-                'operationForm.operation_eye.required' => 'Please select the eye.',
-                'operationForm.cost.required' => 'Cost is required.',
-                'operationForm.cost.numeric' => 'Cost must be a number.',
                 'operationForm.status.required' => 'Status is required.',
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
-            session()->flash('error', 'Please fill in all required fields: ' . implode(', ', array_keys($e->errors())));
+            // Get custom error messages or use field names
+            $errorMessages = [];
+            foreach ($e->errors() as $field => $messages) {
+                $errorMessages[] = $messages[0]; // Use first custom message
+            }
+            session()->flash('error', implode(' ', $errorMessages));
             return;
         }
 
@@ -902,41 +801,11 @@ class OperationManager extends Component
             // Prepare operation data
             $operationData = $this->operationForm;
             $operationData['created_by'] = auth()->id();
-            $operationData['cost'] = (float) ($operationData['cost'] ?? 0);
-            
-            // Remove checkbox from data (not a database field)
-            unset($operationData['same_operation_type_both_eyes']);
             
             // Convert empty strings to null for optional fields
             foreach ($operationData as $key => $value) {
                 if ($value === '') {
                     $operationData[$key] = null;
-                }
-            }
-            
-            // Handle operation_type based on operation_eye (only if values exist)
-            $operationEye = $operationData['operation_eye'] ?? 'OU';
-            
-            if ($operationEye === 'OU') {
-                // For both eyes, sync operation_type from operation_type_od if same_operation_type_both_eyes was checked
-                if (!empty($this->operationForm['same_operation_type_both_eyes']) && 
-                    !empty($operationData['operation_type_od']) && 
-                    !empty($operationData['operation_type_os']) &&
-                    $operationData['operation_type_od'] === $operationData['operation_type_os']) {
-                    $operationData['operation_type'] = $operationData['operation_type_od'];
-                } elseif (!empty($operationData['operation_type_od']) && !empty($operationData['operation_type_os']) &&
-                          $operationData['operation_type_od'] === $operationData['operation_type_os']) {
-                    // If both are the same (even without checkbox), sync to operation_type
-                    $operationData['operation_type'] = $operationData['operation_type_od'];
-                }
-            } else {
-                // For single eye, sync operation_type from operation_type_od or operation_type_os
-                if ($operationEye === 'OD' && !empty($operationData['operation_type_od'])) {
-                    $operationData['operation_type'] = $operationData['operation_type_od'];
-                } elseif ($operationEye === 'OS' && !empty($operationData['operation_type_os'])) {
-                    $operationData['operation_type'] = $operationData['operation_type_os'];
-                } elseif (!empty($operationData['operation_type'])) {
-                    // Keep existing operation_type if set
                 }
             }
 
@@ -1088,47 +957,16 @@ class OperationManager extends Component
                 $recommendationData['ptk_monovision_eye_os'] = null;
             }
 
-            // Handle decisions and operation types based on operation_eye
-            $operationEye = $this->operationForm['operation_eye'] ?? 'OU';
+            // Handle decisions - check both eyes separately
+            $decisionOd = $recommendationData['decision_od'] ?? $recommendationData['decision'] ?? '';
+            $decisionOs = $recommendationData['decision_os'] ?? $recommendationData['decision'] ?? '';
             
-            // Sync operation_type based on operation_eye
-            if ($operationEye === 'OU') {
-                // For both eyes, sync operation_type from operation_type_od if same_operation_type_both_eyes is checked
-                if ($this->operationForm['same_operation_type_both_eyes'] && 
-                    !empty($operationData['operation_type_od']) && 
-                    $operationData['operation_type_od'] === $operationData['operation_type_os']) {
-                    $operationData['operation_type'] = $operationData['operation_type_od'];
-                }
-            } else {
-                // For single eye, sync operation_type from operation_type_od or operation_type_os
-                if ($operationEye === 'OD' && !empty($operationData['operation_type_od'])) {
-                    $operationData['operation_type'] = $operationData['operation_type_od'];
-                } elseif ($operationEye === 'OS' && !empty($operationData['operation_type_os'])) {
-                    $operationData['operation_type'] = $operationData['operation_type_os'];
-                }
-            }
-            
-            if ($operationEye === 'OU') {
-                // For both eyes, check each eye's decision separately
-                $decisionOd = $recommendationData['decision_od'] ?? $recommendationData['decision'] ?? '';
-                $decisionOs = $recommendationData['decision_os'] ?? $recommendationData['decision'] ?? '';
-                
-                // If both eyes have the same decision, keep fields. Otherwise, we need to handle separately.
-                // For now, we'll keep the fields if at least one eye uses them
-                $hasPrk = ($decisionOd === 'prk' || $decisionOs === 'prk');
-                $hasFemto = ($decisionOd === 'femto_lasik' || $decisionOs === 'femto_lasik');
-                $hasSmile = ($decisionOd === 'smile' || $decisionOs === 'smile');
-                $hasPtk = ($decisionOd === 'ptk' || $decisionOs === 'ptk');
-                $hasIncompatible = ($decisionOd === 'incompatible' || $decisionOs === 'incompatible');
-            } else {
-                // For single eye, use general decision
-                $decision = $recommendationData['decision'] ?? '';
-                $hasPrk = ($decision === 'prk');
-                $hasFemto = ($decision === 'femto_lasik');
-                $hasSmile = ($decision === 'smile');
-                $hasPtk = ($decision === 'ptk');
-                $hasIncompatible = ($decision === 'incompatible');
-            }
+            // Check if at least one eye uses each decision type
+            $hasPrk = ($decisionOd === 'prk' || $decisionOs === 'prk');
+            $hasFemto = ($decisionOd === 'femto_lasik' || $decisionOs === 'femto_lasik');
+            $hasSmile = ($decisionOd === 'smile' || $decisionOs === 'smile');
+            $hasPtk = ($decisionOd === 'ptk' || $decisionOs === 'ptk');
+            $hasIncompatible = ($decisionOd === 'incompatible' || $decisionOs === 'incompatible');
             
             // Clear fields not relevant to any selected decision (old shared fields)
             if (!$hasPrk) {
@@ -1189,8 +1027,8 @@ class OperationManager extends Component
                 $recommendationData['incompatible_notes_os'] = null;
             }
             
-            // For OU operations, if decision_od and decision_os are set, sync decision for backward compatibility
-            if ($operationEye === 'OU' && !empty($recommendationData['decision_od']) && !empty($recommendationData['decision_os'])) {
+            // If decision_od and decision_os are set, sync decision for backward compatibility
+            if (!empty($recommendationData['decision_od']) && !empty($recommendationData['decision_os'])) {
                 // If both eyes have the same decision, set general decision
                 if ($recommendationData['decision_od'] === $recommendationData['decision_os']) {
                     $recommendationData['decision'] = $recommendationData['decision_od'];
@@ -1253,13 +1091,6 @@ class OperationManager extends Component
                         }
                     }
                 }
-            } elseif ($operationEye !== 'OU') {
-                // For single eye operations, sync decision_od or decision_os with decision
-                if ($operationEye === 'OD' && !empty($recommendationData['decision'])) {
-                    $recommendationData['decision_od'] = $recommendationData['decision'];
-                } elseif ($operationEye === 'OS' && !empty($recommendationData['decision'])) {
-                    $recommendationData['decision_os'] = $recommendationData['decision'];
-                }
             }
 
             // Update operation with recommendation data
@@ -1295,26 +1126,15 @@ class OperationManager extends Component
         ])->findOrFail($id);
 
         $this->editingId = $operation->id;
-        // Determine if both eyes have same operation type
-        $sameOperationType = false;
-        if ($operation->operation_eye === 'OU' && !empty($operation->operation_type_od) && !empty($operation->operation_type_os)) {
-            $sameOperationType = ($operation->operation_type_od === $operation->operation_type_os);
-        }
 
         $this->operationForm = [
             'patient_id' => $operation->patient_id,
             'doctor_id' => $operation->doctor_id ?? ($operation->appointment?->doctor_id ?? null),
             'branch_id' => $operation->branch_id,
             'appointment_id' => $operation->appointment_id,
-            'operation_type' => $operation->operation_type,
-            'operation_type_od' => $operation->operation_type_od ?? ($sameOperationType ? $operation->operation_type : ''),
-            'operation_type_os' => $operation->operation_type_os ?? ($sameOperationType ? $operation->operation_type : ''),
-            'operation_eye' => $operation->operation_eye,
-            'cost' => is_numeric($operation->cost) ? number_format((float) $operation->cost, 2, '.', '') : ($operation->cost ?? '0.00'),
             'start_date' => $operation->start_date?->format('Y-m-d'),
             'status' => $operation->status,
             'pre_op_assessment_date' => $operation->pre_op_assessment_date?->format('Y-m-d'),
-            'same_operation_type_both_eyes' => $sameOperationType,
         ];
 
         if ($operation->patient) {
@@ -1390,7 +1210,7 @@ class OperationManager extends Component
 
         // Determine if both eyes have same decision
         $sameDecision = false;
-        if ($operation->operation_eye === 'OU' && !empty($operation->decision_od) && !empty($operation->decision_os)) {
+        if (!empty($operation->decision_od) && !empty($operation->decision_os)) {
             $sameDecision = ($operation->decision_od === $operation->decision_os);
         }
 
@@ -1477,6 +1297,49 @@ class OperationManager extends Component
     {
         Operation::findOrFail($id)->delete();
         session()->flash('message', 'Operation deleted successfully.');
+    }
+
+    /**
+     * View operation - creates it if it doesn't exist, then redirects to edit page
+     * 
+     * Business Purpose: When user clicks "View" button in Assessment page,
+     * this method ensures an Operation exists for the appointment and opens it for editing.
+     * 
+     * @param int $appointmentId The appointment ID to create/view operation for
+     */
+    public function viewOperation($appointmentId): void
+    {
+        $appointment = Appointment::with('operation')->findOrFail($appointmentId);
+        
+        // Verify appointment type is valid for operations
+        if (!in_array($appointment->visit_type, ['Assessment', 'Operation'])) {
+            session()->flash('error', 'This appointment type does not support operations.');
+            return;
+        }
+
+        // If operation doesn't exist, create it
+        if (!$appointment->operation_id || !$appointment->operation) {
+            $operation = Operation::create([
+                'patient_id' => $appointment->patient_id,
+                'doctor_id' => $appointment->doctor_id,
+                'branch_id' => $appointment->branch_id,
+                'appointment_id' => $appointment->id,
+                'created_by' => auth()->id(),
+                'status' => 'scheduled',
+                'start_date' => $appointment->appointment_date,
+            ]);
+            
+            // Link appointment to operation
+            $appointment->update(['operation_id' => $operation->id]);
+            
+            $operationId = $operation->id;
+        } else {
+            $operationId = $appointment->operation_id;
+        }
+
+        // Redirect to edit page with query parameters
+        $url = route('operations.edit', ['id' => $operationId]) . '?appointment_id=' . $appointment->id . '&patient_id=' . $appointment->patient_id;
+        $this->redirect($url, navigate: true);
     }
 
     public function loadOperationFiles(): void
@@ -1618,9 +1481,6 @@ class OperationManager extends Component
                         'branch_id' => $appointment->branch_id,
                         'appointment_id' => $appointment->id,
                         'created_by' => auth()->id() ?? 1,
-                        'operation_type' => 'Femto-LASIK', // Default type, can be changed later
-                        'operation_eye' => 'OU', // Default to both eyes
-                        'cost' => 0.00,
                         'status' => 'scheduled',
                         'start_date' => $appointment->appointment_date ?? now(),
                     ]);
@@ -1650,10 +1510,12 @@ class OperationManager extends Component
         $user = auth()->user();
         $branchId = $user?->branch_id;
 
-        // Auto-create Operations for Appointments that don't have one yet
-        $this->autoCreateOperationsForAppointments($branchId);
+        // Operations will be created when user clicks "View" button
+        // No auto-creation here
 
-        $query = Operation::with(['patient', 'doctor', 'branch', 'appointment'])
+        // Show Appointments of type "Assessment" (with or without operations)
+        $query = Appointment::with(['patient', 'doctor', 'branch', 'operation'])
+            ->where('visit_type', 'Assessment')
             ->when($branchId, function ($q) use ($branchId) {
                 $q->where('branch_id', $branchId);
             })
@@ -1666,12 +1528,16 @@ class OperationManager extends Component
                 });
             })
             ->when($this->statusFilter, function ($q) {
-                $q->where('status', $this->statusFilter);
+                // Filter by operation status if operation exists
+                $q->whereHas('operation', function ($query) {
+                    $query->where('status', $this->statusFilter);
+                });
             })
-            ->orderBy('start_date', 'desc')
+            ->orderBy('appointment_date', 'desc')
+            ->orderBy('appointment_time', 'desc')
             ->orderBy('created_at', 'desc');
 
-        $operations = $query->paginate($this->perPage);
+        $appointments = $query->paginate($this->perPage);
 
         $patients = Patient::when($this->patientSearch, function ($q) {
             $q->where('full_name', 'like', '%' . $this->patientSearch . '%')
@@ -1697,7 +1563,8 @@ class OperationManager extends Component
         }
 
         return view('livewire.operation-manager', [
-            'operations' => $operations,
+            'appointments' => $appointments,
+            'operations' => collect([]), // Keep for backward compatibility
             'patients' => $patients,
             'doctors' => $doctors,
             'branches' => $branches,

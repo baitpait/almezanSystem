@@ -53,7 +53,22 @@ class Appointment extends Model
      */
     public function getFormattedTimeAttribute(): string
     {
-        return \Carbon\Carbon::createFromFormat('H:i:s', $this->appointment_time)->format('h:i A');
+        if (!$this->appointment_time) {
+            return '';
+        }
+        
+        try {
+            // Try H:i:s format first (07:24:00)
+            return \Carbon\Carbon::createFromFormat('H:i:s', $this->appointment_time)->format('h:i A');
+        } catch (\Carbon\Exceptions\InvalidFormatException $e) {
+            // Fallback to H:i format (07:24)
+            try {
+                return \Carbon\Carbon::createFromFormat('H:i', $this->appointment_time)->format('h:i A');
+            } catch (\Carbon\Exceptions\InvalidFormatException $e2) {
+                // If both fail, try parsing as time string
+                return \Carbon\Carbon::parse($this->appointment_time)->format('h:i A');
+            }
+        }
     }
 
     /**

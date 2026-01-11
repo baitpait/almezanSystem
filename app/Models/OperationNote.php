@@ -22,6 +22,7 @@ class OperationNote extends Model
         'operation_type_od',
         'operation_type_os',
         'operation_eye',
+        'same_operation_type_both_eyes',
         'monovision_eye',
         'eye_drops_vigamox',
         'eye_drops_pred_forte',
@@ -125,6 +126,7 @@ class OperationNote extends Model
         // General MMC fields
         'mmc_0_02_percent_od' => 'boolean',
         'mmc_0_02_percent_os' => 'boolean',
+        'same_operation_type_both_eyes' => 'boolean',
     ];
 
     /**

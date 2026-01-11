@@ -29,22 +29,31 @@
     
     {{-- Search Bar and Per Page --}}
     <div class="search-container">
-        <div class="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-            <div class="search-input-wrapper flex-1 w-full md:w-auto order-1 md:order-1">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-                <input type="text" 
-                       wire:model.live.debounce.300ms="search" 
-                       placeholder="Search by name, phone, or city...">
-            </div>
-            <div class="flex items-center gap-2 flex-shrink-0 order-2 md:order-2">
-                <select class="px-3 py-1.5 text-sm border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200" wire:model.live="perPage" style="width: 90px;" title="Results per page">
-                    <option value="10">10</option>
-                    <option value="20">20</option>
-                    <option value="50">50</option>
-                    <option value="-1">All</option>
-                </select>
+        <div class="flex flex-col gap-4">
+            {{-- Search with Per Page --}}
+            <div>
+                <div class="flex items-end gap-2">
+                    <div class="flex-1">
+                        <label class="form-label">Search</label>
+                        <div class="search-input-wrapper">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                            <input type="text" 
+                                   wire:model.live.debounce.300ms="search" 
+                                   placeholder="Search by name, phone, or city...">
+                        </div>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <label class="form-label">Per Page</label>
+                        <select class="form-select" wire:model.live="perPage" style="width: 80px; min-width: 80px;">
+                            <option value="10">10</option>
+                            <option value="20">20</option>
+                            <option value="50">50</option>
+                            <option value="-1">All</option>
+                        </select>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -125,6 +134,30 @@
                                         </button>
                                     </li>
                                     @endcan
+                                    @if($canViewInvoices ?? auth()->user()->can('view.invoices'))
+                                    <li>
+                                        <a href="{{ route('invoices.index', ['patient' => $patient->id]) }}"
+                                           class="dropdown-menu-item dropdown-menu-item-view"
+                                           onclick="closeSimpleDropdown({{ $patient->id }});">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-menu-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                            <span>Invoices</span>
+                                        </a>
+                                    </li>
+                                    @endif
+                                    @if($canCreateInvoices ?? auth()->user()->can('create.invoices'))
+                                    <li>
+                                        <a href="{{ route('invoices.index', ['create' => 1, 'patient' => $patient->id]) }}"
+                                           class="dropdown-menu-item dropdown-menu-item-visit"
+                                           onclick="closeSimpleDropdown({{ $patient->id }});">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-menu-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                            <span>Add Invoice</span>
+                                        </a>
+                                    </li>
+                                    @endif
                                     @can('delete.patients')
                                     <li>
                                         <button type="button" class="dropdown-menu-item dropdown-menu-item-delete" wire:click="delete({{ $patient->id }})" wire:confirm="Are you sure you want to delete this patient?" onclick="closeSimpleDropdown({{ $patient->id }})">

@@ -13,15 +13,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('appointments', function (Blueprint $table) {
-            // Add visit_stage column
-            $table->enum('visit_stage', ['waiting', 'in_consultation', 'completed'])->nullable()->after('status');
-            
-            // Update status enum to include 'rescheduled'
-            // Note: MySQL doesn't support modifying enum directly, so we need to use raw SQL
-        });
+            // Add visit_stage column if it doesn't exist
+            if (!Schema::hasColumn('appointments', 'visit_stage')) {
+                $table->enum('visit_stage', ['waiting', 'in_consultation', 'completed'])->nullable()->after('status');
+            }
 
-        // Update status enum using raw SQL
-        DB::statement("ALTER TABLE appointments MODIFY COLUMN status ENUM('scheduled', 'completed', 'cancelled', 'rescheduled', 'no_show') DEFAULT 'scheduled'");
+            // Add visit_type column if it doesn't exist
+            if (!Schema::hasColumn('appointments', 'visit_type')) {
+                $table->enum('visit_type', ['Assessment', 'Operation', 'Follow up', 'New visit'])->nullable()->after('visit_stage');
+            }
+        });
     }
 
     /**
@@ -30,10 +31,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('appointments', function (Blueprint $table) {
-            $table->dropColumn('visit_stage');
+            $table->dropColumn(['visit_stage', 'visit_type']);
         });
-
-        // Revert status enum
-        DB::statement("ALTER TABLE appointments MODIFY COLUMN status ENUM('scheduled', 'completed', 'cancelled', 'no_show') DEFAULT 'scheduled'");
     }
 };

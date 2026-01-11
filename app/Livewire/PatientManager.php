@@ -210,8 +210,9 @@ class PatientManager extends Component
 
     public function render()
     {
+        // Check permission - if not authorized, return empty view
         if (!auth()->user()->can('view.patients')) {
-            abort(403, 'You do not have permission to view patients.');
+            return view('livewire.unauthorized')->layout('components.layouts.app');
         }
         
         $query = Patient::query();
@@ -228,13 +229,15 @@ class PatientManager extends Component
         }
         
         $perPageValue = $this->perPage === -1 ? 10000 : $this->perPage;
-        $patients = $query->orderBy('created_at', 'desc')->paginate($perPageValue);
+        $patients = $query->orderBy('full_name')->paginate($perPageValue);
 
         $selectedPatient = $this->selectedPatientId ? Patient::find($this->selectedPatientId) : null;
 
         return view('livewire.patient-manager', [
             'patients' => $patients,
             'selectedPatient' => $selectedPatient,
+            'canViewInvoices' => auth()->user()->can('view.invoices'),
+            'canCreateInvoices' => auth()->user()->can('create.invoices'),
         ])->layout('components.layouts.app');
     }
 }

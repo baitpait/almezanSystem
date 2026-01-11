@@ -86,7 +86,7 @@ class AppointmentManager extends Component
             'form.appointment_time' => 'required',
             'form.duration' => 'required|integer|min:5|max:480',
             'form.notes' => 'nullable|string|max:1000',
-            'form.visit_stage' => 'required|in:waiting,in_consultation,completed,cancelled',
+            'form.visit_stage' => 'required|in:scheduled,waiting,in_consultation,completed,cancelled',
             'form.visit_type' => 'required|in:Assessment,Operation,Follow up,New visit',
         ];
     }
@@ -357,8 +357,8 @@ class AppointmentManager extends Component
                 'branch_id' => $appointment->branch_id,
                 'appointment_id' => $appointment->id,
                 'created_by' => auth()->id(),
-                'operation_type' => 'Femto-LASIK', // Default type, can be changed later
-                'operation_eye' => 'OU', // Default to both eyes
+                'operation_type' => null,
+                'operation_eye' => null,
                 'cost' => 0.00,
                 'status' => 'scheduled',
                 'start_date' => $appointment->appointment_date,
@@ -425,11 +425,28 @@ class AppointmentManager extends Component
         $this->editingId = $appointment->id;
         $this->selectedPatientId = $appointment->patient_id;
         $this->patientSearch = $appointment->patient->full_name;
+        // Handle appointment_time format safely
+        $timeFormatted = '00:00';
+        if ($appointment->appointment_time) {
+            try {
+                // Try H:i:s format first (07:24:00)
+                $timeFormatted = \Carbon\Carbon::createFromFormat('H:i:s', $appointment->appointment_time)->format('H:i');
+            } catch (\Carbon\Exceptions\InvalidFormatException $e) {
+                // Fallback to H:i format (07:24)
+                try {
+                    $timeFormatted = \Carbon\Carbon::createFromFormat('H:i', $appointment->appointment_time)->format('H:i');
+                } catch (\Carbon\Exceptions\InvalidFormatException $e2) {
+                    // If both fail, try parsing as time string
+                    $timeFormatted = \Carbon\Carbon::parse($appointment->appointment_time)->format('H:i');
+                }
+            }
+        }
+        
         $this->form = [
             'patient_id' => $appointment->patient_id,
             'doctor_id' => $appointment->doctor_id,
             'appointment_date' => $appointment->appointment_date->format('Y-m-d'),
-            'appointment_time' => \Carbon\Carbon::createFromFormat('H:i:s', $appointment->appointment_time)->format('H:i'),
+            'appointment_time' => $timeFormatted,
             'duration' => $appointment->duration,
             'notes' => $appointment->notes,
             'visit_stage' => $appointment->visit_stage,
@@ -508,25 +525,8 @@ class AppointmentManager extends Component
                     }
                 }
                 
-                // If changing TO "Assessment" or "Operation" and no operation exists
-                if (in_array($newVisitType, ['Assessment', 'Operation']) && !$appointment->operation_id) {
-                    $operation = Operation::create([
-                        'patient_id' => $appointment->patient_id,
-                        'doctor_id' => $appointment->doctor_id,
-                        'branch_id' => $appointment->branch_id,
-                        'appointment_id' => $appointment->id,
-                        'created_by' => auth()->id(),
-                        'operation_type' => 'Femto-LASIK', // Default type, can be changed later
-                        'operation_eye' => 'OU', // Default to both eyes
-                        'cost' => 0.00,
-                        'status' => 'scheduled',
-                        'start_date' => $appointment->appointment_date,
-                    ]);
-                    
-                    $data['operation_id'] = $operation->id;
-                    $message = 'Appointment updated successfully. Operation created and linked automatically.';
-                } elseif (!isset($message)) {
-                    // Only set message if not already set above
+                // Operation will be created when user clicks "View" button in Assessment page
+                if (!isset($message)) {
                     $message = 'Appointment updated successfully.';
                 }
             } else {
@@ -539,26 +539,7 @@ class AppointmentManager extends Component
             $appointment = Appointment::create($data);
             $message = 'Appointment added successfully.';
             
-            // If visit_type is "Assessment" or "Operation", automatically create an Operation and link it
-            if (in_array($data['visit_type'], ['Assessment', 'Operation'])) {
-                $operation = Operation::create([
-                    'patient_id' => $appointment->patient_id,
-                    'doctor_id' => $appointment->doctor_id,
-                    'branch_id' => $appointment->branch_id,
-                    'appointment_id' => $appointment->id,
-                    'created_by' => auth()->id(),
-                    'operation_type' => 'Femto-LASIK', // Default type, can be changed later
-                    'operation_eye' => 'OU', // Default to both eyes
-                    'cost' => 0.00,
-                    'status' => 'scheduled',
-                    'start_date' => $appointment->appointment_date,
-                ]);
-                
-                // Link operation to appointment
-                $appointment->update(['operation_id' => $operation->id]);
-                
-                $message .= ' Operation created and linked automatically.';
-            }
+            // Operation will be created when user clicks "View" button in Assessment page
         }
         
         $this->resetForm();
@@ -572,8 +553,18 @@ class AppointmentManager extends Component
             return;
         }
         
-        Appointment::findOrFail($id)->delete();
-        session()->flash('message', 'Appointment deleted successfully.');
+        $appointment = Appointment::findOrFail($id);
+        
+        // If appointment has an associated operation, delete it
+        if ($appointment->operation_id) {
+            $operation = Operation::find($appointment->operation_id);
+            if ($operation) {
+                $operation->delete();
+            }
+        }
+        
+        $appointment->delete();
+        session()->flash('message', 'Appointment and associated operation deleted successfully.');
     }
 
     public function openInvoiceModal($appointmentId): void
@@ -718,8 +709,9 @@ class AppointmentManager extends Component
 
     public function render()
     {
+        // Check permission - if not authorized, return empty view
         if (!auth()->user()->can('view.appointments')) {
-            abort(403, 'You do not have permission to view appointments.');
+            return view('livewire.unauthorized')->layout('components.layouts.app');
         }
         
         $patients = [];
@@ -823,6 +815,8 @@ class AppointmentManager extends Component
             'appointments' => $appointments,
             'doctors' => Doctor::orderBy('name')->get(),
             'viewMode' => $this->viewMode,
+            'canViewInvoices' => auth()->user()->can('view.invoices'),
+            'canCreateInvoices' => auth()->user()->can('create.invoices'),
         ];
 
         // Add calendar data if in calendar mode

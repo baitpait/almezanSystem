@@ -12,7 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('appointments', function (Blueprint $table) {
-            $table->string('visit_type')->nullable()->after('visit_stage')->comment('Assessment, Operation, Follow up, New visit');
+            // Only add if column doesn't exist
+            if (!Schema::hasColumn('appointments', 'visit_type')) {
+                $table->string('visit_type')->nullable()->after('visit_stage')->comment('Assessment, Operation, Follow up, New visit');
+            }
         });
     }
 

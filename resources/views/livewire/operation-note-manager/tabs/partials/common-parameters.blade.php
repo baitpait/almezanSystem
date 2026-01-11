@@ -169,12 +169,4 @@
             </div>
         @endif
     </div>
-
-    {{-- Additional Notes Section --}}
-    <div class="border-t border-gray-300 pt-4">
-        <label class="label">
-            <span class="label-text text-xs font-medium">Additional Notes</span>
-        </label>
-        <textarea wire:model.live="form.notes" class="textarea textarea-bordered w-full textarea-sm" rows="3" placeholder="Enter any additional notes."></textarea>
-    </div>
 </div>

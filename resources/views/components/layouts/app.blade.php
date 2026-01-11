@@ -2,7 +2,7 @@
 <html lang="en" data-theme="medical" data-csrf="{{ csrf_token() }}">
 <head>
     <meta charset="UTF-8">
-    <title>{{ config('app.name', 'AlmezanSystem') }} - @yield('title', 'Dashboard')</title>
+    <title>مركز الغد لجراحة العيون والليزك - @yield('title', 'Dashboard')</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     {{-- Google Fonts - Cairo Arabic Font --}}
@@ -143,12 +143,37 @@
 
                     {{-- Assessment --}}
                     @can('view.assessment')
+                    @php
+                        $assessmentCount = 0;
+                        if (auth()->check()) {
+                            $user = auth()->user();
+                            $query = \App\Models\Appointment::where('visit_type', 'Assessment')
+                                ->whereDate('appointment_date', '>=', today());
+                            
+                            if ($user->branch_id) {
+                                $query->where('branch_id', $user->branch_id);
+                            }
+                            
+                            if ($user->isDoctor() && $user->doctor) {
+                                $query->where('doctor_id', $user->doctor->id);
+                            }
+                            
+                            $assessmentCount = $query->count();
+                        }
+                    @endphp
                     <li>
-                        <a href="{{ route('operations.index') }}" class="flex items-center gap-3 px-4 py-2 rounded-lg text-white transition-all {{ request()->routeIs('operations.*') ? 'bg-blue-500 text-white shadow-lg font-semibold' : 'hover:bg-blue-500/50' }}">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                            </svg>
-                            <span>Assessment</span>
+                        <a href="{{ route('operations.index') }}" class="flex items-center justify-between gap-3 px-4 py-2 rounded-lg text-white transition-all {{ request()->routeIs('operations.*') ? 'bg-blue-500 text-white shadow-lg font-semibold' : 'hover:bg-blue-500/50' }}">
+                            <div class="flex items-center gap-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                                </svg>
+                                <span>Assessment</span>
+                            </div>
+                            @if($assessmentCount > 0)
+                            <span class="bg-white/20 text-white text-xs font-semibold px-2 py-1 rounded-full min-w-[24px] text-center">
+                                {{ $assessmentCount }}
+                            </span>
+                            @endif
                         </a>
                     </li>
                     @endcan

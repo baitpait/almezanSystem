@@ -10,6 +10,8 @@ use Spatie\Permission\Models\Permission;
 
 class RoleManager extends Component
 {
+    protected $listeners = ['refreshPermissions' => '$refresh'];
+    
     public string $activeRole = 'admin';
 
     /** @var array<string, string> */
@@ -111,42 +113,69 @@ class RoleManager extends Component
 
     public function save(): void
     {
-        $modules = config('permissions.modules', []);
-        $moduleLabels = config('permissions.module_labels', []);
-        
-        $role = Role::where('name', $this->activeRole)->first();
-        if (!$role) {
-            session()->flash('error', 'Role not found.');
-            return;
-        }
-
-        $permissionsToSync = [];
-        
-        foreach ($moduleLabels as $moduleKey => $moduleLabel) {
-            if (!isset($this->permissions[$moduleLabel][$this->activeRole])) {
-                continue;
+        try {
+            $modules = config('permissions.modules', []);
+            $moduleLabels = config('permissions.module_labels', []);
+            
+            $role = Role::where('name', $this->activeRole)->first();
+            if (!$role) {
+                session()->flash('error', 'Role not found.');
+                return;
             }
+
+            $permissionsToSync = [];
+            $missingPermissions = [];
             
-            $modulePermissions = $modules[$moduleKey] ?? [];
-            
-            foreach ($modulePermissions as $permission) {
-                if (isset($this->permissions[$moduleLabel][$this->activeRole][$permission]) 
-                    && $this->permissions[$moduleLabel][$this->activeRole][$permission]) {
-                    $permissionName = "{$permission}.{$moduleKey}";
-                    $permissionModel = Permission::where('name', $permissionName)->first();
-                    if ($permissionModel) {
-                        $permissionsToSync[] = $permissionModel;
+            foreach ($moduleLabels as $moduleKey => $moduleLabel) {
+                if (!isset($this->permissions[$moduleLabel][$this->activeRole])) {
+                    continue;
+                }
+                
+                $modulePermissions = $modules[$moduleKey] ?? [];
+                
+                foreach ($modulePermissions as $permission) {
+                    if (isset($this->permissions[$moduleLabel][$this->activeRole][$permission]) 
+                        && $this->permissions[$moduleLabel][$this->activeRole][$permission]) {
+                        $permissionName = "{$permission}.{$moduleKey}";
+                        $permissionModel = Permission::where('name', $permissionName)->first();
+                        
+                        if ($permissionModel) {
+                            $permissionsToSync[] = $permissionModel;
+                        } else {
+                            // Create missing permission
+                            $permissionModel = Permission::create([
+                                'name' => $permissionName,
+                                'guard_name' => 'web',
+                            ]);
+                            $permissionsToSync[] = $permissionModel;
+                        }
                     }
                 }
             }
-        }
 
-        $role->syncPermissions($permissionsToSync);
-        
-        // Clear cache
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
-        
-        session()->flash('message', 'Permissions saved successfully!');
+            // Sync permissions
+            if (empty($permissionsToSync)) {
+                session()->flash('error', 'No permissions selected to save.');
+                return;
+            }
+            
+            $role->syncPermissions($permissionsToSync);
+            
+            // Clear cache
+            app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+            
+            // Reload permissions from database - this will update $this->permissions
+            $this->loadPermissionsFromDatabase();
+            
+            session()->flash('message', 'Permissions saved successfully! (' . count($permissionsToSync) . ' permissions)');
+        } catch (\Exception $e) {
+            session()->flash('error', 'Failed to save permissions: ' . $e->getMessage());
+            \Log::error('Failed to save permissions', [
+                'role' => $this->activeRole,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+        }
     }
 
     public function render()

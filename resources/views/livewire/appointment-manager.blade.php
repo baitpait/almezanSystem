@@ -64,19 +64,19 @@
         </div>
     </div>
 
-    {{-- View Mode Tabs --}}
+    {{-- View Mode Buttons --}}
     <div class="mb-6">
-        <div class="tabs tabs-boxed">
-            <button class="tab {{ $viewMode === 'list' ? 'tab-active' : '' }}"
+        <div class="flex items-center gap-3">
+            <button class="{{ $viewMode === 'list' ? 'btn-primary' : 'btn-secondary' }}"
                     wire:click="setViewMode('list')">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
                 </svg>
                 List View
             </button>
-            <button class="tab {{ $viewMode === 'calendar' ? 'tab-active' : '' }}"
+            <button class="{{ $viewMode === 'calendar' ? 'btn-primary' : 'btn-secondary' }}"
                     wire:click="setViewMode('calendar')">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
                 Calendar View
@@ -142,6 +142,7 @@
                     <label class="form-label">Stage</label>
                     <select class="form-select" wire:model.live="visitStageFilter">
                         <option value="">All Stages</option>
+                        <option value="scheduled">Scheduled</option>
                         <option value="waiting">Waiting</option>
                         <option value="in_consultation">In Consultation</option>
                         <option value="completed">Completed</option>
@@ -323,12 +324,9 @@
                                     </span>
                                     @endcan
                                         @elseif($appointment->visit_type === 'Operation')
-                                    <a 
-                                        href="{{ route('operation-notes.create', ['appointmentId' => $appointment->id]) }}" 
-                                        class="badge-status {{ $typeColor }} cursor-pointer hover:opacity-80 transition-opacity" 
-                                        title="Click to go to Operation Note">
+                                    <span class="badge-status {{ $typeColor }}">
                                         {{ $appointment->visit_type }}
-                                            </a>
+                                    </span>
                                 @else
                                     <span class="badge-status {{ $typeColor }}">{{ $appointment->visit_type }}</span>
                                         @endif
@@ -349,7 +347,21 @@
                                 </div>
                                 @if($appointment->appointment_time)
                                 <div class="text-sm text-gray-700 font-semibold leading-tight whitespace-nowrap">
-                                    {{ \Carbon\Carbon::createFromFormat('H:i:s', $appointment->appointment_time)->format('h:i A') }}
+                                    @php
+                                        try {
+                                            // Try H:i:s format first (07:24:00)
+                                            $time = \Carbon\Carbon::createFromFormat('H:i:s', $appointment->appointment_time);
+                                        } catch (\Carbon\Exceptions\InvalidFormatException $e) {
+                                            // Fallback to H:i format (07:24)
+                                            try {
+                                                $time = \Carbon\Carbon::createFromFormat('H:i', $appointment->appointment_time);
+                                            } catch (\Carbon\Exceptions\InvalidFormatException $e2) {
+                                                // If both fail, try parsing as time string
+                                                $time = \Carbon\Carbon::parse($appointment->appointment_time);
+                                            }
+                                        }
+                                    @endphp
+                                    {{ $time->format('h:i A') }}
                                 </div>
                                 @endif
                                 @if($appointment->duration)
@@ -366,6 +378,7 @@
                                 @if($appointment->visit_stage)
                                     @php
                                         $stageColors = [
+                                    'scheduled' => 'bg-purple-100 text-purple-800',
                                     'waiting' => 'bg-yellow-100 text-yellow-800',
                                     'in_consultation' => 'bg-blue-100 text-blue-800',
                                     'completed' => 'bg-green-100 text-green-800',
@@ -405,18 +418,30 @@
                                         </button>
                                     </li>
                                     @endcan
-                                    @can('create.invoices')
+                                    @if($canViewInvoices ?? false)
                                     <li>
-                                        <a href="{{ route('invoices.index', ['create' => 1, 'patient' => $appointment->patient_id]) }}"
-                                           class="dropdown-menu-item"
+                                        <a href="{{ route('invoices.index', ['patient' => $appointment->patient_id]) }}"
+                                           class="dropdown-menu-item dropdown-menu-item-view"
                                            onclick="closeSimpleDropdown({{ $appointment->id }});">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-menu-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.5 0-3 .75-3 2.25C9 11.75 10.5 12.5 12 12.5s3 .75 3 2.25S13.5 17 12 17m0-9V7m0 10v1m9-7a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                            <span>Invoices</span>
+                                        </a>
+                                    </li>
+                                    @endif
+                                    @if($canCreateInvoices ?? auth()->user()->can('create.invoices'))
+                                    <li>
+                                        <a href="{{ route('invoices.index', ['create' => 1, 'patient' => $appointment->patient_id]) }}"
+                                           class="dropdown-menu-item dropdown-menu-item-visit"
+                                           onclick="closeSimpleDropdown({{ $appointment->id }});">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-menu-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                             </svg>
                                             <span>Add Invoice</span>
                                         </a>
                                     </li>
-                                    @endcan
+                                    @endif
                                     @can('delete.appointments')
                                     <li>
                                         <button type="button" class="dropdown-menu-item dropdown-menu-item-delete" wire:click="delete({{ $appointment->id }})" wire:confirm="Are you sure you want to delete this appointment?" onclick="closeSimpleDropdown({{ $appointment->id }})">
@@ -635,6 +660,7 @@
                                     <label class="form-label">Visit Stage *</label>
                                     <select class="form-select w-full" wire:model.defer="form.visit_stage" required style="min-width: 100%;">
                                         <option value="">Select Visit Stage</option>
+                            <option value="scheduled">Scheduled</option>
                             <option value="waiting">Waiting</option>
                             <option value="in_consultation">In Consultation</option>
                             <option value="completed">Completed</option>

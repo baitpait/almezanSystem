@@ -29,22 +29,31 @@
 
     {{-- Search --}}
     <div class="search-container">
-        <div class="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-            <div class="search-input-wrapper flex-1 w-full md:w-auto order-1 md:order-1">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-                <input type="text"
-                       wire:model.live.debounce.300ms="search"
-                       placeholder="Search doctors by name or phone...">
-            </div>
-            <div class="flex items-center gap-2 flex-shrink-0 order-2 md:order-2">
-                <select class="px-3 py-1.5 text-sm border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200" wire:model.live="perPage" style="width: 90px;" title="Results per page">
-                    <option value="10">10</option>
-                    <option value="20">20</option>
-                    <option value="50">50</option>
-                    <option value="-1">All</option>
-                </select>
+        <div class="flex flex-col gap-4">
+            {{-- Search with Per Page --}}
+            <div>
+                <div class="flex items-end gap-2">
+                    <div class="flex-1">
+                        <label class="form-label">Search</label>
+                        <div class="search-input-wrapper">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                            <input type="text"
+                                   wire:model.live.debounce.300ms="search"
+                                   placeholder="Search doctors by name or phone...">
+                        </div>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <label class="form-label">Per Page</label>
+                        <select class="form-select" wire:model.live="perPage" style="width: 80px; min-width: 80px;">
+                            <option value="10">10</option>
+                            <option value="20">20</option>
+                            <option value="50">50</option>
+                            <option value="-1">All</option>
+                        </select>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -55,6 +64,7 @@
             <thead>
                 <tr>
                     <th class="sticky left-0 z-10 bg-gray-50">Name</th>
+                    <th>Email</th>
                     <th>Phone</th>
                     <th>Branch</th>
                     <th class="text-right sticky right-0 z-10 bg-gray-50">Actions</th>
@@ -65,6 +75,14 @@
                 <tr>
                     <td class="sticky left-0 z-10 bg-white font-semibold text-gray-900">
                         {{ $doctor->name }}
+                    </td>
+                    <td class="text-sm text-gray-800 font-mono">
+                        {{ $doctor->user->email ?? '-' }}
+                        @if($doctor->user)
+                            <span class="badge-status bg-green-100 text-green-800 text-xs ml-2">User Linked</span>
+                        @else
+                            <span class="badge-status bg-yellow-100 text-yellow-800 text-xs ml-2">No User</span>
+                        @endif
                     </td>
                     <td class="text-sm text-gray-800">{{ $doctor->phone ?? '-' }}</td>
                     <td class="text-sm text-gray-800">{{ $doctor->branch->name ?? '-' }}</td>
@@ -112,7 +130,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="4">
+                    <td colspan="5">
                         <div class="empty-state">
                             <svg xmlns="http://www.w3.org/2000/svg" class="empty-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -173,6 +191,46 @@
                             </select>
                             @error('form.branch_id') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                         </div>
+
+                        @if(!$editingId)
+                        {{-- User Account Fields (only for new doctor) --}}
+                        <div class="md:col-span-2 border-t border-gray-200 pt-4 mt-2">
+                            <h3 class="text-sm font-semibold text-gray-700 mb-3">User Account</h3>
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label class="form-label">Email <span class="text-red-500">*</span></label>
+                            <input type="email" class="form-input" wire:model.defer="form.email" required placeholder="doctor@example.com">
+                            @error('form.email') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                            <div class="text-xs text-gray-500 mt-1">A user account will be created automatically with this email</div>
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label class="form-label">Password <span class="text-red-500">*</span></label>
+                            <input type="password" class="form-input" wire:model.defer="form.password" required>
+                            @error('form.password') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                            <div class="text-xs text-gray-500 mt-1">Minimum 8 characters</div>
+                        </div>
+                        @else
+                        {{-- User Account Fields (for editing) --}}
+                        <div class="md:col-span-2 border-t border-gray-200 pt-4 mt-2">
+                            <h3 class="text-sm font-semibold text-gray-700 mb-3">User Account</h3>
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-input" wire:model.defer="form.email" placeholder="doctor@example.com">
+                            @error('form.email') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                            <div class="text-xs text-gray-500 mt-1">Update email if user account exists</div>
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label class="form-label">Password</label>
+                            <input type="password" class="form-input" wire:model.defer="form.password">
+                            @error('form.password') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                            <div class="text-xs text-gray-500 mt-1">Leave blank to keep current password</div>
+                        </div>
+                        @endif
                     </div>
 
                     <div class="modal-footer">

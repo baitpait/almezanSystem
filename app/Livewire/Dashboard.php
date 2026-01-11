@@ -20,6 +20,7 @@ class Dashboard extends Component
     public string $visitStageFilter = '';
     public string $visitTypeFilter = '';
     public string $doctorFilter = '';
+    public string $dateTab = 'today'; // today, tomorrow, this_week
     public $showAppointmentModal = false;
     public $editingAppointmentId = null;
     public function render()
@@ -44,15 +45,33 @@ class Dashboard extends Component
             $invoiceQuery->where('branch_id', $branchId);
         }
 
+        // Apply doctor filter to base queries if user is a doctor
+        $doctorId = null;
+        if ($user->isDoctor() && $user->doctor) {
+            $doctorId = $user->doctor->id;
+            $appointmentQuery->where('doctor_id', $doctorId);
+            $patientQuery->whereHas('appointments', function($q) use ($doctorId) {
+                $q->where('doctor_id', $doctorId);
+            });
+        }
+
         // Get base stats
         $baseStats = [
-            'total_patients' => $patientQuery->count(),
+            'total_patients' => (clone $patientQuery)->count(),
             'today_appointments' => (clone $appointmentQuery)->whereDate('appointment_date', today())->count(),
             'upcoming_appointments' => (clone $appointmentQuery)
                 ->whereDate('appointment_date', '>', today())
                 ->where('status', 'scheduled')
                 ->count(),
-            'total_users' => User::where('is_active', true)->count(),
+            'total_users' => $user->isAdmin() ? User::where('is_active', true)->count() : 0,
+            'pending_invoices' => (clone $invoiceQuery)
+                ->where('status', 'pending')
+                ->whereDate('created_at', '<=', today())
+                ->count(),
+            'scheduled_operations' => (clone $appointmentQuery)
+                ->where('visit_type', 'Operation')
+                ->whereDate('appointment_date', '>=', today())
+                ->count(),
         ];
 
         // Customize stats based on role
@@ -61,13 +80,54 @@ class Dashboard extends Component
         // Get role-based data
         $dashboardData = $this->getRoleBasedData($userRole, $user, $appointmentQuery, $invoiceQuery, $patientQuery, $branchId);
 
+        // Get filtered appointments
+        $filteredTodayAppointments = $this->filteredTodayAppointments;
+        $appointmentsByType = $this->appointmentsByType;
+
         return view('livewire.dashboard', array_merge([
             'stats' => $stats,
             'userRole' => $userRole,
+            'filteredTodayAppointments' => $filteredTodayAppointments,
+            'appointmentsByType' => $appointmentsByType,
         ], $dashboardData))->layout('components.layouts.app');
     }
 
-    // Get filtered today's appointments
+    /**
+     * Set the date tab filter
+     */
+    public function setDateTab($tab)
+    {
+        $this->dateTab = $tab;
+    }
+
+    /**
+     * Get the date range based on selected tab
+     */
+    private function getDateRange()
+    {
+        switch ($this->dateTab) {
+            case 'tomorrow':
+                return [
+                    'start' => today()->addDay(),
+                    'end' => today()->addDay(),
+                ];
+            case 'this_week':
+                return [
+                    'start' => today(),
+                    'end' => today()->endOfWeek(),
+                ];
+            case 'today':
+            default:
+                return [
+                    'start' => today(),
+                    'end' => today(),
+                ];
+        }
+    }
+
+    /**
+     * Get filtered appointments based on date tab and filters
+     */
     public function getFilteredTodayAppointmentsProperty()
     {
         $user = auth()->user();
@@ -75,12 +135,25 @@ class Dashboard extends Component
             return collect();
         }
 
-        $query = Appointment::with(['patient', 'doctor'])
-            ->whereDate('appointment_date', today());
+        $dateRange = $this->getDateRange();
+        
+        $query = Appointment::with(['patient', 'doctor']);
+
+        // Apply date range filter
+        if ($dateRange['start']->equalTo($dateRange['end'])) {
+            $query->whereDate('appointment_date', $dateRange['start']);
+        } else {
+            $query->whereBetween('appointment_date', [$dateRange['start'], $dateRange['end']]);
+        }
 
         // Filter by branch if user has a branch
         if ($user->branch_id) {
             $query->where('branch_id', $user->branch_id);
+        }
+
+        // Filter by doctor if user is a doctor
+        if ($user->isDoctor() && $user->doctor) {
+            $query->where('doctor_id', $user->doctor->id);
         }
 
         // Apply filters
@@ -96,7 +169,22 @@ class Dashboard extends Component
             $query->where('doctor_id', $this->doctorFilter);
         }
 
-        return $query->orderBy('appointment_time')->get();
+        return $query->orderBy('appointment_date')->orderBy('appointment_time')->get();
+    }
+
+    /**
+     * Get appointments grouped by visit type
+     */
+    public function getAppointmentsByTypeProperty()
+    {
+        $appointments = $this->filteredTodayAppointments;
+        
+        return [
+            'Assessment' => $appointments->where('visit_type', 'Assessment'),
+            'Operation' => $appointments->where('visit_type', 'Operation'),
+            'Follow up' => $appointments->where('visit_type', 'Follow up'),
+            'New visit' => $appointments->where('visit_type', 'New visit'),
+        ];
     }
 
     // Get all doctors for filter
@@ -161,7 +249,7 @@ class Dashboard extends Component
                     'total_patients' => $baseStats['total_patients'],
                     'today_appointments' => $baseStats['today_appointments'],
                     'active_users' => $baseStats['total_users'],
-                    'scheduled_operations' => (clone $appointmentQuery)->where('visit_type', 'operation')->whereDate('appointment_date', '>=', today())->count(),
+                    'scheduled_operations' => (clone $appointmentQuery)->where('visit_type', 'Operation')->whereDate('appointment_date', '>=', today())->count(),
                 ];
                 break;
 
@@ -179,9 +267,11 @@ class Dashboard extends Component
 
             case 'secretary':
             default:
+                // Secretary sees all stats but only for today
                 $stats = [
+                    'total_patients' => $baseStats['total_patients'],
                     'today_appointments' => $baseStats['today_appointments'],
-                    'waiting_patients' => (clone $appointmentQuery)->whereDate('appointment_date', today())->where('status', 'scheduled')->count(),
+                    'scheduled_operations' => $baseStats['scheduled_operations'],
                 ];
                 break;
         }
@@ -194,11 +284,16 @@ class Dashboard extends Component
         $data = [];
 
         // Add today's appointments for all roles (for the new dashboard section)
-        $todayAppointments = (clone $appointmentQuery)
+        // Apply doctor filter if user is a doctor
+        $todayAppointmentsQuery = (clone $appointmentQuery)
             ->with(['patient', 'doctor'])
-            ->whereDate('appointment_date', today())
-            ->orderBy('appointment_time')
-            ->get();
+            ->whereDate('appointment_date', today());
+        
+        if ($user->isDoctor() && $user->doctor) {
+            $todayAppointmentsQuery->where('doctor_id', $user->doctor->id);
+        }
+        
+        $todayAppointments = $todayAppointmentsQuery->orderBy('appointment_time')->get();
 
         // Add pending invoices for all roles that need it
         $pendingInvoices = (clone $invoiceQuery)
