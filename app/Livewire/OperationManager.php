@@ -246,23 +246,40 @@ class OperationManager extends Component
 
     public function updatingSearch(): void
     {
-        $this->resetPage();
+        try {
+            $this->resetPage();
+        } catch (\Exception $e) {
+            \Log::error('OperationManager updatingSearch error: ' . $e->getMessage());
+        }
     }
 
     public function updatingPerPage(): void
     {
-        $this->resetPage();
+        try {
+            $this->resetPage();
+        } catch (\Exception $e) {
+            \Log::error('OperationManager updatingPerPage error: ' . $e->getMessage());
+        }
     }
 
     public function updatingStatusFilter(): void
     {
-        $this->resetPage();
+        try {
+            $this->resetPage();
+        } catch (\Exception $e) {
+            \Log::error('OperationManager updatingStatusFilter error: ' . $e->getMessage());
+        }
     }
 
     public function mount($id = null): void
     {
+        // Initialize properties safely
+        $this->search = $this->search ?? '';
+        $this->statusFilter = $this->statusFilter ?? '';
+        $this->perPage = $this->perPage ?? 10;
+        
         // Check if we're on create or edit page
-        $route = request()->route()->getName();
+        $route = request()->route()?->getName();
         if ($route === 'operations.create') {
             $this->isCreatePage = true;
             $this->create();
@@ -1309,37 +1326,42 @@ class OperationManager extends Component
      */
     public function viewOperation($appointmentId): void
     {
-        $appointment = Appointment::with('operation')->findOrFail($appointmentId);
-        
-        // Verify appointment type is valid for operations
-        if (!in_array($appointment->visit_type, ['Assessment', 'Operation'])) {
-            session()->flash('error', 'This appointment type does not support operations.');
-            return;
-        }
-
-        // If operation doesn't exist, create it
-        if (!$appointment->operation_id || !$appointment->operation) {
-            $operation = Operation::create([
-                'patient_id' => $appointment->patient_id,
-                'doctor_id' => $appointment->doctor_id,
-                'branch_id' => $appointment->branch_id,
-                'appointment_id' => $appointment->id,
-                'created_by' => auth()->id(),
-                'status' => 'scheduled',
-                'start_date' => $appointment->appointment_date,
-            ]);
+        try {
+            $appointment = Appointment::with('operation')->findOrFail($appointmentId);
             
-            // Link appointment to operation
-            $appointment->update(['operation_id' => $operation->id]);
-            
-            $operationId = $operation->id;
-        } else {
-            $operationId = $appointment->operation_id;
-        }
+            // Verify appointment type is valid for operations
+            if (!in_array($appointment->visit_type, ['Assessment', 'Operation'])) {
+                session()->flash('error', 'This appointment type does not support operations.');
+                return;
+            }
 
-        // Redirect to edit page with query parameters
-        $url = route('operations.edit', ['id' => $operationId]) . '?appointment_id=' . $appointment->id . '&patient_id=' . $appointment->patient_id;
-        $this->redirect($url, navigate: true);
+            // If operation doesn't exist, create it
+            if (!$appointment->operation_id || !$appointment->operation) {
+                $operation = Operation::create([
+                    'patient_id' => $appointment->patient_id,
+                    'doctor_id' => $appointment->doctor_id,
+                    'branch_id' => $appointment->branch_id,
+                    'appointment_id' => $appointment->id,
+                    'created_by' => auth()->id(),
+                    'status' => 'scheduled',
+                    'start_date' => $appointment->appointment_date,
+                ]);
+                
+                // Link appointment to operation
+                $appointment->update(['operation_id' => $operation->id]);
+                
+                $operationId = $operation->id;
+            } else {
+                $operationId = $appointment->operation_id;
+            }
+
+            // Redirect to edit page with query parameters
+            $url = route('operations.edit', ['id' => $operationId]) . '?appointment_id=' . $appointment->id . '&patient_id=' . $appointment->patient_id;
+            $this->redirect($url, navigate: true);
+        } catch (\Exception $e) {
+            \Log::error('OperationManager viewOperation error: ' . $e->getMessage() . ' | Trace: ' . $e->getTraceAsString());
+            session()->flash('error', 'Failed to open operation: ' . $e->getMessage());
+        }
     }
 
     public function loadOperationFiles(): void
@@ -1507,67 +1529,94 @@ class OperationManager extends Component
 
     public function render()
     {
-        $user = auth()->user();
-        $branchId = $user?->branch_id;
+        try {
+            $user = auth()->user();
+            if (!$user) {
+                return view('livewire.unauthorized')->layout('components.layouts.app');
+            }
 
-        // Operations will be created when user clicks "View" button
-        // No auto-creation here
+            $branchId = $user->branch_id;
 
-        // Show Appointments of type "Assessment" (with or without operations)
-        $query = Appointment::with(['patient', 'doctor', 'branch', 'operation'])
-            ->where('visit_type', 'Assessment')
-            ->when($branchId, function ($q) use ($branchId) {
-                $q->where('branch_id', $branchId);
-            })
-            ->when($this->search, function ($q) {
-                $q->where(function ($query) {
-                    $query->whereHas('patient', function ($q) {
-                        $q->where('full_name', 'like', '%' . $this->search . '%')
-                            ->orWhere('id_number', 'like', '%' . $this->search . '%');
+            // Operations will be created when user clicks "View" button
+            // No auto-creation here
+
+            // Show Appointments of type "Assessment" (with or without operations)
+            $query = Appointment::query()
+                ->with(['patient', 'doctor', 'branch', 'operation'])
+                ->where('visit_type', 'Assessment');
+                
+            // Apply branch filter
+            if ($branchId && !$user->isAdmin()) {
+                $query->where('branch_id', $branchId);
+            }
+            
+            // Apply search filter
+            if (!empty($this->search)) {
+                $query->whereHas('patient', function ($q) {
+                    $q->where('full_name', 'like', '%' . $this->search . '%')
+                      ->orWhere('id_number', 'like', '%' . $this->search . '%');
+                });
+            }
+            
+            // Apply status filter
+            if (!empty($this->statusFilter)) {
+                $query->where(function ($query) {
+                    $query->whereHas('operation', function ($q) {
+                        $q->where('status', $this->statusFilter);
                     });
+                    // Include appointments without operation only for 'scheduled' status
+                    if ($this->statusFilter === 'scheduled') {
+                        $query->orWhereNull('operation_id')
+                              ->orWhereDoesntHave('operation');
+                    }
                 });
+            }
+            $query->orderBy('appointment_date', 'desc')
+                  ->orderBy('appointment_time', 'desc')
+                  ->orderBy('created_at', 'desc');
+
+            $appointments = $query->paginate($this->perPage ?? 10);
+
+            $patients = Patient::when($this->patientSearch, function ($q) {
+                $q->where('full_name', 'like', '%' . $this->patientSearch . '%')
+                    ->orWhere('id_number', 'like', '%' . $this->patientSearch . '%')
+                    ->orWhere('phone', 'like', '%' . $this->patientSearch . '%');
             })
-            ->when($this->statusFilter, function ($q) {
-                // Filter by operation status if operation exists
-                $q->whereHas('operation', function ($query) {
-                    $query->where('status', $this->statusFilter);
-                });
-            })
-            ->orderBy('appointment_date', 'desc')
-            ->orderBy('appointment_time', 'desc')
-            ->orderBy('created_at', 'desc');
+                ->limit(10)
+                ->get();
 
-        $appointments = $query->paginate($this->perPage);
+            $doctors = Doctor::when($branchId, function ($q) use ($branchId) {
+                $q->where('branch_id', $branchId);
+            })->get();
 
-        $patients = Patient::when($this->patientSearch, function ($q) {
-            $q->where('full_name', 'like', '%' . $this->patientSearch . '%')
-                ->orWhere('id_number', 'like', '%' . $this->patientSearch . '%')
-                ->orWhere('phone', 'like', '%' . $this->patientSearch . '%');
-        })
-            ->limit(10)
-            ->get();
+            $branches = Branch::where('is_active', true)->get();
 
-        $doctors = Doctor::when($branchId, function ($q) use ($branchId) {
-            $q->where('branch_id', $branchId);
-        })->get();
+            if ($this->isCreatePage || $this->isEditPage) {
+                return view('livewire.operation-manager', [
+                    'operations' => collect([]),
+                    'patients' => $patients,
+                    'doctors' => $doctors,
+                    'branches' => $branches,
+                ])->layout('components.layouts.app');
+            }
 
-        $branches = Branch::where('is_active', true)->get();
-
-        if ($this->isCreatePage || $this->isEditPage) {
             return view('livewire.operation-manager', [
-                'operations' => collect([]),
+                'appointments' => $appointments,
+                'operations' => collect([]), // Keep for backward compatibility
                 'patients' => $patients,
                 'doctors' => $doctors,
                 'branches' => $branches,
             ])->layout('components.layouts.app');
+        } catch (\Exception $e) {
+            \Log::error('OperationManager render error: ' . $e->getMessage() . ' | Trace: ' . $e->getTraceAsString());
+            session()->flash('error', 'An error occurred while loading the page. Please try again.');
+            return view('livewire.operation-manager', [
+                'appointments' => collect([])->paginate($this->perPage),
+                'operations' => collect([]),
+                'patients' => collect([]),
+                'doctors' => collect([]),
+                'branches' => collect([]),
+            ])->layout('components.layouts.app');
         }
-
-        return view('livewire.operation-manager', [
-            'appointments' => $appointments,
-            'operations' => collect([]), // Keep for backward compatibility
-            'patients' => $patients,
-            'doctors' => $doctors,
-            'branches' => $branches,
-        ])->layout('components.layouts.app');
     }
 }

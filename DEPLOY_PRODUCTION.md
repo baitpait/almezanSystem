@@ -111,7 +111,26 @@ chmod -R 755 bootstrap/cache/
 كلمة المرور: admin123
 ```
 
+## تحديث السيرفر من GitHub
+
+### الطريقة السريعة (موصى بها):
+```bash
+cd /home/sarfesak/public_html/almyzan
+cp .env .env.backup
+git pull origin main
+cp .env.backup .env
+php artisan migrate --force
+composer install --no-dev --optimize-autoloader
+npm install && npm run build
+php artisan optimize:clear
+php artisan optimize
+```
+
+### الطريقة الكاملة (حذف وإعادة):
+راجع ملف `DEPLOY_UPDATE_SERVER.md` للتفاصيل الكاملة.
+
 ## ملاحظات مهمة
 - تم تعطيل وضع التصحيح (DEBUG=false)
 - تم تفعيل البيئة الإنتاجية
 - تم تحديث إعدادات قاعدة البيانات للإنتاج
+- **احفظ ملف .env دائماً قبل التحديث**
