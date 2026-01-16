@@ -38,6 +38,21 @@ class TestDataSeeder extends Seeder
 
         $this->command->info('✓ Branch created/verified');
 
+        // التأكد من وجود مستخدم Admin (لـ created_by)
+        $adminUser = User::firstOrCreate(
+            ['email' => 'admin@gmail.com'],
+            [
+                'name' => 'System Administrator',
+                'password' => Hash::make('100200300'),
+                'role' => 'admin',
+                'branch_id' => $branch->id,
+                'is_active' => true,
+            ]
+        );
+        if (!$adminUser->hasRole('admin')) {
+            $adminUser->assignRole('admin');
+        }
+
         // إنشاء الأطباء مع حسابات User
         $doctors = $this->createDoctors($branch);
         $this->command->info('✓ Doctors created');
@@ -88,10 +103,6 @@ class TestDataSeeder extends Seeder
                 'name' => 'Dr. Alaa Al-Talbishi',
                 'phone' => '0591234567',
                 'branch_id' => $branch->id,
-                'specialization' => 'Ophthalmology',
-                'notify_via_sms' => true,
-                'notify_via_email' => true,
-                'follow_up' => true,
             ]
         );
 
@@ -117,10 +128,6 @@ class TestDataSeeder extends Seeder
                 'name' => 'Dr. Tariq Al-Husseini',
                 'phone' => '0597654321',
                 'branch_id' => $branch->id,
-                'specialization' => 'Refractive Surgery',
-                'notify_via_sms' => true,
-                'notify_via_email' => true,
-                'follow_up' => true,
             ]
         );
 
@@ -180,7 +187,6 @@ class TestDataSeeder extends Seeder
                 'phone' => $phone,
                 'phone_secondary' => rand(0, 100) > 70 ? '059' . str_pad((string)(2000000 + $i * 100), 7, '0', STR_PAD_LEFT) : null,
                 'city' => $palestinianCities[$i],
-                'country' => 'فلسطين',
                 'notes' => $i % 3 === 0 ? 'مريض جديد - يحتاج تقييم شامل' : null,
             ]);
 
@@ -200,6 +206,10 @@ class TestDataSeeder extends Seeder
             '11:30', '12:00', '12:30', '13:00', '13:30',
         ];
 
+        // الحصول على Admin user
+        $adminUser = User::where('email', 'admin@gmail.com')->first();
+        $createdBy = $adminUser ? $adminUser->id : null;
+
         // إنشاء 5 زيارات Assessment
         for ($i = 0; $i < 5; $i++) {
             $appointmentDate = Carbon::now()->addDays(rand(-30, 30));
@@ -209,7 +219,7 @@ class TestDataSeeder extends Seeder
                 'patient_id' => $patients[$i]->id,
                 'doctor_id' => $doctor->id,
                 'branch_id' => $branch->id,
-                'created_by' => 1, // Admin user
+                'created_by' => $createdBy,
                 'appointment_date' => $appointmentDate->format('Y-m-d'),
                 'appointment_time' => $timeSlots[$i],
                 'duration' => 30,
@@ -229,11 +239,13 @@ class TestDataSeeder extends Seeder
             $appointmentDate = Carbon::now()->addDays(rand(-30, 30));
             $doctor = $doctors[rand(0, 1)]; // اختيار طبيب عشوائي
 
+            $adminUser = User::where('email', 'admin@gmail.com')->first();
+            
             Appointment::create([
                 'patient_id' => $patients[$i]->id,
                 'doctor_id' => $doctor->id,
                 'branch_id' => $branch->id,
-                'created_by' => 1, // Admin user
+                'created_by' => $adminUser ? $adminUser->id : null,
                 'appointment_date' => $appointmentDate->format('Y-m-d'),
                 'appointment_time' => $timeSlots[$i],
                 'duration' => 60,

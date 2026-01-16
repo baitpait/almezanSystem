@@ -320,6 +320,21 @@ class OperationManager extends Component
                     if (!$this->operationForm['doctor_id'] && $appointment->doctor_id) {
                         $this->operationForm['doctor_id'] = $appointment->doctor_id;
                     }
+                    
+                    // Update visit_stage to 'in_consultation' when doctor opens the file
+                    // Only update if not already completed or cancelled
+                    if (!in_array($appointment->visit_stage, ['completed', 'cancelled'])) {
+                        $appointment->update(['visit_stage' => 'in_consultation']);
+                    }
+                }
+            } else {
+                // If no appointment_id in query, try to get it from the operation
+                $operation = Operation::with('appointment')->find($id);
+                if ($operation && $operation->appointment_id) {
+                    $appointment = Appointment::find($operation->appointment_id);
+                    if ($appointment && !in_array($appointment->visit_stage, ['completed', 'cancelled'])) {
+                        $appointment->update(['visit_stage' => 'in_consultation']);
+                    }
                 }
             }
         } else {
@@ -1113,6 +1128,15 @@ class OperationManager extends Component
             // Update operation with recommendation data
             $operation->update($recommendationData);
 
+            // Update appointment visit_stage to 'completed' when saving operation
+            // Only for the specific patient
+            if ($operation->appointment_id) {
+                $appointment = \App\Models\Appointment::find($operation->appointment_id);
+                if ($appointment && !in_array($appointment->visit_stage, ['cancelled'])) {
+                    $appointment->update(['visit_stage' => 'completed']);
+                }
+            }
+
             session()->flash('message', $this->editingId ? 'Operation updated successfully.' : 'Operation created successfully.');
             
             // Set editingId if it was a new operation
@@ -1122,7 +1146,7 @@ class OperationManager extends Component
             
             // Redirect after save - stay on edit page to continue editing
             if ($this->isCreatePage || $this->isEditPage) {
-                $this->redirect(route('operations.edit', $operation->id), navigate: true);
+                $this->redirect(route('operations.edit', $operation->id));
             } else {
                 $this->resetAllForms();
             }
@@ -1307,7 +1331,42 @@ class OperationManager extends Component
         // Load operation files
         $this->loadOperationFiles();
 
+        // Update appointment visit_stage to 'in_consultation' when doctor opens the file
+        // Only for the specific patient, not all patients
+        if ($operation->appointment_id) {
+            $appointment = Appointment::find($operation->appointment_id);
+            if ($appointment && !in_array($appointment->visit_stage, ['completed', 'cancelled'])) {
+                $appointment->update(['visit_stage' => 'in_consultation']);
+            }
+        }
+
         $this->showModal = true;
+    }
+
+    /**
+     * Cancel and close the modal.
+     * 
+     * Business Purpose: When user clicks Cancel button or closes the modal,
+     * update the appointment visit_stage to 'completed' for the specific patient.
+     */
+    public function cancel(): void
+    {
+        // Update appointment visit_stage to 'completed' when closing the file
+        // Only for the specific patient using operationForm['appointment_id']
+        if (!empty($this->operationForm['appointment_id'])) {
+            $appointment = Appointment::find($this->operationForm['appointment_id']);
+            if ($appointment && !in_array($appointment->visit_stage, ['cancelled'])) {
+                $appointment->update(['visit_stage' => 'completed']);
+            }
+        }
+        
+        $this->resetAllForms();
+        $this->showModal = false;
+        
+        // Redirect to operations list if on edit page
+        if ($this->isEditPage) {
+            $this->redirect(route('operations.index'));
+        }
     }
 
     public function delete($id): void
@@ -1340,7 +1399,7 @@ class OperationManager extends Component
                 $operation = Operation::create([
                     'patient_id' => $appointment->patient_id,
                     'doctor_id' => $appointment->doctor_id,
-                    'branch_id' => $appointment->branch_id,
+                    'branch_id' => $appointment->branch_id ?? auth()->user()->branch_id ?? 1,
                     'appointment_id' => $appointment->id,
                     'created_by' => auth()->id(),
                     'status' => 'scheduled',
@@ -1355,9 +1414,15 @@ class OperationManager extends Component
                 $operationId = $appointment->operation_id;
             }
 
+            // Update visit_stage to 'in_consultation' when doctor opens the file
+            // Only for the specific patient, not all patients
+            if (!in_array($appointment->visit_stage, ['completed', 'cancelled'])) {
+                $appointment->update(['visit_stage' => 'in_consultation']);
+            }
+
             // Redirect to edit page with query parameters
             $url = route('operations.edit', ['id' => $operationId]) . '?appointment_id=' . $appointment->id . '&patient_id=' . $appointment->patient_id;
-            $this->redirect($url, navigate: true);
+            $this->redirect($url);
         } catch (\Exception $e) {
             \Log::error('OperationManager viewOperation error: ' . $e->getMessage() . ' | Trace: ' . $e->getTraceAsString());
             session()->flash('error', 'Failed to open operation: ' . $e->getMessage());
@@ -1558,18 +1623,9 @@ class OperationManager extends Component
                 });
             }
             
-            // Apply status filter
+            // Apply status filter (filter by visit_stage, not operation.status)
             if (!empty($this->statusFilter)) {
-                $query->where(function ($query) {
-                    $query->whereHas('operation', function ($q) {
-                        $q->where('status', $this->statusFilter);
-                    });
-                    // Include appointments without operation only for 'scheduled' status
-                    if ($this->statusFilter === 'scheduled') {
-                        $query->orWhereNull('operation_id')
-                              ->orWhereDoesntHave('operation');
-                    }
-                });
+                $query->where('visit_stage', $this->statusFilter);
             }
             $query->orderBy('appointment_date', 'desc')
                   ->orderBy('appointment_time', 'desc')

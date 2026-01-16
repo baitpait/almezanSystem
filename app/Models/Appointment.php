@@ -36,6 +36,37 @@ class Appointment extends Model
     ];
 
     /**
+     * Calculate visit_stage based on appointment_date.
+     * 
+     * Business Purpose: Determine the appropriate visit_stage automatically
+     * based on whether the appointment is in the past, today, or future.
+     * 
+     * @param mixed $appointmentDate The appointment date (Carbon, string, or date)
+     * @return string The calculated visit_stage
+     */
+    public static function calculateVisitStage($appointmentDate): string
+    {
+        if (!$appointmentDate) {
+            return 'scheduled';
+        }
+
+        $date = \Carbon\Carbon::parse($appointmentDate);
+        $today = \Carbon\Carbon::today();
+
+        // Use isBefore with startOfDay to avoid time comparison issues
+        if ($date->isBefore($today->startOfDay())) {
+            // Past appointments (before today)
+            return 'completed';
+        } elseif ($date->isToday()) {
+            // Today's appointments
+            return 'waiting';
+        } else {
+            // Future appointments
+            return 'scheduled';
+        }
+    }
+
+    /**
      * The attributes that should be cast.
      *
      * @var array<string, string>

@@ -86,7 +86,7 @@ class AppointmentManager extends Component
             'form.appointment_time' => 'required',
             'form.duration' => 'required|integer|min:5|max:480',
             'form.notes' => 'nullable|string|max:1000',
-            'form.visit_stage' => 'required|in:scheduled,waiting,in_consultation,completed,cancelled',
+            'form.visit_stage' => 'nullable|in:scheduled,waiting,in_consultation,completed,cancelled',
             'form.visit_type' => 'required|in:Assessment,Operation,Follow up,New visit',
         ];
     }
@@ -480,6 +480,11 @@ class AppointmentManager extends Component
         $this->validate();
         
         $data = $this->form;
+        
+        // Auto-set visit_stage based on appointment_date (if not manually set)
+        if (empty($data['visit_stage']) || $data['visit_stage'] === null) {
+            $data['visit_stage'] = \App\Models\Appointment::calculateVisitStage($data['appointment_date']);
+        }
         
         // Add created_by and branch_id for new appointments
         if (!$this->editingId) {

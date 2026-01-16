@@ -657,15 +657,16 @@
                 </div>
 
                                 <div class="form-group">
-                                    <label class="form-label">Visit Stage *</label>
-                                    <select class="form-select w-full" wire:model.defer="form.visit_stage" required style="min-width: 100%;">
-                                        <option value="">Select Visit Stage</option>
+                                    <label class="form-label">Visit Stage</label>
+                                    <select class="form-select w-full" wire:model.defer="form.visit_stage" style="min-width: 100%;" {{ $editingId && in_array($form['visit_stage'] ?? '', ['completed', 'cancelled']) ? '' : 'disabled' }}>
+                                        <option value="">Auto (Based on Date)</option>
                             <option value="scheduled">Scheduled</option>
                             <option value="waiting">Waiting</option>
                             <option value="in_consultation">In Consultation</option>
                             <option value="completed">Completed</option>
                             <option value="cancelled">Cancelled</option>
                         </select>
+                                    <p class="text-xs text-gray-500 mt-1">Visit stage is automatically set based on appointment date. You can manually set it to "Completed" or "Cancelled".</p>
                                     @error('form.visit_stage') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                     </div>
 

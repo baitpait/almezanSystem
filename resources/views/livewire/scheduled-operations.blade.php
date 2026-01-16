@@ -39,10 +39,10 @@
                 <select class="form-select" wire:model.live="statusFilter">
                     <option value="">All Statuses</option>
                     <option value="scheduled">Scheduled</option>
-                    <option value="in_progress">In Progress</option>
+                    <option value="waiting">Waiting</option>
+                    <option value="in_consultation">In Consultation</option>
                     <option value="completed">Completed</option>
                     <option value="cancelled">Cancelled</option>
-                    <option value="postponed">Postponed</option>
                 </select>
             </div>
 
@@ -143,21 +143,26 @@
                         @endif
                     </td>
                     <td>
-                        @if($appointment->operation)
-                            @php
-                                $statusColors = [
-                                    'scheduled' => 'bg-blue-100 text-blue-800',
-                                    'in_progress' => 'bg-yellow-100 text-yellow-800',
-                                    'completed' => 'bg-green-100 text-green-800',
-                                    'cancelled' => 'bg-red-100 text-red-800',
-                                    'postponed' => 'bg-orange-100 text-orange-800',
-                                ];
-                                $statusColor = $statusColors[$appointment->operation->status] ?? 'bg-gray-100 text-gray-800';
-                            @endphp
-                            <span class="badge-status {{ $statusColor }} font-semibold">{{ ucfirst(str_replace('_', ' ', $appointment->operation->status)) }}</span>
-                        @else
-                            <span class="badge-status bg-gray-100 text-gray-800 font-semibold">No Operation</span>
-                        @endif
+                        @php
+                            $visitStage = $appointment->visit_stage ?? 'scheduled';
+                            $stageColors = [
+                                'scheduled' => 'bg-blue-100 text-blue-800',
+                                'waiting' => 'bg-yellow-100 text-yellow-800',
+                                'in_consultation' => 'bg-purple-100 text-purple-800',
+                                'completed' => 'bg-green-100 text-green-800',
+                                'cancelled' => 'bg-red-100 text-red-800',
+                            ];
+                            $stageLabels = [
+                                'scheduled' => 'Scheduled',
+                                'waiting' => 'Waiting',
+                                'in_consultation' => 'In Consultation',
+                                'completed' => 'Completed',
+                                'cancelled' => 'Cancelled',
+                            ];
+                            $stageColor = $stageColors[$visitStage] ?? 'bg-gray-100 text-gray-800';
+                            $stageLabel = $stageLabels[$visitStage] ?? ucfirst(str_replace('_', ' ', $visitStage));
+                        @endphp
+                        <span class="badge-status {{ $stageColor }} font-semibold">{{ $stageLabel }}</span>
                     </td>
                     <td class="sticky right-0 z-10 bg-white text-right" style="min-width: 100px; max-width: 120px;">
                         <button type="button" 

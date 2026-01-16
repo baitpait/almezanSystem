@@ -148,7 +148,7 @@
                         if (auth()->check()) {
                             $user = auth()->user();
                             $query = \App\Models\Appointment::where('visit_type', 'Assessment')
-                                ->whereDate('appointment_date', '>=', today());
+                                ->whereDate('appointment_date', '=', today());
                             
                             if ($user->branch_id) {
                                 $query->where('branch_id', $user->branch_id);
@@ -180,12 +180,37 @@
 
                     {{-- Operations --}}
                     @can('view.operations')
+                    @php
+                        $operationCount = 0;
+                        if (auth()->check()) {
+                            $user = auth()->user();
+                            $query = \App\Models\Appointment::where('visit_type', 'Operation')
+                                ->whereDate('appointment_date', '=', today());
+                            
+                            if ($user->branch_id) {
+                                $query->where('branch_id', $user->branch_id);
+                            }
+                            
+                            if ($user->isDoctor() && $user->doctor) {
+                                $query->where('doctor_id', $user->doctor->id);
+                            }
+                            
+                            $operationCount = $query->count();
+                        }
+                    @endphp
                     <li>
-                        <a href="{{ route('scheduled-operations.index') }}" class="flex items-center gap-3 px-4 py-2 rounded-lg text-white transition-all {{ request()->routeIs('scheduled-operations.*') ? 'bg-blue-500 text-white shadow-lg font-semibold' : 'hover:bg-blue-500/50' }}">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                            </svg>
-                            <span>Operations</span>
+                        <a href="{{ route('scheduled-operations.index') }}" class="flex items-center justify-between gap-3 px-4 py-2 rounded-lg text-white transition-all {{ request()->routeIs('scheduled-operations.*') ? 'bg-blue-500 text-white shadow-lg font-semibold' : 'hover:bg-blue-500/50' }}">
+                            <div class="flex items-center gap-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                </svg>
+                                <span>Operations</span>
+                            </div>
+                            @if($operationCount > 0)
+                            <span class="bg-white/20 text-white text-xs font-semibold px-2 py-1 rounded-full min-w-[24px] text-center">
+                                {{ $operationCount }}
+                            </span>
+                            @endif
                         </a>
                     </li>
                     @endcan
@@ -354,8 +379,10 @@
             });
         });
 
-        // Store original parents for dropdowns
-        const dropdownOriginalParents = new Map();
+        // Store original parents for dropdowns (use window to avoid redeclaration errors)
+        if (!window.dropdownOriginalParents) {
+            window.dropdownOriginalParents = new Map();
+        }
         
         // Simple Dropdown Functions - Works reliably
         window.toggleSimpleDropdown = function(patientId, event) {
@@ -400,8 +427,8 @@
                 const rect = button.getBoundingClientRect();
                 
                 // Store original parent if not stored
-                if (!dropdownOriginalParents.has(patientId)) {
-                    dropdownOriginalParents.set(patientId, {
+                if (!window.dropdownOriginalParents.has(patientId)) {
+                    window.dropdownOriginalParents.set(patientId, {
                         parent: container,
                         nextSibling: menu.nextSibling
                     });
@@ -472,8 +499,8 @@
             menu.style.display = 'none';
             
             // Return menu to original parent if stored
-            if (dropdownOriginalParents.has(patientId)) {
-                const original = dropdownOriginalParents.get(patientId);
+            if (window.dropdownOriginalParents && window.dropdownOriginalParents.has(patientId)) {
+                const original = window.dropdownOriginalParents.get(patientId);
                 if (menu.parentElement === document.body && original.parent) {
                     if (original.nextSibling) {
                         original.parent.insertBefore(menu, original.nextSibling);
@@ -514,7 +541,9 @@
         document.addEventListener('livewire:init', () => {
             Livewire.hook('morph.updated', () => {
                 // Clear stored parents and close all dropdowns
-                dropdownOriginalParents.clear();
+                if (window.dropdownOriginalParents) {
+                    window.dropdownOriginalParents.clear();
+                }
                 document.querySelectorAll('.simple-dropdown-menu').forEach(menu => {
                     menu.style.display = 'none';
                 });

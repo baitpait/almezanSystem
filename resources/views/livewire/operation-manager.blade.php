@@ -50,12 +50,12 @@
                             <div class="flex-shrink-0">
                                 <label class="form-label">Status</label>
                                 <select class="form-select" wire:model.live="statusFilter" style="width: 150px; min-width: 150px;">
-                                    <option value="">All Status</option>
+                                    <option value="">All Stages</option>
                                     <option value="scheduled">Scheduled</option>
-                                    <option value="in_progress">In Progress</option>
+                                    <option value="waiting">Waiting</option>
+                                    <option value="in_consultation">In Consultation</option>
                                     <option value="completed">Completed</option>
                                     <option value="cancelled">Cancelled</option>
-                                    <option value="postponed">Postponed</option>
                                 </select>
                             </div>
                             <div class="flex-shrink-0">
@@ -129,16 +129,24 @@
                                 </td>
                                 <td>
                                     @php
-                                    $statusClasses = [
+                                    $stageColors = [
                                         'scheduled' => 'bg-blue-100 text-blue-800',
-                                        'in_progress' => 'bg-yellow-100 text-yellow-800',
+                                        'waiting' => 'bg-yellow-100 text-yellow-800',
+                                        'in_consultation' => 'bg-blue-100 text-blue-800',
                                         'completed' => 'bg-green-100 text-green-800',
                                         'cancelled' => 'bg-red-100 text-red-800',
-                                        'postponed' => 'bg-gray-100 text-gray-800',
-                                        ];
+                                    ];
+                                    $stageLabels = [
+                                        'scheduled' => 'Scheduled',
+                                        'waiting' => 'Waiting',
+                                        'in_consultation' => 'In Consultation',
+                                        'completed' => 'Completed',
+                                        'cancelled' => 'Cancelled',
+                                    ];
+                                    $visitStage = $appointment->visit_stage ?? 'scheduled';
                                     @endphp
-                                <span class="badge-status {{ $statusClasses[$operation->status ?? 'scheduled'] ?? 'bg-gray-100 text-gray-800' }}">
-                                        {{ ucfirst(str_replace('_', ' ', $operation->status ?? 'scheduled')) }}
+                                <span class="badge-status {{ $stageColors[$visitStage] ?? 'bg-gray-100 text-gray-800' }}">
+                                        {{ $stageLabels[$visitStage] ?? ucfirst(str_replace('_', ' ', $visitStage)) }}
                                     </span>
                                 </td>
                             <td class="sticky right-0 z-10 bg-white text-right" style="min-width: 100px; max-width: 120px;">
@@ -322,7 +330,7 @@
                         <span class="font-semibold">Tip:</span> Use tabs to navigate between sections. Default values are pre-filled for quick entry.
                     </div>
                     <div class="flex gap-2">
-                        <button wire:click="$set('showModal', false)" class="btn btn-ghost">Cancel</button>
+                        <button wire:click="cancel" class="btn btn-ghost">Cancel</button>
                         <button wire:click="save" class="btn-primary">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />

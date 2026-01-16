@@ -37,7 +37,7 @@
                 </label>
                 <select wire:model.live="{{ $excimerProfileField }}" class="select select-bordered w-full select-sm">
                     <option value="">Select Profile</option>
-                    <option value="Aspheric Front">Aspheric Front (AF)</option>
+                    <option value="Aspheric Front">Aberration Free (AF)</option>
                     <option value="Topography-guided">Topography-guided</option>
                 </select>
             </div>

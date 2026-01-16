@@ -77,40 +77,31 @@ class ScheduledOperations extends Component
                 });
             }
             
-            // Apply status filter
+            // Apply status filter - now using visit_stage instead of operation.status
             if (!empty($this->statusFilter)) {
-                $query->where(function ($query) {
-                    $query->whereHas('operation', function ($q) {
-                        $q->where('status', $this->statusFilter);
-                    });
-                    // Include appointments without operation only for 'scheduled' status
-                    if ($this->statusFilter === 'scheduled') {
-                        $query->orWhereNull('operation_id')
-                              ->orWhereDoesntHave('operation');
-                    }
-                });
+                // Map old operation status values to visit_stage values
+                $statusMap = [
+                    'scheduled' => 'scheduled',
+                    'in_progress' => 'in_consultation',
+                    'completed' => 'completed',
+                    'cancelled' => 'cancelled',
+                    'postponed' => 'scheduled', // postponed operations are still scheduled
+                ];
+                
+                $visitStageFilter = $statusMap[$this->statusFilter] ?? $this->statusFilter;
+                $query->where('visit_stage', $visitStageFilter);
             }
             
-            // Apply date filter
+            // Apply date filter - now using visit_stage instead of operation status
             if ($this->dateFilter === 'today') {
                 $query->whereDate('appointment_date', Carbon::today());
             } elseif ($this->dateFilter === 'upcoming') {
                 $query->whereDate('appointment_date', '>=', Carbon::today())
-                      ->where(function ($query) {
-                          // Include appointments without operation OR with operation not completed/cancelled
-                          $query->whereNull('operation_id')
-                                ->orWhereDoesntHave('operation')
-                                ->orWhereHas('operation', function ($q) {
-                                    $q->where('status', '!=', 'completed')
-                                      ->where('status', '!=', 'cancelled');
-                                });
-                      });
+                      ->whereNotIn('visit_stage', ['completed', 'cancelled']);
             } elseif ($this->dateFilter === 'past') {
                 $query->where(function ($query) {
                     $query->whereDate('appointment_date', '<', Carbon::today())
-                          ->orWhereHas('operation', function ($q) {
-                              $q->whereIn('status', ['completed', 'cancelled']);
-                          });
+                          ->orWhereIn('visit_stage', ['completed', 'cancelled']);
                 });
             }
             
@@ -160,7 +151,7 @@ class ScheduledOperations extends Component
                 $operation = Operation::create([
                     'patient_id' => $appointment->patient_id,
                     'doctor_id' => $appointment->doctor_id,
-                    'branch_id' => $appointment->branch_id,
+                    'branch_id' => $appointment->branch_id ?? auth()->user()->branch_id ?? 1,
                     'appointment_id' => $appointment->id,
                     'created_by' => auth()->id(),
                     'status' => 'scheduled',
@@ -173,6 +164,12 @@ class ScheduledOperations extends Component
                 $operationId = $operation->id;
             } else {
                 $operationId = $appointment->operation_id;
+            }
+
+            // Update visit_stage to 'in_consultation' when doctor opens the file
+            // Only for the specific patient, not all patients
+            if (!in_array($appointment->visit_stage, ['completed', 'cancelled'])) {
+                $appointment->update(['visit_stage' => 'in_consultation']);
             }
 
             // Redirect to operation notes page

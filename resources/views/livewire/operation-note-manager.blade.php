@@ -267,7 +267,7 @@
                 </button>
                 <button type="submit" class="btn-primary">
                     <span wire:loading.remove wire:target="save">
-                        {{ $editingId ? 'Update' : 'Save' }} Operation Note
+                        Save
                     </span>
                     <span wire:loading wire:target="save" class="flex items-center gap-2">
                         <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
