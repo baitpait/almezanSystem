@@ -1214,14 +1214,24 @@ class OperationManager extends Component
         if ($medical = $operation->medicalHistory) {
             $this->medicalForm = $medical->toArray();
             unset($this->medicalForm['id'], $this->medicalForm['operation_id'], $this->medicalForm['created_at'], $this->medicalForm['updated_at']);
-            // Convert boolean to string "1"/"" for radio buttons
-            $booleanFields = [
+            // Convert boolean to string "1"/"" or "1"/"0" for radio buttons
+            // Fields that use value="0" in the view: ocular_surgery, family_history_ocular_disease_yes, current_medications_yes
+            $booleanFieldsWithZero = ['ocular_surgery', 'family_history_ocular_disease_yes', 'current_medications_yes'];
+            foreach ($booleanFieldsWithZero as $field) {
+                if (isset($this->medicalForm[$field])) {
+                    $this->medicalForm[$field] = $this->medicalForm[$field] ? '1' : '0';
+                } else {
+                    $this->medicalForm[$field] = '0';
+                }
+            }
+            
+            // Fields that use value="" in the view: all other boolean fields
+            $booleanFieldsWithEmpty = [
                 'diabetes', 'chronic_disease', 'herpes_keratitis', 'glaucoma',
-                'family_history_keratoconus', 'eye_rubber', 'pregnancy', 'ocular_surgery',
-                'family_history_ocular_disease_yes', 'current_medications_yes',
+                'family_history_keratoconus', 'eye_rubber', 'pregnancy',
                 'glare_halos_squint', 'refraction_stable_1year', 'contact_lens_use'
             ];
-            foreach ($booleanFields as $field) {
+            foreach ($booleanFieldsWithEmpty as $field) {
                 if (isset($this->medicalForm[$field])) {
                     $this->medicalForm[$field] = $this->medicalForm[$field] ? '1' : '';
                 } else {

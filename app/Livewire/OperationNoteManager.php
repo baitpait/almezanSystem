@@ -356,70 +356,70 @@ class OperationNoteManager extends Component
                 
                 // Copy general MMC fields (applies to all operation types)
                 // Only copy if OS fields are empty to prevent overwriting user-entered data
-                if (empty($this->form['mmc_0_02_percent_os'])) {
+                if (!isset($this->form['mmc_0_02_percent_os']) || $this->form['mmc_0_02_percent_os'] === false) {
                     $this->form['mmc_0_02_percent_os'] = $this->form['mmc_0_02_percent_od'] ?? false;
                 }
-                if (empty($this->form['mmc_duration_sec_os'])) {
+                if (!isset($this->form['mmc_duration_sec_os']) || $this->form['mmc_duration_sec_os'] === '' || $this->form['mmc_duration_sec_os'] === null) {
                     $this->form['mmc_duration_sec_os'] = $this->form['mmc_duration_sec_od'] ?? '';
                 }
                 
                 if ($operationType === 'PRK') {
-                    // Only copy if OS fields are empty
-                    if (empty($this->form['prk_epithelial_removal_os'])) {
+                    // Only copy if OS fields are empty (null, not set, or empty string)
+                    if (!isset($this->form['prk_epithelial_removal_os']) || $this->form['prk_epithelial_removal_os'] === '' || $this->form['prk_epithelial_removal_os'] === null) {
                         $this->form['prk_epithelial_removal_os'] = $this->form['prk_epithelial_removal_od'] ?? '';
                     }
-                    if (empty($this->form['prk_excimer_profile_os'])) {
+                    if (!isset($this->form['prk_excimer_profile_os']) || $this->form['prk_excimer_profile_os'] === '' || $this->form['prk_excimer_profile_os'] === null) {
                         $this->form['prk_excimer_profile_os'] = $this->form['prk_excimer_profile_od'] ?? '';
                     }
-                    if (empty($this->form['prk_mmc_0_02_percent_os'])) {
+                    if (!isset($this->form['prk_mmc_0_02_percent_os']) || $this->form['prk_mmc_0_02_percent_os'] === false) {
                         $this->form['prk_mmc_0_02_percent_os'] = $this->form['prk_mmc_0_02_percent_od'] ?? false;
                     }
-                    if (empty($this->form['prk_bandage_contact_lens_os'])) {
+                    if (!isset($this->form['prk_bandage_contact_lens_os']) || $this->form['prk_bandage_contact_lens_os'] === false) {
                         $this->form['prk_bandage_contact_lens_os'] = $this->form['prk_bandage_contact_lens_od'] ?? false;
                     }
-                    if (empty($this->form['prk_target_os'])) {
+                    if (!isset($this->form['prk_target_os']) || $this->form['prk_target_os'] === '' || $this->form['prk_target_os'] === null) {
                         $this->form['prk_target_os'] = $this->form['prk_target_od'] ?? '';
                     }
                 } elseif ($operationType === 'Femto-LASIK') {
-                    // Only copy if OS fields are empty
-                    if (empty($this->form['femto_flap_done_os'])) {
+                    // Only copy if OS fields are empty (null or not set, but not false)
+                    if (!isset($this->form['femto_flap_done_os']) || $this->form['femto_flap_done_os'] === null || $this->form['femto_flap_done_os'] === '') {
                         $this->form['femto_flap_done_os'] = $this->form['femto_flap_done_od'] ?? null;
                     }
-                    if (empty($this->form['femto_excimer_profile_os'])) {
+                    if (!isset($this->form['femto_excimer_profile_os']) || $this->form['femto_excimer_profile_os'] === '' || $this->form['femto_excimer_profile_os'] === null) {
                         $this->form['femto_excimer_profile_os'] = $this->form['femto_excimer_profile_od'] ?? '';
                     }
-                    if (empty($this->form['femto_bandage_contact_lens_os'])) {
+                    if (!isset($this->form['femto_bandage_contact_lens_os']) || $this->form['femto_bandage_contact_lens_os'] === false) {
                         $this->form['femto_bandage_contact_lens_os'] = $this->form['femto_bandage_contact_lens_od'] ?? false;
                     }
-                    if (empty($this->form['femto_target_os'])) {
+                    if (!isset($this->form['femto_target_os']) || $this->form['femto_target_os'] === '' || $this->form['femto_target_os'] === null) {
                         $this->form['femto_target_os'] = $this->form['femto_target_od'] ?? '';
                     }
                 } elseif ($operationType === 'SMILE') {
-                    // Only copy if OS fields are empty
-                    if (empty($this->form['smile_complete_lenticule_separation_os'])) {
+                    // Only copy if OS fields are empty (null or not set, but not false)
+                    if (!isset($this->form['smile_complete_lenticule_separation_os']) || $this->form['smile_complete_lenticule_separation_os'] === null || $this->form['smile_complete_lenticule_separation_os'] === '') {
                         $this->form['smile_complete_lenticule_separation_os'] = $this->form['smile_complete_lenticule_separation_od'] ?? null;
                     }
-                    if (empty($this->form['smile_complete_lenticule_extraction_os'])) {
+                    if (!isset($this->form['smile_complete_lenticule_extraction_os']) || $this->form['smile_complete_lenticule_extraction_os'] === null || $this->form['smile_complete_lenticule_extraction_os'] === '') {
                         $this->form['smile_complete_lenticule_extraction_os'] = $this->form['smile_complete_lenticule_extraction_od'] ?? null;
                     }
-                    if (empty($this->form['smile_target_os'])) {
+                    if (!isset($this->form['smile_target_os']) || $this->form['smile_target_os'] === '' || $this->form['smile_target_os'] === null) {
                         $this->form['smile_target_os'] = $this->form['smile_target_od'] ?? '';
                     }
                 } elseif ($operationType === 'PTK') {
-                    // Only copy if OS fields are empty
-                    if (empty($this->form['ptk_epithelial_removal_os'])) {
+                    // Only copy if OS fields are empty (null, not set, or empty string)
+                    if (!isset($this->form['ptk_epithelial_removal_os']) || $this->form['ptk_epithelial_removal_os'] === '' || $this->form['ptk_epithelial_removal_os'] === null) {
                         $this->form['ptk_epithelial_removal_os'] = $this->form['ptk_epithelial_removal_od'] ?? '';
                     }
-                    if (empty($this->form['ptk_excimer_profile_os'])) {
+                    if (!isset($this->form['ptk_excimer_profile_os']) || $this->form['ptk_excimer_profile_os'] === '' || $this->form['ptk_excimer_profile_os'] === null) {
                         $this->form['ptk_excimer_profile_os'] = $this->form['ptk_excimer_profile_od'] ?? '';
                     }
-                    if (empty($this->form['ptk_mmc_0_02_percent_os'])) {
+                    if (!isset($this->form['ptk_mmc_0_02_percent_os']) || $this->form['ptk_mmc_0_02_percent_os'] === false) {
                         $this->form['ptk_mmc_0_02_percent_os'] = $this->form['ptk_mmc_0_02_percent_od'] ?? false;
                     }
-                    if (empty($this->form['ptk_bandage_contact_lens_os'])) {
+                    if (!isset($this->form['ptk_bandage_contact_lens_os']) || $this->form['ptk_bandage_contact_lens_os'] === false) {
                         $this->form['ptk_bandage_contact_lens_os'] = $this->form['ptk_bandage_contact_lens_od'] ?? false;
                     }
-                    if (empty($this->form['ptk_target_os'])) {
+                    if (!isset($this->form['ptk_target_os']) || $this->form['ptk_target_os'] === '' || $this->form['ptk_target_os'] === null) {
                         $this->form['ptk_target_os'] = $this->form['ptk_target_od'] ?? '';
                     }
                 }
@@ -674,25 +674,25 @@ class OperationNoteManager extends Component
                     $data['operation_type_os'] = $operationType; // Copy operation type
                     
                     // Copy general MMC fields (applies to all operation types)
-                    // Only copy if OS fields are empty
-                    if (empty($data['mmc_0_02_percent_os'])) {
+                    // Only copy if OS fields are empty (not set or false)
+                    if (!isset($data['mmc_0_02_percent_os']) || $data['mmc_0_02_percent_os'] === false) {
                         $data['mmc_0_02_percent_os'] = $data['mmc_0_02_percent_od'] ?? false;
                     }
-                    if (empty($data['mmc_duration_sec_os'])) {
+                    if (!isset($data['mmc_duration_sec_os']) || $data['mmc_duration_sec_os'] === '' || $data['mmc_duration_sec_os'] === null) {
                         $data['mmc_duration_sec_os'] = $data['mmc_duration_sec_od'] ?? null;
                     }
                     
-                    // Copy Eye Drops from OD to OS (only if OS fields are empty)
-                    if (empty($data['eye_drops_vigamox_os'])) {
+                    // Copy Eye Drops from OD to OS (only if OS fields are empty - not set or false)
+                    if (!isset($data['eye_drops_vigamox_os']) || $data['eye_drops_vigamox_os'] === false) {
                         $data['eye_drops_vigamox_os'] = $data['eye_drops_vigamox_od'] ?? false;
                     }
-                    if (empty($data['eye_drops_pred_forte_os'])) {
+                    if (!isset($data['eye_drops_pred_forte_os']) || $data['eye_drops_pred_forte_os'] === false) {
                         $data['eye_drops_pred_forte_os'] = $data['eye_drops_pred_forte_od'] ?? false;
                     }
-                    if (empty($data['eye_drops_other_os'])) {
+                    if (!isset($data['eye_drops_other_os']) || $data['eye_drops_other_os'] === false) {
                         $data['eye_drops_other_os'] = $data['eye_drops_other_od'] ?? false;
                     }
-                    if (empty($data['eye_drops_other_details_os'])) {
+                    if (!isset($data['eye_drops_other_details_os']) || $data['eye_drops_other_details_os'] === '' || $data['eye_drops_other_details_os'] === null) {
                         $data['eye_drops_other_details_os'] = $data['eye_drops_other_details_od'] ?? null;
                     }
                     // Also copy to old shared fields for backward compatibility
@@ -701,21 +701,21 @@ class OperationNoteManager extends Component
                     $data['eye_drops_other'] = $data['eye_drops_other_od'] ?? false;
                     $data['eye_drops_other_details'] = $data['eye_drops_other_details_od'] ?? null;
                     
-                    // Copy OD fields to OS fields - only if OS fields are empty
+                    // Copy OD fields to OS fields - only if OS fields are empty (null, not set, or empty string)
                     if ($operationType === 'PRK') {
-                        if (empty($data['prk_epithelial_removal_os'])) {
+                        if (!isset($data['prk_epithelial_removal_os']) || $data['prk_epithelial_removal_os'] === '' || $data['prk_epithelial_removal_os'] === null) {
                             $data['prk_epithelial_removal_os'] = $data['prk_epithelial_removal_od'] ?? null;
                         }
-                        if (empty($data['prk_excimer_profile_os'])) {
+                        if (!isset($data['prk_excimer_profile_os']) || $data['prk_excimer_profile_os'] === '' || $data['prk_excimer_profile_os'] === null) {
                             $data['prk_excimer_profile_os'] = $data['prk_excimer_profile_od'] ?? null;
                         }
-                        if (empty($data['prk_mmc_0_02_percent_os'])) {
+                        if (!isset($data['prk_mmc_0_02_percent_os']) || $data['prk_mmc_0_02_percent_os'] === false) {
                             $data['prk_mmc_0_02_percent_os'] = $data['prk_mmc_0_02_percent_od'] ?? false;
                         }
-                        if (empty($data['prk_bandage_contact_lens_os'])) {
+                        if (!isset($data['prk_bandage_contact_lens_os']) || $data['prk_bandage_contact_lens_os'] === false) {
                             $data['prk_bandage_contact_lens_os'] = $data['prk_bandage_contact_lens_od'] ?? false;
                         }
-                        if (empty($data['prk_target_os'])) {
+                        if (!isset($data['prk_target_os']) || $data['prk_target_os'] === '' || $data['prk_target_os'] === null) {
                             $data['prk_target_os'] = $data['prk_target_od'] ?? null;
                         }
                         // Also copy to old shared fields
@@ -724,16 +724,17 @@ class OperationNoteManager extends Component
                         $data['prk_mmc_0_02_percent'] = $data['prk_mmc_0_02_percent_od'] ?? false;
                         $data['prk_bandage_contact_lens'] = $data['prk_bandage_contact_lens_od'] ?? false;
                     } elseif ($operationType === 'Femto-LASIK') {
-                        if (empty($data['femto_flap_done_os'])) {
+                        // Only copy if OS fields are empty (null or not set, but not false)
+                        if (!isset($data['femto_flap_done_os']) || $data['femto_flap_done_os'] === null || $data['femto_flap_done_os'] === '') {
                             $data['femto_flap_done_os'] = $data['femto_flap_done_od'] ?? null;
                         }
-                        if (empty($data['femto_excimer_profile_os'])) {
+                        if (!isset($data['femto_excimer_profile_os']) || $data['femto_excimer_profile_os'] === '' || $data['femto_excimer_profile_os'] === null) {
                             $data['femto_excimer_profile_os'] = $data['femto_excimer_profile_od'] ?? null;
                         }
-                        if (empty($data['femto_bandage_contact_lens_os'])) {
+                        if (!isset($data['femto_bandage_contact_lens_os']) || $data['femto_bandage_contact_lens_os'] === false) {
                             $data['femto_bandage_contact_lens_os'] = $data['femto_bandage_contact_lens_od'] ?? false;
                         }
-                        if (empty($data['femto_target_os'])) {
+                        if (!isset($data['femto_target_os']) || $data['femto_target_os'] === '' || $data['femto_target_os'] === null) {
                             $data['femto_target_os'] = $data['femto_target_od'] ?? null;
                         }
                         // Also copy to old shared fields
@@ -741,32 +742,33 @@ class OperationNoteManager extends Component
                         $data['femto_excimer_profile'] = $data['femto_excimer_profile_od'] ?? null;
                         $data['femto_bandage_contact_lens'] = $data['femto_bandage_contact_lens_od'] ?? false;
                     } elseif ($operationType === 'SMILE') {
-                        if (empty($data['smile_complete_lenticule_separation_os'])) {
+                        // Only copy if OS fields are empty (null or not set, but not false)
+                        if (!isset($data['smile_complete_lenticule_separation_os']) || $data['smile_complete_lenticule_separation_os'] === null || $data['smile_complete_lenticule_separation_os'] === '') {
                             $data['smile_complete_lenticule_separation_os'] = $data['smile_complete_lenticule_separation_od'] ?? null;
                         }
-                        if (empty($data['smile_complete_lenticule_extraction_os'])) {
+                        if (!isset($data['smile_complete_lenticule_extraction_os']) || $data['smile_complete_lenticule_extraction_os'] === null || $data['smile_complete_lenticule_extraction_os'] === '') {
                             $data['smile_complete_lenticule_extraction_os'] = $data['smile_complete_lenticule_extraction_od'] ?? null;
                         }
-                        if (empty($data['smile_target_os'])) {
+                        if (!isset($data['smile_target_os']) || $data['smile_target_os'] === '' || $data['smile_target_os'] === null) {
                             $data['smile_target_os'] = $data['smile_target_od'] ?? null;
                         }
                         // Also copy to old shared fields
                         $data['smile_complete_lenticule_separation'] = $data['smile_complete_lenticule_separation_od'] ?? null;
                         $data['smile_complete_lenticule_extraction'] = $data['smile_complete_lenticule_extraction_od'] ?? null;
                     } elseif ($operationType === 'PTK') {
-                        if (empty($data['ptk_epithelial_removal_os'])) {
+                        if (!isset($data['ptk_epithelial_removal_os']) || $data['ptk_epithelial_removal_os'] === '' || $data['ptk_epithelial_removal_os'] === null) {
                             $data['ptk_epithelial_removal_os'] = $data['ptk_epithelial_removal_od'] ?? null;
                         }
-                        if (empty($data['ptk_excimer_profile_os'])) {
+                        if (!isset($data['ptk_excimer_profile_os']) || $data['ptk_excimer_profile_os'] === '' || $data['ptk_excimer_profile_os'] === null) {
                             $data['ptk_excimer_profile_os'] = $data['ptk_excimer_profile_od'] ?? null;
                         }
-                        if (empty($data['ptk_mmc_0_02_percent_os'])) {
+                        if (!isset($data['ptk_mmc_0_02_percent_os']) || $data['ptk_mmc_0_02_percent_os'] === false) {
                             $data['ptk_mmc_0_02_percent_os'] = $data['ptk_mmc_0_02_percent_od'] ?? false;
                         }
-                        if (empty($data['ptk_bandage_contact_lens_os'])) {
+                        if (!isset($data['ptk_bandage_contact_lens_os']) || $data['ptk_bandage_contact_lens_os'] === false) {
                             $data['ptk_bandage_contact_lens_os'] = $data['ptk_bandage_contact_lens_od'] ?? false;
                         }
-                        if (empty($data['ptk_target_os'])) {
+                        if (!isset($data['ptk_target_os']) || $data['ptk_target_os'] === '' || $data['ptk_target_os'] === null) {
                             $data['ptk_target_os'] = $data['ptk_target_od'] ?? null;
                         }
                         // Also copy to old shared fields
@@ -871,6 +873,24 @@ class OperationNoteManager extends Component
         $operationNote = OperationNote::findOrFail($id);
         $this->editingId = $id;
         
+        // Get raw attributes to avoid boolean cast issues with null values
+        $rawAttributes = $operationNote->getAttributes();
+        
+        // Helper function to convert nullable boolean from database to string for select
+        $convertNullableBoolean = function($value) {
+            if ($value === null) {
+                return null;
+            }
+            // Handle both raw database value (0/1) and cast boolean (false/true)
+            if ($value === true || $value === 1 || $value === '1') {
+                return '1';
+            }
+            if ($value === false || $value === 0 || $value === '0') {
+                return '0';
+            }
+            return null;
+        };
+        
         $this->form = [
             'appointment_id' => $operationNote->appointment_id,
             'patient_id' => $operationNote->patient_id,
@@ -887,11 +907,11 @@ class OperationNoteManager extends Component
             'prk_excimer_profile' => $operationNote->prk_excimer_profile_od ?? $operationNote->prk_excimer_profile ?? '',
             'prk_mmc_0_02_percent' => $operationNote->prk_mmc_0_02_percent_od ?? $operationNote->prk_mmc_0_02_percent ?? false,
             'prk_bandage_contact_lens' => $operationNote->prk_bandage_contact_lens_od ?? $operationNote->prk_bandage_contact_lens ?? false,
-            'femto_flap_done' => $operationNote->femto_flap_done_od ?? $operationNote->femto_flap_done,
+            'femto_flap_done' => $convertNullableBoolean($rawAttributes['femto_flap_done_od'] ?? $rawAttributes['femto_flap_done'] ?? null),
             'femto_excimer_profile' => $operationNote->femto_excimer_profile_od ?? $operationNote->femto_excimer_profile ?? '',
             'femto_bandage_contact_lens' => $operationNote->femto_bandage_contact_lens_od ?? $operationNote->femto_bandage_contact_lens ?? false,
-            'smile_complete_lenticule_separation' => $operationNote->smile_complete_lenticule_separation_od ?? $operationNote->smile_complete_lenticule_separation,
-            'smile_complete_lenticule_extraction' => $operationNote->smile_complete_lenticule_extraction_od ?? $operationNote->smile_complete_lenticule_extraction,
+            'smile_complete_lenticule_separation' => $convertNullableBoolean($rawAttributes['smile_complete_lenticule_separation_od'] ?? $rawAttributes['smile_complete_lenticule_separation'] ?? null),
+            'smile_complete_lenticule_extraction' => $convertNullableBoolean($rawAttributes['smile_complete_lenticule_extraction_od'] ?? $rawAttributes['smile_complete_lenticule_extraction'] ?? null),
             'ptk_epithelial_removal' => $operationNote->ptk_epithelial_removal_od ?? $operationNote->ptk_epithelial_removal ?? '',
             'ptk_excimer_profile' => $operationNote->ptk_excimer_profile_od ?? $operationNote->ptk_excimer_profile ?? '',
             'ptk_mmc_0_02_percent' => $operationNote->ptk_mmc_0_02_percent_od ?? $operationNote->ptk_mmc_0_02_percent ?? false,
@@ -914,11 +934,11 @@ class OperationNoteManager extends Component
             'prk_excimer_profile_od' => $operationNote->prk_excimer_profile_od ?? '',
             'prk_mmc_0_02_percent_od' => $operationNote->prk_mmc_0_02_percent_od ?? false,
             'prk_bandage_contact_lens_od' => $operationNote->prk_bandage_contact_lens_od ?? false,
-            'femto_flap_done_od' => $operationNote->femto_flap_done_od,
+            'femto_flap_done_od' => $convertNullableBoolean($rawAttributes['femto_flap_done_od'] ?? null),
             'femto_excimer_profile_od' => $operationNote->femto_excimer_profile_od ?? '',
             'femto_bandage_contact_lens_od' => $operationNote->femto_bandage_contact_lens_od ?? false,
-            'smile_complete_lenticule_separation_od' => $operationNote->smile_complete_lenticule_separation_od,
-            'smile_complete_lenticule_extraction_od' => $operationNote->smile_complete_lenticule_extraction_od,
+            'smile_complete_lenticule_separation_od' => $convertNullableBoolean($rawAttributes['smile_complete_lenticule_separation_od'] ?? null),
+            'smile_complete_lenticule_extraction_od' => $convertNullableBoolean($rawAttributes['smile_complete_lenticule_extraction_od'] ?? null),
             'ptk_epithelial_removal_od' => $operationNote->ptk_epithelial_removal_od ?? '',
             'ptk_excimer_profile_od' => $operationNote->ptk_excimer_profile_od ?? '',
             'ptk_mmc_0_02_percent_od' => $operationNote->ptk_mmc_0_02_percent_od ?? false,
@@ -928,11 +948,11 @@ class OperationNoteManager extends Component
             'prk_excimer_profile_os' => $operationNote->prk_excimer_profile_os ?? '',
             'prk_mmc_0_02_percent_os' => $operationNote->prk_mmc_0_02_percent_os ?? false,
             'prk_bandage_contact_lens_os' => $operationNote->prk_bandage_contact_lens_os ?? false,
-            'femto_flap_done_os' => $operationNote->femto_flap_done_os,
+            'femto_flap_done_os' => $convertNullableBoolean($rawAttributes['femto_flap_done_os'] ?? null),
             'femto_excimer_profile_os' => $operationNote->femto_excimer_profile_os ?? '',
             'femto_bandage_contact_lens_os' => $operationNote->femto_bandage_contact_lens_os ?? false,
-            'smile_complete_lenticule_separation_os' => $operationNote->smile_complete_lenticule_separation_os,
-            'smile_complete_lenticule_extraction_os' => $operationNote->smile_complete_lenticule_extraction_os,
+            'smile_complete_lenticule_separation_os' => $convertNullableBoolean($rawAttributes['smile_complete_lenticule_separation_os'] ?? null),
+            'smile_complete_lenticule_extraction_os' => $convertNullableBoolean($rawAttributes['smile_complete_lenticule_extraction_os'] ?? null),
             'ptk_epithelial_removal_os' => $operationNote->ptk_epithelial_removal_os ?? '',
             'ptk_excimer_profile_os' => $operationNote->ptk_excimer_profile_os ?? '',
             'ptk_mmc_0_02_percent_os' => $operationNote->ptk_mmc_0_02_percent_os ?? false,

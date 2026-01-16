@@ -115,28 +115,28 @@ class OperationNote extends Model
         // Old shared fields
         'prk_mmc_0_02_percent' => 'boolean',
         'prk_bandage_contact_lens' => 'boolean',
-        'femto_flap_done' => 'boolean',
+        // Note: femto_flap_done, smile_complete_lenticule_separation, smile_complete_lenticule_extraction are nullable boolean
+        // They should NOT be cast as 'boolean' because Laravel converts null to false
+        // We handle them manually in the save() and edit() methods
         'femto_bandage_contact_lens' => 'boolean',
-        'smile_complete_lenticule_separation' => 'boolean',
-        'smile_complete_lenticule_extraction' => 'boolean',
         'ptk_mmc_0_02_percent' => 'boolean',
         'ptk_bandage_contact_lens' => 'boolean',
         // New separate OD fields
         'prk_mmc_0_02_percent_od' => 'boolean',
         'prk_bandage_contact_lens_od' => 'boolean',
-        'femto_flap_done_od' => 'boolean',
+        // Note: femto_flap_done_od, smile_complete_lenticule_separation_od, smile_complete_lenticule_extraction_od are nullable boolean
+        // They should NOT be cast as 'boolean' because Laravel converts null to false
+        // We handle them manually in the save() and edit() methods
         'femto_bandage_contact_lens_od' => 'boolean',
-        'smile_complete_lenticule_separation_od' => 'boolean',
-        'smile_complete_lenticule_extraction_od' => 'boolean',
         'ptk_mmc_0_02_percent_od' => 'boolean',
         'ptk_bandage_contact_lens_od' => 'boolean',
         // New separate OS fields
         'prk_mmc_0_02_percent_os' => 'boolean',
         'prk_bandage_contact_lens_os' => 'boolean',
-        'femto_flap_done_os' => 'boolean',
+        // Note: femto_flap_done_os, smile_complete_lenticule_separation_os, smile_complete_lenticule_extraction_os are nullable boolean
+        // They should NOT be cast as 'boolean' because Laravel converts null to false
+        // We handle them manually in the save() and edit() methods
         'femto_bandage_contact_lens_os' => 'boolean',
-        'smile_complete_lenticule_separation_os' => 'boolean',
-        'smile_complete_lenticule_extraction_os' => 'boolean',
         'ptk_mmc_0_02_percent_os' => 'boolean',
         'ptk_bandage_contact_lens_os' => 'boolean',
         // General MMC fields
