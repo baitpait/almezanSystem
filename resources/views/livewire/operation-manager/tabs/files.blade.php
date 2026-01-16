@@ -123,7 +123,7 @@
                                             <ul class="dropdown-menu-list">
                                 @if(in_array($file->mime_type, ['image/jpeg', 'image/png', 'image/gif', 'image/webp']))
                                                     <li>
-                                                        <a href="{{ \Illuminate\Support\Facades\Storage::url($file->file_path) }}" 
+                                                        <a href="{{ asset('storage/' . $file->file_path) }}" 
                                                            target="_blank" 
                                                            rel="noopener noreferrer" 
                                                            class="dropdown-menu-item dropdown-menu-item-view" 
@@ -137,7 +137,7 @@
                                                     </li>
                                                 @endif
                                                 <li>
-                                                    <a href="{{ \Illuminate\Support\Facades\Storage::url($file->file_path) }}" 
+                                                    <a href="{{ asset('storage/' . $file->file_path) }}" 
                                                        target="_blank" 
                                                        rel="noopener noreferrer" 
                                                        download
