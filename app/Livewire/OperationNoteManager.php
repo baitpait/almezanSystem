@@ -552,10 +552,14 @@ class OperationNoteManager extends Component
             // Handle nullable boolean fields (old shared fields)
             $nullableBooleanFields = ['femto_flap_done', 'smile_complete_lenticule_separation', 'smile_complete_lenticule_extraction'];
             foreach ($nullableBooleanFields as $field) {
-                if ($data[$field] === '' || $data[$field] === null) {
-                    $data[$field] = null;
-                } else {
-                    $data[$field] = in_array($data[$field], ['1', 1, true, 'yes', 'on'], true);
+                if (isset($data[$field])) {
+                    if ($data[$field] === '' || $data[$field] === null) {
+                        $data[$field] = null;
+                    } elseif (in_array($data[$field], ['0', 0, false, 'no', 'off'], true)) {
+                        $data[$field] = false;
+                    } else {
+                        $data[$field] = in_array($data[$field], ['1', 1, true, 'yes', 'on'], true);
+                    }
                 }
             }
             
@@ -569,6 +573,8 @@ class OperationNoteManager extends Component
                 if (isset($data[$field])) {
                     if ($data[$field] === '' || $data[$field] === null) {
                         $data[$field] = null;
+                    } elseif (in_array($data[$field], ['0', 0, false, 'no', 'off'], true)) {
+                        $data[$field] = false;
                     } else {
                         $data[$field] = in_array($data[$field], ['1', 1, true, 'yes', 'on'], true);
                     }
@@ -585,6 +591,8 @@ class OperationNoteManager extends Component
                 if (isset($data[$field])) {
                     if ($data[$field] === '' || $data[$field] === null) {
                         $data[$field] = null;
+                    } elseif (in_array($data[$field], ['0', 0, false, 'no', 'off'], true)) {
+                        $data[$field] = false;
                     } else {
                         $data[$field] = in_array($data[$field], ['1', 1, true, 'yes', 'on'], true);
                     }
