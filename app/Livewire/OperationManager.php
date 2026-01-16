@@ -28,6 +28,7 @@ class OperationManager extends Component
 
     public string $search = '';
     public string $statusFilter = '';
+    public string $dateFilter = 'today'; // upcoming, today, past, all
     public int $perPage = 10;
     public $editingId = null;
     public $showModal = false;
@@ -271,11 +272,21 @@ class OperationManager extends Component
         }
     }
 
+    public function updatingDateFilter(): void
+    {
+        try {
+            $this->resetPage();
+        } catch (\Exception $e) {
+            \Log::error('OperationManager updatingDateFilter error: ' . $e->getMessage());
+        }
+    }
+
     public function mount($id = null): void
     {
         // Initialize properties safely
         $this->search = $this->search ?? '';
         $this->statusFilter = $this->statusFilter ?? '';
+        $this->dateFilter = $this->dateFilter ?? 'today';
         $this->perPage = $this->perPage ?? 10;
         
         // Check if we're on create or edit page
@@ -1627,6 +1638,24 @@ class OperationManager extends Component
             if (!empty($this->statusFilter)) {
                 $query->where('visit_stage', $this->statusFilter);
             }
+            
+            // Apply date filter
+            if ($this->dateFilter === 'today') {
+                // Show only today's appointments
+                $query->whereDate('appointment_date', \Carbon\Carbon::today());
+            } elseif ($this->dateFilter === 'upcoming') {
+                // Show upcoming appointments (future dates, excluding completed/cancelled)
+                $query->whereDate('appointment_date', '>=', \Carbon\Carbon::today())
+                      ->whereNotIn('visit_stage', ['completed', 'cancelled']);
+            } elseif ($this->dateFilter === 'past') {
+                // Show past appointments (past dates or completed/cancelled)
+                $query->where(function ($query) {
+                    $query->whereDate('appointment_date', '<', \Carbon\Carbon::today())
+                          ->orWhereIn('visit_stage', ['completed', 'cancelled']);
+                });
+            }
+            // If dateFilter === 'all', show all appointments (no date filter applied)
+            
             $query->orderBy('appointment_date', 'desc')
                   ->orderBy('appointment_time', 'desc')
                   ->orderBy('created_at', 'desc');

@@ -31,6 +31,15 @@ class OperationNoteManager extends Component
         'eye_drops_pred_forte' => false,
         'eye_drops_other' => false,
         'eye_drops_other_details' => '',
+        // New separate Eye Drops fields for OD and OS
+        'eye_drops_vigamox_od' => false,
+        'eye_drops_vigamox_os' => false,
+        'eye_drops_pred_forte_od' => false,
+        'eye_drops_pred_forte_os' => false,
+        'eye_drops_other_od' => false,
+        'eye_drops_other_os' => false,
+        'eye_drops_other_details_od' => '',
+        'eye_drops_other_details_os' => '',
         // Old shared fields (kept for backward compatibility)
         'prk_epithelial_removal' => '',
         'prk_excimer_profile' => '',
@@ -118,11 +127,26 @@ class OperationNoteManager extends Component
     /**
      * Cancel and redirect to Scheduled Operations page
      * 
-     * Business Purpose: When user clicks Cancel button, redirect them back to the Scheduled Operations page
-     * instead of just resetting the form.
+     * Business Purpose: When user clicks Cancel button, update visit_stage back to appropriate state
+     * (waiting/scheduled/completed) based on appointment date, then redirect to Scheduled Operations page.
      */
     public function cancel(): void
     {
+        // Update visit_stage back to appropriate state based on appointment date
+        if ($this->form['appointment_id'] ?? null) {
+            try {
+                $appointment = \App\Models\Appointment::find($this->form['appointment_id']);
+                if ($appointment && !in_array($appointment->visit_stage, ['completed', 'cancelled'])) {
+                    // Calculate appropriate visit_stage based on appointment date
+                    $newVisitStage = \App\Models\Appointment::calculateVisitStage($appointment->appointment_date);
+                    $appointment->update(['visit_stage' => $newVisitStage]);
+                }
+            } catch (\Exception $e) {
+                // Log error but don't prevent redirect
+                \Log::error('OperationNoteManager cancel error: ' . $e->getMessage());
+            }
+        }
+        
         $this->redirect(route('scheduled-operations.index'));
     }
 
@@ -143,6 +167,15 @@ class OperationNoteManager extends Component
             'eye_drops_pred_forte' => false,
             'eye_drops_other' => false,
             'eye_drops_other_details' => '',
+            // New separate Eye Drops fields for OD and OS
+            'eye_drops_vigamox_od' => false,
+            'eye_drops_vigamox_os' => false,
+            'eye_drops_pred_forte_od' => false,
+            'eye_drops_pred_forte_os' => false,
+            'eye_drops_other_od' => false,
+            'eye_drops_other_os' => false,
+            'eye_drops_other_details_od' => '',
+            'eye_drops_other_details_os' => '',
             // Old shared fields
             'prk_epithelial_removal' => '',
             'prk_excimer_profile' => '',
@@ -464,15 +497,56 @@ class OperationNoteManager extends Component
                 $data['operation_type_od'] = null; // Clear OD since it's not used
             }
             
-            // Convert boolean-like values
+            // Convert boolean-like values (old shared fields)
             $booleanFields = [
                 'eye_drops_vigamox', 'eye_drops_pred_forte', 
                 'eye_drops_other', 'prk_mmc_0_02_percent', 'prk_bandage_contact_lens',
-                'femto_bandage_contact_lens'
+                'femto_bandage_contact_lens', 'ptk_mmc_0_02_percent', 'ptk_bandage_contact_lens',
             ];
             
             foreach ($booleanFields as $field) {
-                $data[$field] = in_array($data[$field], ['1', 1, true, 'yes', 'on'], true);
+                if (isset($data[$field])) {
+                    $data[$field] = in_array($data[$field], ['1', 1, true, 'yes', 'on'], true);
+                }
+            }
+            
+            // Convert boolean-like values (new separate Eye Drops fields)
+            $eyeDropsBooleanFields = [
+                'eye_drops_vigamox_od', 'eye_drops_vigamox_os',
+                'eye_drops_pred_forte_od', 'eye_drops_pred_forte_os',
+                'eye_drops_other_od', 'eye_drops_other_os',
+            ];
+            
+            foreach ($eyeDropsBooleanFields as $field) {
+                if (isset($data[$field])) {
+                    $data[$field] = in_array($data[$field], ['1', 1, true, 'yes', 'on'], true);
+                }
+            }
+            
+            // Convert boolean-like values (new separate OD fields)
+            $booleanFieldsOd = [
+                'prk_mmc_0_02_percent_od', 'prk_bandage_contact_lens_od',
+                'femto_bandage_contact_lens_od', 'ptk_mmc_0_02_percent_od', 'ptk_bandage_contact_lens_od',
+                'mmc_0_02_percent_od',
+            ];
+            
+            foreach ($booleanFieldsOd as $field) {
+                if (isset($data[$field])) {
+                    $data[$field] = in_array($data[$field], ['1', 1, true, 'yes', 'on'], true);
+                }
+            }
+            
+            // Convert boolean-like values (new separate OS fields)
+            $booleanFieldsOs = [
+                'prk_mmc_0_02_percent_os', 'prk_bandage_contact_lens_os',
+                'femto_bandage_contact_lens_os', 'ptk_mmc_0_02_percent_os', 'ptk_bandage_contact_lens_os',
+                'mmc_0_02_percent_os',
+            ];
+            
+            foreach ($booleanFieldsOs as $field) {
+                if (isset($data[$field])) {
+                    $data[$field] = in_array($data[$field], ['1', 1, true, 'yes', 'on'], true);
+                }
             }
             
             // Handle nullable boolean fields (old shared fields)
@@ -486,22 +560,34 @@ class OperationNoteManager extends Component
             }
             
             // Handle nullable boolean fields (new separate OD fields)
-            $nullableBooleanFieldsOd = ['femto_flap_done_od', 'smile_complete_lenticule_separation_od', 'smile_complete_lenticule_extraction_od'];
+            $nullableBooleanFieldsOd = [
+                'femto_flap_done_od', 
+                'smile_complete_lenticule_separation_od', 
+                'smile_complete_lenticule_extraction_od'
+            ];
             foreach ($nullableBooleanFieldsOd as $field) {
-                if (isset($data[$field]) && ($data[$field] === '' || $data[$field] === null)) {
-                    $data[$field] = null;
-                } elseif (isset($data[$field])) {
-                    $data[$field] = in_array($data[$field], ['1', 1, true, 'yes', 'on'], true);
+                if (isset($data[$field])) {
+                    if ($data[$field] === '' || $data[$field] === null) {
+                        $data[$field] = null;
+                    } else {
+                        $data[$field] = in_array($data[$field], ['1', 1, true, 'yes', 'on'], true);
+                    }
                 }
             }
             
             // Handle nullable boolean fields (new separate OS fields)
-            $nullableBooleanFieldsOs = ['femto_flap_done_os', 'smile_complete_lenticule_separation_os', 'smile_complete_lenticule_extraction_os'];
+            $nullableBooleanFieldsOs = [
+                'femto_flap_done_os', 
+                'smile_complete_lenticule_separation_os', 
+                'smile_complete_lenticule_extraction_os'
+            ];
             foreach ($nullableBooleanFieldsOs as $field) {
-                if (isset($data[$field]) && ($data[$field] === '' || $data[$field] === null)) {
-                    $data[$field] = null;
-                } elseif (isset($data[$field])) {
-                    $data[$field] = in_array($data[$field], ['1', 1, true, 'yes', 'on'], true);
+                if (isset($data[$field])) {
+                    if ($data[$field] === '' || $data[$field] === null) {
+                        $data[$field] = null;
+                    } else {
+                        $data[$field] = in_array($data[$field], ['1', 1, true, 'yes', 'on'], true);
+                    }
                 }
             }
             
@@ -510,13 +596,41 @@ class OperationNoteManager extends Component
                 $data['monovision_eye'] = null;
             }
             
+            // Convert mmc_duration_sec fields to integer or null
+            if (isset($data['mmc_duration_sec_od'])) {
+                if ($data['mmc_duration_sec_od'] === '' || $data['mmc_duration_sec_od'] === null) {
+                    $data['mmc_duration_sec_od'] = null;
+                } else {
+                    $data['mmc_duration_sec_od'] = (int) $data['mmc_duration_sec_od'];
+                }
+            }
+            if (isset($data['mmc_duration_sec_os'])) {
+                if ($data['mmc_duration_sec_os'] === '' || $data['mmc_duration_sec_os'] === null) {
+                    $data['mmc_duration_sec_os'] = null;
+                } else {
+                    $data['mmc_duration_sec_os'] = (int) $data['mmc_duration_sec_os'];
+                }
+            }
+            
             // Clear empty strings for nullable fields (old shared fields)
             $nullableFields = [
                 'eye_drops_other_details', 'prk_epithelial_removal', 'prk_excimer_profile',
                 'femto_excimer_profile', 'ptk_epithelial_removal', 'ptk_excimer_profile', 'notes',
                 'operation_type_od', 'operation_type_os'
             ];
+            
             foreach ($nullableFields as $field) {
+                if (isset($data[$field]) && $data[$field] === '') {
+                    $data[$field] = null;
+                }
+            }
+            
+            // Clear empty strings for nullable fields (new separate Eye Drops fields)
+            $eyeDropsNullableFields = [
+                'eye_drops_other_details_od', 'eye_drops_other_details_os',
+            ];
+            
+            foreach ($eyeDropsNullableFields as $field) {
                 if (isset($data[$field]) && $data[$field] === '') {
                     $data[$field] = null;
                 }
@@ -559,6 +673,25 @@ class OperationNoteManager extends Component
                     if (empty($data['mmc_duration_sec_os'])) {
                         $data['mmc_duration_sec_os'] = $data['mmc_duration_sec_od'] ?? null;
                     }
+                    
+                    // Copy Eye Drops from OD to OS (only if OS fields are empty)
+                    if (empty($data['eye_drops_vigamox_os'])) {
+                        $data['eye_drops_vigamox_os'] = $data['eye_drops_vigamox_od'] ?? false;
+                    }
+                    if (empty($data['eye_drops_pred_forte_os'])) {
+                        $data['eye_drops_pred_forte_os'] = $data['eye_drops_pred_forte_od'] ?? false;
+                    }
+                    if (empty($data['eye_drops_other_os'])) {
+                        $data['eye_drops_other_os'] = $data['eye_drops_other_od'] ?? false;
+                    }
+                    if (empty($data['eye_drops_other_details_os'])) {
+                        $data['eye_drops_other_details_os'] = $data['eye_drops_other_details_od'] ?? null;
+                    }
+                    // Also copy to old shared fields for backward compatibility
+                    $data['eye_drops_vigamox'] = $data['eye_drops_vigamox_od'] ?? false;
+                    $data['eye_drops_pred_forte'] = $data['eye_drops_pred_forte_od'] ?? false;
+                    $data['eye_drops_other'] = $data['eye_drops_other_od'] ?? false;
+                    $data['eye_drops_other_details'] = $data['eye_drops_other_details_od'] ?? null;
                     
                     // Copy OD fields to OS fields - only if OS fields are empty
                     if ($operationType === 'PRK') {
@@ -706,6 +839,19 @@ class OperationNoteManager extends Component
                 $this->edit($this->editingId);
             }
 
+            // Update visit_stage to 'completed' when operation note is saved
+            if ($data['appointment_id'] ?? null) {
+                try {
+                    $appointment = \App\Models\Appointment::find($data['appointment_id']);
+                    if ($appointment && !in_array($appointment->visit_stage, ['cancelled'])) {
+                        $appointment->update(['visit_stage' => 'completed']);
+                    }
+                } catch (\Exception $e) {
+                    // Log error but don't prevent save
+                    \Log::error('OperationNoteManager save - visit_stage update error: ' . $e->getMessage());
+                }
+            }
+
             $this->dispatch('operation-note-saved');
         } catch (\Exception $e) {
             session()->flash('error', 'Failed to save operation note: ' . $e->getMessage());
@@ -746,20 +892,15 @@ class OperationNoteManager extends Component
             'eye_drops_pred_forte' => $operationNote->eye_drops_pred_forte ?? false,
             'eye_drops_other' => $operationNote->eye_drops_other ?? false,
             'eye_drops_other_details' => $operationNote->eye_drops_other_details ?? '',
-            // Old shared fields
-            'prk_epithelial_removal' => $operationNote->prk_epithelial_removal ?? '',
-            'prk_excimer_profile' => $operationNote->prk_excimer_profile ?? '',
-            'prk_mmc_0_02_percent' => $operationNote->prk_mmc_0_02_percent ?? false,
-            'prk_bandage_contact_lens' => $operationNote->prk_bandage_contact_lens ?? false,
-            'femto_flap_done' => $operationNote->femto_flap_done,
-            'femto_excimer_profile' => $operationNote->femto_excimer_profile ?? '',
-            'femto_bandage_contact_lens' => $operationNote->femto_bandage_contact_lens ?? false,
-            'smile_complete_lenticule_separation' => $operationNote->smile_complete_lenticule_separation,
-            'smile_complete_lenticule_extraction' => $operationNote->smile_complete_lenticule_extraction,
-            'ptk_epithelial_removal' => $operationNote->ptk_epithelial_removal ?? '',
-            'ptk_excimer_profile' => $operationNote->ptk_excimer_profile ?? '',
-            'ptk_mmc_0_02_percent' => $operationNote->ptk_mmc_0_02_percent ?? false,
-            'ptk_bandage_contact_lens' => $operationNote->ptk_bandage_contact_lens ?? false,
+            // New separate Eye Drops fields for OD and OS
+            'eye_drops_vigamox_od' => $operationNote->eye_drops_vigamox_od ?? $operationNote->eye_drops_vigamox ?? false,
+            'eye_drops_vigamox_os' => $operationNote->eye_drops_vigamox_os ?? $operationNote->eye_drops_vigamox ?? false,
+            'eye_drops_pred_forte_od' => $operationNote->eye_drops_pred_forte_od ?? $operationNote->eye_drops_pred_forte ?? false,
+            'eye_drops_pred_forte_os' => $operationNote->eye_drops_pred_forte_os ?? $operationNote->eye_drops_pred_forte ?? false,
+            'eye_drops_other_od' => $operationNote->eye_drops_other_od ?? $operationNote->eye_drops_other ?? false,
+            'eye_drops_other_os' => $operationNote->eye_drops_other_os ?? $operationNote->eye_drops_other ?? false,
+            'eye_drops_other_details_od' => $operationNote->eye_drops_other_details_od ?? $operationNote->eye_drops_other_details ?? '',
+            'eye_drops_other_details_os' => $operationNote->eye_drops_other_details_os ?? $operationNote->eye_drops_other_details ?? '',
             // New separate fields for OD
             'prk_epithelial_removal_od' => $operationNote->prk_epithelial_removal_od ?? '',
             'prk_excimer_profile_od' => $operationNote->prk_excimer_profile_od ?? '',

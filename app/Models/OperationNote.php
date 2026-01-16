@@ -28,6 +28,15 @@ class OperationNote extends Model
         'eye_drops_pred_forte',
         'eye_drops_other',
         'eye_drops_other_details',
+        // New separate Eye Drops fields for OD and OS
+        'eye_drops_vigamox_od',
+        'eye_drops_vigamox_os',
+        'eye_drops_pred_forte_od',
+        'eye_drops_pred_forte_os',
+        'eye_drops_other_od',
+        'eye_drops_other_os',
+        'eye_drops_other_details_od',
+        'eye_drops_other_details_os',
         // Old shared fields (kept for backward compatibility)
         'prk_epithelial_removal',
         'prk_excimer_profile',
@@ -96,6 +105,13 @@ class OperationNote extends Model
         'eye_drops_vigamox' => 'boolean',
         'eye_drops_pred_forte' => 'boolean',
         'eye_drops_other' => 'boolean',
+        // New separate Eye Drops fields
+        'eye_drops_vigamox_od' => 'boolean',
+        'eye_drops_vigamox_os' => 'boolean',
+        'eye_drops_pred_forte_od' => 'boolean',
+        'eye_drops_pred_forte_os' => 'boolean',
+        'eye_drops_other_od' => 'boolean',
+        'eye_drops_other_os' => 'boolean',
         // Old shared fields
         'prk_mmc_0_02_percent' => 'boolean',
         'prk_bandage_contact_lens' => 'boolean',

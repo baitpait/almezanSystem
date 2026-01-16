@@ -18,7 +18,8 @@ class ScheduledOperations extends Component
 
     public string $search = '';
     public string $statusFilter = '';
-    public string $dateFilter = 'upcoming'; // upcoming, today, past, all
+    public string $dateFilter = 'today'; // upcoming, today, past, all
+    public int $perPage = 15;
     public $selectedOperationId = null;
 
     public function updatingSearch(): void
@@ -45,6 +46,15 @@ class ScheduledOperations extends Component
             $this->resetPage();
         } catch (\Exception $e) {
             \Log::error('ScheduledOperations updatingDateFilter error: ' . $e->getMessage());
+        }
+    }
+
+    public function updatingPerPage(): void
+    {
+        try {
+            $this->resetPage();
+        } catch (\Exception $e) {
+            \Log::error('ScheduledOperations updatingPerPage error: ' . $e->getMessage());
         }
     }
 
@@ -94,22 +104,26 @@ class ScheduledOperations extends Component
             
             // Apply date filter - now using visit_stage instead of operation status
             if ($this->dateFilter === 'today') {
+                // Show only today's appointments
                 $query->whereDate('appointment_date', Carbon::today());
             } elseif ($this->dateFilter === 'upcoming') {
+                // Show upcoming appointments (future dates, excluding completed/cancelled)
                 $query->whereDate('appointment_date', '>=', Carbon::today())
                       ->whereNotIn('visit_stage', ['completed', 'cancelled']);
             } elseif ($this->dateFilter === 'past') {
+                // Show past appointments (past dates or completed/cancelled)
                 $query->where(function ($query) {
                     $query->whereDate('appointment_date', '<', Carbon::today())
                           ->orWhereIn('visit_stage', ['completed', 'cancelled']);
                 });
             }
+            // If dateFilter === 'all', show all appointments (no date filter applied)
             
             $query->orderBy('appointment_date', 'asc')
                   ->orderBy('appointment_time', 'asc')
                   ->orderBy('created_at', 'desc');
 
-            $appointments = $query->paginate(15);
+            $appointments = $query->paginate($this->perPage);
 
             return view('livewire.scheduled-operations', [
                 'appointments' => $appointments,

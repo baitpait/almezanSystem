@@ -66,7 +66,42 @@
                 <label class="label">
                     <span class="label-text text-xs font-medium">Target</span>
                 </label>
-                @if($eye === 'od')
+                @if($isSameType && $eye === 'od')
+                    {{-- Same type for both eyes: Show OD & OS targets together --}}
+                    @php
+                        $operationTypeForTarget = $form['operation_type_od'] ?? '';
+                    @endphp
+                    <div class="space-y-2">
+                        <div>
+                            <label class="label py-1">
+                                <span class="label-text text-xs text-gray-600">OD (Right Eye)</span>
+                            </label>
+                            @if($operationTypeForTarget === 'PRK')
+                                <input type="text" wire:model.live="form.prk_target_od" class="input input-bordered w-full input-sm" placeholder="Enter target OD">
+                            @elseif($operationTypeForTarget === 'Femto-LASIK')
+                                <input type="text" wire:model.live="form.femto_target_od" class="input input-bordered w-full input-sm" placeholder="Enter target OD">
+                            @elseif($operationTypeForTarget === 'SMILE')
+                                <input type="text" wire:model.live="form.smile_target_od" class="input input-bordered w-full input-sm" placeholder="Enter target OD">
+                            @else
+                                <input type="text" wire:model.live="form.prk_target_od" class="input input-bordered w-full input-sm" placeholder="Enter target OD" disabled>
+                            @endif
+                        </div>
+                        <div>
+                            <label class="label py-1">
+                                <span class="label-text text-xs text-gray-600">OS (Left Eye)</span>
+                            </label>
+                            @if($operationTypeForTarget === 'PRK')
+                                <input type="text" wire:model.live="form.prk_target_os" class="input input-bordered w-full input-sm" placeholder="Enter target OS">
+                            @elseif($operationTypeForTarget === 'Femto-LASIK')
+                                <input type="text" wire:model.live="form.femto_target_os" class="input input-bordered w-full input-sm" placeholder="Enter target OS">
+                            @elseif($operationTypeForTarget === 'SMILE')
+                                <input type="text" wire:model.live="form.smile_target_os" class="input input-bordered w-full input-sm" placeholder="Enter target OS">
+                            @else
+                                <input type="text" wire:model.live="form.prk_target_os" class="input input-bordered w-full input-sm" placeholder="Enter target OS" disabled>
+                            @endif
+                        </div>
+                    </div>
+                @elseif($eye === 'od')
                     {{-- OD Target - show based on operation_type_od --}}
                     @if(($form['operation_type_od'] ?? '') === 'PRK')
                         <input type="text" wire:model.live="form.prk_target_od" class="input input-bordered w-full input-sm" placeholder="Enter target">
@@ -98,75 +133,189 @@
     {{-- MMC 0.02% Section -- Only for PRK and PTK operations --}}
     @if($showMMC)
     <div class="border-t border-gray-300 pt-4">
-        @php
-            // Determine MMC fields based on eye and same_operation_type_both_eyes
-            if ($isSameType && $eye === 'od') {
-                // When same type is checked and we're in OD section, show for both eyes
-                $mmcField = 'form.mmc_0_02_percent_od';
-                $mmcDurationField = 'form.mmc_duration_sec_od';
-                $mmcChecked = $form['mmc_0_02_percent_od'] ?? false;
-                $showLabel = 'MMC 0.02% (Mitomycin C) - OD & OS';
-            } elseif ($eye === 'od') {
-                $mmcField = 'form.mmc_0_02_percent_od';
-                $mmcDurationField = 'form.mmc_duration_sec_od';
-                $mmcChecked = $form['mmc_0_02_percent_od'] ?? false;
-                $showLabel = 'MMC 0.02% (Mitomycin C) - OD';
-            } elseif ($eye === 'os') {
-                $mmcField = 'form.mmc_0_02_percent_os';
-                $mmcDurationField = 'form.mmc_duration_sec_os';
-                $mmcChecked = $form['mmc_0_02_percent_os'] ?? false;
-                $showLabel = 'MMC 0.02% (Mitomycin C) - OS';
-            } else {
-                $mmcField = 'form.mmc_0_02_percent_od';
-                $mmcDurationField = 'form.mmc_duration_sec_od';
-                $mmcChecked = $form['mmc_0_02_percent_od'] ?? false;
-                $showLabel = 'MMC 0.02% (Mitomycin C)';
-            }
-        @endphp
-        <div class="form-control">
-            <label class="label cursor-pointer justify-start gap-3 py-2 hover:bg-gray-100 rounded px-2 -mx-2 transition-colors">
-                <input type="checkbox" wire:model.live="{{ $mmcField }}" class="checkbox checkbox-primary checkbox-sm">
-                <span class="label-text text-xs">{{ $showLabel }}</span>
-            </label>
-            @if($mmcChecked)
-                <div class="mt-2 ml-8 flex items-center gap-2">
-                    <input type="number" wire:model.live="{{ $mmcDurationField }}" class="input input-bordered input-sm w-24" placeholder="Duration" min="0" step="1">
-                    <span class="text-xs text-gray-600">sec</span>
+        @if($isSameType && $eye === 'od')
+            {{-- Same type for both eyes: Show OD & OS MMC fields together --}}
+            <div class="space-y-3">
+                <div class="form-control">
+                    <label class="label cursor-pointer justify-start gap-3 py-2 hover:bg-gray-100 rounded px-2 -mx-2 transition-colors">
+                        <input type="checkbox" wire:model.live="form.mmc_0_02_percent_od" class="checkbox checkbox-primary checkbox-sm">
+                        <span class="label-text text-xs">MMC 0.02% (Mitomycin C) - OD (Right Eye)</span>
+                    </label>
+                    @if($form['mmc_0_02_percent_od'] ?? false)
+                        <div class="mt-2 ml-8 flex items-center gap-2">
+                            <input type="number" wire:model.live="form.mmc_duration_sec_od" class="input input-bordered input-sm w-24" placeholder="Duration" min="0" step="1">
+                            <span class="text-xs text-gray-600">sec</span>
+                        </div>
+                    @endif
                 </div>
-            @endif
-        </div>
+                <div class="form-control">
+                    <label class="label cursor-pointer justify-start gap-3 py-2 hover:bg-gray-100 rounded px-2 -mx-2 transition-colors">
+                        <input type="checkbox" wire:model.live="form.mmc_0_02_percent_os" class="checkbox checkbox-primary checkbox-sm">
+                        <span class="label-text text-xs">MMC 0.02% (Mitomycin C) - OS (Left Eye)</span>
+                    </label>
+                    @if($form['mmc_0_02_percent_os'] ?? false)
+                        <div class="mt-2 ml-8 flex items-center gap-2">
+                            <input type="number" wire:model.live="form.mmc_duration_sec_os" class="input input-bordered input-sm w-24" placeholder="Duration" min="0" step="1">
+                            <span class="text-xs text-gray-600">sec</span>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        @else
+            @php
+                // Determine MMC fields based on eye
+                if ($eye === 'od') {
+                    $mmcField = 'form.mmc_0_02_percent_od';
+                    $mmcDurationField = 'form.mmc_duration_sec_od';
+                    $mmcChecked = $form['mmc_0_02_percent_od'] ?? false;
+                    $showLabel = 'MMC 0.02% (Mitomycin C) - OD';
+                } elseif ($eye === 'os') {
+                    $mmcField = 'form.mmc_0_02_percent_os';
+                    $mmcDurationField = 'form.mmc_duration_sec_os';
+                    $mmcChecked = $form['mmc_0_02_percent_os'] ?? false;
+                    $showLabel = 'MMC 0.02% (Mitomycin C) - OS';
+                } else {
+                    $mmcField = 'form.mmc_0_02_percent_od';
+                    $mmcDurationField = 'form.mmc_duration_sec_od';
+                    $mmcChecked = $form['mmc_0_02_percent_od'] ?? false;
+                    $showLabel = 'MMC 0.02% (Mitomycin C)';
+                }
+            @endphp
+            <div class="form-control">
+                <label class="label cursor-pointer justify-start gap-3 py-2 hover:bg-gray-100 rounded px-2 -mx-2 transition-colors">
+                    <input type="checkbox" wire:model.live="{{ $mmcField }}" class="checkbox checkbox-primary checkbox-sm">
+                    <span class="label-text text-xs">{{ $showLabel }}</span>
+                </label>
+                @if($mmcChecked)
+                    <div class="mt-2 ml-8 flex items-center gap-2">
+                        <input type="number" wire:model.live="{{ $mmcDurationField }}" class="input input-bordered input-sm w-24" placeholder="Duration" min="0" step="1">
+                        <span class="text-xs text-gray-600">sec</span>
+                    </div>
+                @endif
+            </div>
+        @endif
     </div>
     @endif
 
     {{-- Eye Drops Section --}}
     <div class="border-t border-gray-300 pt-4">
         <h5 class="font-semibold text-xs text-gray-700 mb-3">Eye Drops</h5>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <div class="form-control">
-                <label class="label cursor-pointer justify-start gap-3 py-2 hover:bg-gray-100 rounded px-2 -mx-2 transition-colors">
-                    <input type="checkbox" wire:model.live="form.eye_drops_vigamox" class="checkbox checkbox-primary checkbox-sm">
-                    <span class="label-text text-xs">Vigamox (Moxifloxacin)</span>
-                </label>
-            </div>
+        @if($isSameType && $eye === 'od')
+            {{-- Same type for both eyes: Show shared Eye Drops (backward compatibility) --}}
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div class="form-control">
+                    <label class="label cursor-pointer justify-start gap-3 py-2 hover:bg-gray-100 rounded px-2 -mx-2 transition-colors">
+                        <input type="checkbox" wire:model.live="form.eye_drops_vigamox" class="checkbox checkbox-primary checkbox-sm">
+                        <span class="label-text text-xs">Vigamox (Moxifloxacin) - OD & OS</span>
+                    </label>
+                </div>
 
-            <div class="form-control">
-                <label class="label cursor-pointer justify-start gap-3 py-2 hover:bg-gray-100 rounded px-2 -mx-2 transition-colors">
-                    <input type="checkbox" wire:model.live="form.eye_drops_pred_forte" class="checkbox checkbox-primary checkbox-sm">
-                    <span class="label-text text-xs">Pred Forte (Prednisolone Acetate)</span>
-                </label>
-            </div>
+                <div class="form-control">
+                    <label class="label cursor-pointer justify-start gap-3 py-2 hover:bg-gray-100 rounded px-2 -mx-2 transition-colors">
+                        <input type="checkbox" wire:model.live="form.eye_drops_pred_forte" class="checkbox checkbox-primary checkbox-sm">
+                        <span class="label-text text-xs">Pred Forte (Prednisolone Acetate) - OD & OS</span>
+                    </label>
+                </div>
 
-            <div class="form-control">
-                <label class="label cursor-pointer justify-start gap-3 py-2 hover:bg-gray-100 rounded px-2 -mx-2 transition-colors">
-                    <input type="checkbox" wire:model.live="form.eye_drops_other" class="checkbox checkbox-primary checkbox-sm">
-                    <span class="label-text text-xs">Other Eye Drops</span>
-                </label>
+                <div class="form-control">
+                    <label class="label cursor-pointer justify-start gap-3 py-2 hover:bg-gray-100 rounded px-2 -mx-2 transition-colors">
+                        <input type="checkbox" wire:model.live="form.eye_drops_other" class="checkbox checkbox-primary checkbox-sm">
+                        <span class="label-text text-xs">Other Eye Drops - OD & OS</span>
+                    </label>
+                </div>
             </div>
-        </div>
-        @if($form['eye_drops_other'] ?? false)
-            <div class="mt-3">
-                <textarea wire:model.live="form.eye_drops_other_details" class="textarea textarea-bordered w-full textarea-sm" rows="2" placeholder="Specify other eye drops..."></textarea>
+            @if($form['eye_drops_other'] ?? false)
+                <div class="mt-3">
+                    <textarea wire:model.live="form.eye_drops_other_details" class="textarea textarea-bordered w-full textarea-sm" rows="2" placeholder="Specify other eye drops..."></textarea>
+                </div>
+            @endif
+        @elseif($eye === 'od')
+            {{-- Different operation types - OD (Right Eye): Show OD Eye Drops only --}}
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div class="form-control">
+                    <label class="label cursor-pointer justify-start gap-3 py-2 hover:bg-gray-100 rounded px-2 -mx-2 transition-colors">
+                        <input type="checkbox" wire:model.live="form.eye_drops_vigamox_od" class="checkbox checkbox-primary checkbox-sm">
+                        <span class="label-text text-xs">Vigamox (Moxifloxacin) - OD</span>
+                    </label>
+                </div>
+
+                <div class="form-control">
+                    <label class="label cursor-pointer justify-start gap-3 py-2 hover:bg-gray-100 rounded px-2 -mx-2 transition-colors">
+                        <input type="checkbox" wire:model.live="form.eye_drops_pred_forte_od" class="checkbox checkbox-primary checkbox-sm">
+                        <span class="label-text text-xs">Pred Forte (Prednisolone Acetate) - OD</span>
+                    </label>
+                </div>
+
+                <div class="form-control">
+                    <label class="label cursor-pointer justify-start gap-3 py-2 hover:bg-gray-100 rounded px-2 -mx-2 transition-colors">
+                        <input type="checkbox" wire:model.live="form.eye_drops_other_od" class="checkbox checkbox-primary checkbox-sm">
+                        <span class="label-text text-xs">Other Eye Drops - OD</span>
+                    </label>
+                </div>
             </div>
+            @if($form['eye_drops_other_od'] ?? false)
+                <div class="mt-3">
+                    <textarea wire:model.live="form.eye_drops_other_details_od" class="textarea textarea-bordered w-full textarea-sm" rows="2" placeholder="Specify other eye drops for OD..."></textarea>
+                </div>
+            @endif
+        @elseif($eye === 'os')
+            {{-- Different operation types - OS (Left Eye): Show OS Eye Drops only --}}
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div class="form-control">
+                    <label class="label cursor-pointer justify-start gap-3 py-2 hover:bg-gray-100 rounded px-2 -mx-2 transition-colors">
+                        <input type="checkbox" wire:model.live="form.eye_drops_vigamox_os" class="checkbox checkbox-primary checkbox-sm">
+                        <span class="label-text text-xs">Vigamox (Moxifloxacin) - OS</span>
+                    </label>
+                </div>
+
+                <div class="form-control">
+                    <label class="label cursor-pointer justify-start gap-3 py-2 hover:bg-gray-100 rounded px-2 -mx-2 transition-colors">
+                        <input type="checkbox" wire:model.live="form.eye_drops_pred_forte_os" class="checkbox checkbox-primary checkbox-sm">
+                        <span class="label-text text-xs">Pred Forte (Prednisolone Acetate) - OS</span>
+                    </label>
+                </div>
+
+                <div class="form-control">
+                    <label class="label cursor-pointer justify-start gap-3 py-2 hover:bg-gray-100 rounded px-2 -mx-2 transition-colors">
+                        <input type="checkbox" wire:model.live="form.eye_drops_other_os" class="checkbox checkbox-primary checkbox-sm">
+                        <span class="label-text text-xs">Other Eye Drops - OS</span>
+                    </label>
+                </div>
+            </div>
+            @if($form['eye_drops_other_os'] ?? false)
+                <div class="mt-3">
+                    <textarea wire:model.live="form.eye_drops_other_details_os" class="textarea textarea-bordered w-full textarea-sm" rows="2" placeholder="Specify other eye drops for OS..."></textarea>
+                </div>
+            @endif
+        @else
+            {{-- Fallback: Show shared Eye Drops (for backward compatibility) --}}
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div class="form-control">
+                    <label class="label cursor-pointer justify-start gap-3 py-2 hover:bg-gray-100 rounded px-2 -mx-2 transition-colors">
+                        <input type="checkbox" wire:model.live="form.eye_drops_vigamox" class="checkbox checkbox-primary checkbox-sm">
+                        <span class="label-text text-xs">Vigamox (Moxifloxacin)</span>
+                    </label>
+                </div>
+
+                <div class="form-control">
+                    <label class="label cursor-pointer justify-start gap-3 py-2 hover:bg-gray-100 rounded px-2 -mx-2 transition-colors">
+                        <input type="checkbox" wire:model.live="form.eye_drops_pred_forte" class="checkbox checkbox-primary checkbox-sm">
+                        <span class="label-text text-xs">Pred Forte (Prednisolone Acetate)</span>
+                    </label>
+                </div>
+
+                <div class="form-control">
+                    <label class="label cursor-pointer justify-start gap-3 py-2 hover:bg-gray-100 rounded px-2 -mx-2 transition-colors">
+                        <input type="checkbox" wire:model.live="form.eye_drops_other" class="checkbox checkbox-primary checkbox-sm">
+                        <span class="label-text text-xs">Other Eye Drops</span>
+                    </label>
+                </div>
+            </div>
+            @if($form['eye_drops_other'] ?? false)
+                <div class="mt-3">
+                    <textarea wire:model.live="form.eye_drops_other_details" class="textarea textarea-bordered w-full textarea-sm" rows="2" placeholder="Specify other eye drops..."></textarea>
+                </div>
+            @endif
         @endif
     </div>
 </div>

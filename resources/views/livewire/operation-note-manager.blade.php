@@ -107,10 +107,9 @@
                 <label class="flex items-start gap-3 cursor-pointer">
                     <input type="checkbox" wire:model.live="form.same_operation_type_both_eyes" class="mt-1 w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
                     <div class="flex-1">
-                        <span class="text-sm font-bold text-gray-900">Same operation type for both eyes / نفس نوع العملية للعينين</span>
+                        <span class="text-sm font-bold text-gray-900">Same operation type for both eyes</span>
                         @if($form['same_operation_type_both_eyes'])
                             <p class="text-xs text-gray-700 mt-2 leading-relaxed">
-                                <strong class="font-semibold">مفعّل:</strong> نوع العملية سيتم نسخه من العين اليمنى (OD) إلى العين اليسرى (OS) تلقائياً.<br>
                                 <strong class="font-semibold">Enabled:</strong> Operation type will be automatically copied from Right Eye (OD) to Left Eye (OS).
                             </p>
                         @endif
@@ -126,7 +125,7 @@
                     <div class="bg-blue-50 rounded-lg p-4 border border-blue-200 mb-4">
                         <div class="bg-white rounded-lg p-3 border border-gray-200 mb-3">
                             <p class="text-sm font-semibold text-gray-800 text-center">
-                                <strong>نفس نوع العملية للعينين (OD & OS) / Same operation type for both eyes (OD & OS)</strong>
+                                <strong>Same operation type for both eyes (OD & OS)</strong>
                             </p>
                         </div>
                         
@@ -164,7 +163,7 @@
                     <div class="bg-blue-50 rounded-lg p-4 border border-blue-200 border-dashed mb-4">
                         <div class="bg-white rounded-lg p-3 border border-gray-200 mb-3">
                             <p class="text-sm font-semibold text-gray-800 text-center">
-                                <strong>نفس نوع العملية للعينين (OD & OS) / Same operation type for both eyes (OD & OS)</strong>
+                                <strong>Same operation type for both eyes (OD & OS)</strong>
                             </p>
                         </div>
                         <div class="form-group">

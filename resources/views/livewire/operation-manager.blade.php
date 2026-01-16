@@ -6,18 +6,10 @@
     <div class="container mx-auto p-4">
             {{-- Page Header --}}
             <div class="page-header">
-                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-                        <h1>Assessment</h1>
-                        <p>Manage surgical operations and pre-op assessments</p>
-        </div>
-                    <a href="{{ route('operations.create') }}" class="btn-add btn-action flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-                        </svg>
-                        New Operation
-                    </a>
-    </div>
+                <div>
+                    <h1>Assessment</h1>
+                    <p>Manage surgical operations and pre-op assessments</p>
+                </div>
             </div>
 
             {{-- Success Message --}}
@@ -33,40 +25,54 @@
             {{-- Search Container --}}
             <div class="search-container">
                 <div class="flex flex-col gap-4">
-                    {{-- Search, Status, and Per Page Row --}}
+                    {{-- Search Row --}}
                     <div>
-                        <div class="flex items-end gap-2">
-                            <div class="flex-1">
-                                <label class="form-label">Search</label>
-                                <div class="search-input-wrapper">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                    </svg>
-                                    <input type="text" 
-                                        wire:model.live.debounce.300ms="search" 
-                                        placeholder="Search by patient name or ID...">
-                                </div>
-                            </div>
-                            <div class="flex-shrink-0">
-                                <label class="form-label">Status</label>
-                                <select class="form-select" wire:model.live="statusFilter" style="width: 150px; min-width: 150px;">
-                                    <option value="">All Stages</option>
-                                    <option value="scheduled">Scheduled</option>
-                                    <option value="waiting">Waiting</option>
-                                    <option value="in_consultation">In Consultation</option>
-                                    <option value="completed">Completed</option>
-                                    <option value="cancelled">Cancelled</option>
-                                </select>
-                            </div>
-                            <div class="flex-shrink-0">
-                                <label class="form-label">Per Page</label>
-                                <select class="form-select" wire:model.live="perPage" style="width: 80px; min-width: 80px;">
-                                    <option value="10">10</option>
-                                    <option value="20">20</option>
-                                    <option value="50">50</option>
-                                    <option value="100">100</option>
-                                </select>
-                            </div>
+                        <label class="form-label">Search</label>
+                        <div class="search-input-wrapper">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                            <input type="text" 
+                                wire:model.live.debounce.300ms="search" 
+                                placeholder="Search by patient name or ID...">
+                        </div>
+                    </div>
+
+                    {{-- Filters Row: Status, Date Filter, Per Page --}}
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
+                        {{-- Status Filter --}}
+                        <div>
+                            <label class="form-label">Status</label>
+                            <select class="form-select" wire:model.live="statusFilter">
+                                <option value="">All Stages</option>
+                                <option value="scheduled">Scheduled</option>
+                                <option value="waiting">Waiting</option>
+                                <option value="in_consultation">In Consultation</option>
+                                <option value="completed">Completed</option>
+                                <option value="cancelled">Cancelled</option>
+                            </select>
+                        </div>
+
+                        {{-- Date Filter --}}
+                        <div>
+                            <label class="form-label">Date Filter</label>
+                            <select class="form-select" wire:model.live="dateFilter">
+                                <option value="upcoming">Upcoming</option>
+                                <option value="today">Today</option>
+                                <option value="past">Past</option>
+                                <option value="all">All</option>
+                            </select>
+                        </div>
+
+                        {{-- Per Page --}}
+                        <div>
+                            <label class="form-label">Per Page</label>
+                            <select class="form-select" wire:model.live="perPage">
+                                <option value="10">10</option>
+                                <option value="20">20</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
                         </div>
                     </div>
                 </div>

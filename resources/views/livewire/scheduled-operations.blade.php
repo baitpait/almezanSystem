@@ -19,9 +19,9 @@
 
     {{-- Filters --}}
     <div class="search-container">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
-            {{-- Search --}}
-            <div class="md:col-span-1">
+        <div class="flex flex-col gap-4">
+            {{-- Search Row --}}
+            <div>
                 <label class="form-label">Search</label>
                 <div class="search-input-wrapper">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -33,28 +33,43 @@
                 </div>
             </div>
 
-            {{-- Status Filter --}}
-            <div class="md:col-span-1">
-                <label class="form-label">Status</label>
-                <select class="form-select" wire:model.live="statusFilter">
-                    <option value="">All Statuses</option>
-                    <option value="scheduled">Scheduled</option>
-                    <option value="waiting">Waiting</option>
-                    <option value="in_consultation">In Consultation</option>
-                    <option value="completed">Completed</option>
-                    <option value="cancelled">Cancelled</option>
-                </select>
-            </div>
+            {{-- Filters Row: Status, Date Filter, Per Page --}}
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
+                {{-- Status Filter --}}
+                <div>
+                    <label class="form-label">Status</label>
+                    <select class="form-select" wire:model.live="statusFilter">
+                        <option value="">All Statuses</option>
+                        <option value="scheduled">Scheduled</option>
+                        <option value="waiting">Waiting</option>
+                        <option value="in_consultation">In Consultation</option>
+                        <option value="completed">Completed</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
 
-            {{-- Date Filter --}}
-            <div class="md:col-span-1">
-                <label class="form-label">Date Filter</label>
-                <select class="form-select" wire:model.live="dateFilter">
-                    <option value="upcoming">Upcoming</option>
-                    <option value="today">Today</option>
-                    <option value="past">Past</option>
-                    <option value="all">All</option>
-                </select>
+                {{-- Date Filter --}}
+                <div>
+                    <label class="form-label">Date Filter</label>
+                    <select class="form-select" wire:model.live="dateFilter">
+                        <option value="upcoming">Upcoming</option>
+                        <option value="today">Today</option>
+                        <option value="past">Past</option>
+                        <option value="all">All</option>
+                    </select>
+                </div>
+
+                {{-- Per Page --}}
+                <div>
+                    <label class="form-label">Per Page</label>
+                    <select class="form-select" wire:model.live="perPage">
+                        <option value="10">10</option>
+                        <option value="15">15</option>
+                        <option value="25">25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
             </div>
         </div>
     </div>
