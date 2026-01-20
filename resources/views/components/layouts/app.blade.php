@@ -313,8 +313,40 @@
                     </li>
                     @endcan
                     
+                    {{-- Support & Backup Section --}}
+                    <li class="mt-auto pt-2 border-t border-blue-500/30">
+                        <span class="text-blue-200 text-xs font-semibold uppercase tracking-wider px-4 py-1.5 flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+                            </svg>
+                            Support & Backup
+                        </span>
+                    </li>
+
+                    {{-- Technical Support (WhatsApp) --}}
+                    <li>
+                        <a href="https://wa.me/970599814758" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 px-4 py-2 rounded-lg text-white transition-all hover:bg-green-500/30">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 21l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                            </svg>
+                            <span>Technical Support</span>
+                        </a>
+                    </li>
+
+                    {{-- Database Backup Download (Admin Only) --}}
+                    @if(auth()->check() && auth()->user()->isAdmin())
+                    <li>
+                        <a href="{{ route('database.backup') }}" class="flex items-center gap-3 px-4 py-2 rounded-lg text-white transition-all hover:bg-blue-500/50">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                            <span>Download Database Backup</span>
+                        </a>
+                    </li>
+                    @endif
+
                     {{-- Profile Link --}}
-                    <li class="mt-auto pt-1">
+                    <li class="pt-2 border-t border-blue-500/30">
                         <a href="{{ route('profile') }}" class="flex items-center gap-3 px-4 py-2 rounded-lg text-white transition-all {{ request()->routeIs('profile') ? 'bg-blue-500 text-white shadow-lg' : 'hover:bg-blue-500/50' }}">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -349,6 +381,20 @@
             <main class="flex-1 p-3 md:p-4 lg:p-6">
                 {{ $slot }}
             </main>
+            
+            {{-- Footer --}}
+            <footer class="border-t border-gray-200 bg-white py-4 px-3 md:px-4 lg:px-6">
+                <div class="flex items-center justify-center gap-2 text-sm text-gray-600">
+                    <span>Powered by</span>
+                    <a href="https://baitpait.com" 
+                       target="_blank" 
+                       rel="noopener noreferrer" 
+                       class="text-blue-600 hover:text-blue-800 font-semibold transition-colors hover:underline">
+                        BaitPait
+                    </a>
+                    <span>© {{ date('Y') }}</span>
+                </div>
+            </footer>
         </div>
     </div>
 

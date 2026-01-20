@@ -88,6 +88,60 @@ Route::middleware('auth')->group(function () {
         });
     });
 
+    // Database Backup Download (Admin Only)
+    Route::get('/database/backup', function () {
+        if (!auth()->check() || !auth()->user()->isAdmin()) {
+            abort(403, 'Unauthorized. Admin access required.');
+        }
+
+        try {
+            $database = config('database.connections.mysql.database');
+            $username = config('database.connections.mysql.username');
+            $password = config('database.connections.mysql.password');
+            $host = config('database.connections.mysql.host');
+            $port = config('database.connections.mysql.port', 3306);
+
+            $filename = 'database_backup_' . date('Y-m-d_His') . '.sql';
+            $backupDir = storage_path('app/backups');
+            $filepath = $backupDir . '/' . $filename;
+
+            // Create backups directory if it doesn't exist
+            if (!file_exists($backupDir)) {
+                mkdir($backupDir, 0755, true);
+            }
+
+            // Build mysqldump command
+            $command = sprintf(
+                'mysqldump -h %s -P %s -u %s %s %s --single-transaction --routines --triggers --events > %s 2>&1',
+                escapeshellarg($host),
+                escapeshellarg($port),
+                escapeshellarg($username),
+                !empty($password) ? '-p' . escapeshellarg($password) : '',
+                escapeshellarg($database),
+                escapeshellarg($filepath)
+            );
+
+            // Execute mysqldump
+            exec($command, $output, $returnVar);
+
+            if ($returnVar !== 0 || !file_exists($filepath) || filesize($filepath) === 0) {
+                $errorMessage = !empty($output) ? implode("\n", $output) : 'Unknown error';
+                \Log::error('Database backup failed', [
+                    'return_var' => $returnVar,
+                    'output' => $errorMessage,
+                    'command' => str_replace($password, '***', $command)
+                ]);
+                return back()->with('error', 'Failed to create database backup. Please contact technical support.');
+            }
+
+            // Return file download
+            return response()->download($filepath, $filename)->deleteFileAfterSend(true);
+        } catch (\Exception $e) {
+            \Log::error('Database backup exception', ['error' => $e->getMessage()]);
+            return back()->with('error', 'An error occurred while creating the backup: ' . $e->getMessage());
+        }
+    })->name('database.backup');
+
     // Logout
     Route::post('/logout', function () {
         auth()->logout();

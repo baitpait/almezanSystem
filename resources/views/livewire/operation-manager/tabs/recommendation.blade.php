@@ -83,6 +83,58 @@
                             <textarea wire:model.live="recommendationForm.incompatible_notes" class="textarea textarea-bordered w-full textarea-sm" rows="2" placeholder="Add notes for both eyes..."></textarea>
                         </div>
                     @endif
+
+                    {{-- Planning Section - At the bottom --}}
+                    <div class="bg-white rounded-lg p-3 border border-gray-200 mt-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <h5 class="font-semibold text-xs text-gray-800">Planning</h5>
+                            <button type="button" wire:click="getRefraction('both')" class="btn-add btn-action flex items-center gap-2 text-xs">
+                                Get Refraction
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {{-- OD Planning --}}
+                            <div>
+                                <label class="label py-1">
+                                    <span class="label-text text-xs text-gray-600">OD (Right Eye)</span>
+                                </label>
+                                <div class="flex gap-2">
+                                    <div class="flex-1">
+                                        <label class="label label-text text-xs">Sphere</label>
+                                        <input type="text" wire:model="recommendationForm.planning_sphere_od" class="input input-bordered w-full input-sm" placeholder="0.00">
+                                    </div>
+                                    <div class="flex-1">
+                                        <label class="label label-text text-xs">Cylinder</label>
+                                        <input type="text" wire:model="recommendationForm.planning_cylinder_od" class="input input-bordered w-full input-sm" placeholder="0.00">
+                                    </div>
+                                    <div class="flex-1">
+                                        <label class="label label-text text-xs">Axis</label>
+                                        <input type="text" wire:model="recommendationForm.planning_axis_od" class="input input-bordered w-full input-sm" placeholder="0">
+                                    </div>
+                                </div>
+                            </div>
+                            {{-- OS Planning --}}
+                            <div>
+                                <label class="label py-1">
+                                    <span class="label-text text-xs text-gray-600">OS (Left Eye)</span>
+                                </label>
+                                <div class="flex gap-2">
+                                    <div class="flex-1">
+                                        <label class="label label-text text-xs">Sphere</label>
+                                        <input type="text" wire:model="recommendationForm.planning_sphere_os" class="input input-bordered w-full input-sm" placeholder="0.00">
+                                    </div>
+                                    <div class="flex-1">
+                                        <label class="label label-text text-xs">Cylinder</label>
+                                        <input type="text" wire:model="recommendationForm.planning_cylinder_os" class="input input-bordered w-full input-sm" placeholder="0.00">
+                                    </div>
+                                    <div class="flex-1">
+                                        <label class="label label-text text-xs">Axis</label>
+                                        <input type="text" wire:model="recommendationForm.planning_axis_os" class="input input-bordered w-full input-sm" placeholder="0">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             @else
                 {{-- Different Decisions: Show separate sections for each eye --}}
@@ -132,6 +184,30 @@
                             <textarea wire:model.live="recommendationForm.incompatible_notes_od" class="textarea textarea-bordered w-full textarea-sm" rows="2" placeholder="Add notes for OD..."></textarea>
                         </div>
                     @endif
+
+                    {{-- Planning Section for OD - At the bottom --}}
+                    <div class="bg-white rounded-lg p-3 border border-gray-200 mt-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <h5 class="font-semibold text-xs text-gray-800">Planning</h5>
+                            <button type="button" wire:click="getRefraction('od')" class="btn-add btn-action flex items-center gap-2 text-xs">
+                                Get Refraction
+                            </button>
+                        </div>
+                        <div class="flex gap-2">
+                            <div class="flex-1">
+                                <label class="label label-text text-xs">Sphere</label>
+                                <input type="text" wire:model="recommendationForm.planning_sphere_od" class="input input-bordered w-full input-sm" placeholder="0.00">
+                            </div>
+                            <div class="flex-1">
+                                <label class="label label-text text-xs">Cylinder</label>
+                                <input type="text" wire:model="recommendationForm.planning_cylinder_od" class="input input-bordered w-full input-sm" placeholder="0.00">
+                            </div>
+                            <div class="flex-1">
+                                <label class="label label-text text-xs">Axis</label>
+                                <input type="text" wire:model="recommendationForm.planning_axis_od" class="input input-bordered w-full input-sm" placeholder="0">
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 {{-- Left Eye (OS) Decision --}}
@@ -180,6 +256,30 @@
                             <textarea wire:model.live="recommendationForm.incompatible_notes_os" class="textarea textarea-bordered w-full textarea-sm" rows="2" placeholder="Add notes for OS..."></textarea>
                         </div>
                     @endif
+
+                    {{-- Planning Section for OS - At the bottom --}}
+                    <div class="bg-white rounded-lg p-3 border border-gray-200 mt-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <h5 class="font-semibold text-xs text-gray-800">Planning</h5>
+                            <button type="button" wire:click="getRefraction('os')" class="btn-add btn-action flex items-center gap-2 text-xs">
+                                Get Refraction
+                            </button>
+                        </div>
+                        <div class="flex gap-2">
+                            <div class="flex-1">
+                                <label class="label label-text text-xs">Sphere</label>
+                                <input type="text" wire:model="recommendationForm.planning_sphere_os" class="input input-bordered w-full input-sm" placeholder="0.00">
+                            </div>
+                            <div class="flex-1">
+                                <label class="label label-text text-xs">Cylinder</label>
+                                <input type="text" wire:model="recommendationForm.planning_cylinder_os" class="input input-bordered w-full input-sm" placeholder="0.00">
+                            </div>
+                            <div class="flex-1">
+                                <label class="label label-text text-xs">Axis</label>
+                                <input type="text" wire:model="recommendationForm.planning_axis_os" class="input input-bordered w-full input-sm" placeholder="0">
+                            </div>
+                        </div>
+                    </div>
                 </div>
             @endif
 

@@ -79,6 +79,13 @@ class Operation extends Model
         'ptk_monovision_eye_os',
         'ptk_target_os',
         'incompatible_notes_os',
+        // Planning fields for each eye
+        'planning_sphere_od',
+        'planning_cylinder_od',
+        'planning_axis_od',
+        'planning_sphere_os',
+        'planning_cylinder_os',
+        'planning_axis_os',
         'diagnosis',
         'plan',
         'notes',

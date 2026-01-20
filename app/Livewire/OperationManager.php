@@ -43,6 +43,11 @@ class OperationManager extends Component
     public $newFileDescription = '';
     public $newFileEye = 'OU';
     public $operationFiles = null;
+    
+    // Planning section visibility flags
+    public bool $showPlanningOd = false;
+    public bool $showPlanningOs = false;
+    public bool $showPlanningBoth = false;
 
     // Basic Operation Form
     public array $operationForm = [
@@ -240,6 +245,13 @@ class OperationManager extends Component
         // Incompatible - Separate fields
         'incompatible_notes_od' => '',
         'incompatible_notes_os' => '',
+        // Planning fields for each eye
+        'planning_sphere_od' => '',
+        'planning_cylinder_od' => '',
+        'planning_axis_od' => '',
+        'planning_sphere_os' => '',
+        'planning_cylinder_os' => '',
+        'planning_axis_os' => '',
         // Shared / existing
         'recommendation_notes' => '',
     ];
@@ -319,6 +331,11 @@ class OperationManager extends Component
             }
         } elseif ($route === 'operations.edit' && $id) {
             $this->isEditPage = true;
+            // Check for tab in URL query parameter before calling edit()
+            $tabFromUrl = request()->query('tab');
+            if ($tabFromUrl && in_array($tabFromUrl, ['basic', 'refractive', 'medical', 'exam', 'ectasia', 'recommendation', 'files'])) {
+                $this->activeTab = $tabFromUrl;
+            }
             $this->edit($id);
             
             // If appointment_id is passed as query parameter, ensure it's linked
@@ -516,6 +533,93 @@ class OperationManager extends Component
             if (!empty($this->recommendationForm['decision_od'])) {
                 $this->recommendationForm['decision_os'] = $this->recommendationForm['decision_od'];
             }
+        }
+    }
+
+    /**
+     * Get Refraction values from RefractiveProfile and populate Planning fields.
+     * 
+     * Business Purpose: When user clicks "Get Refraction" button, fetch manifest_refraction values
+     * from the RefractiveProfile (either from form or database) and populate the Planning fields 
+     * (Sphere, Cylinder, Axis) for the specified eye. This allows users to use the manifest 
+     * refraction values as a starting point for operation planning.
+     * 
+     * @param string $eye The eye to get refraction for ('od', 'os', or 'both')
+     */
+    public function getRefraction(string $eye = 'od'): void
+    {
+        try {
+            $manifestSphereOd = '';
+            $manifestCylinderOd = '';
+            $manifestAxisOd = '';
+            $manifestSphereOs = '';
+            $manifestCylinderOs = '';
+            $manifestAxisOs = '';
+
+            // First, try to get from refractiveForm (current form data)
+            if (!empty($this->refractiveForm['manifest_refraction_od_sphere']) || 
+                !empty($this->refractiveForm['manifest_refraction_od_cylinder']) || 
+                !empty($this->refractiveForm['manifest_refraction_od_axis'])) {
+                $manifestSphereOd = $this->refractiveForm['manifest_refraction_od_sphere'] ?? '';
+                $manifestCylinderOd = $this->refractiveForm['manifest_refraction_od_cylinder'] ?? '';
+                $manifestAxisOd = $this->refractiveForm['manifest_refraction_od_axis'] ?? '';
+            }
+
+            if (!empty($this->refractiveForm['manifest_refraction_os_sphere']) || 
+                !empty($this->refractiveForm['manifest_refraction_os_cylinder']) || 
+                !empty($this->refractiveForm['manifest_refraction_os_axis'])) {
+                $manifestSphereOs = $this->refractiveForm['manifest_refraction_os_sphere'] ?? '';
+                $manifestCylinderOs = $this->refractiveForm['manifest_refraction_os_cylinder'] ?? '';
+                $manifestAxisOs = $this->refractiveForm['manifest_refraction_os_axis'] ?? '';
+            }
+
+            // If form data is empty, try to get from database
+            if (empty($manifestSphereOd) && empty($manifestCylinderOd) && empty($manifestAxisOd) && 
+                empty($manifestSphereOs) && empty($manifestCylinderOs) && empty($manifestAxisOs)) {
+                if ($this->editingId) {
+                    $operation = Operation::with('refractiveProfile')->find($this->editingId);
+                    if ($operation && $operation->refractiveProfile) {
+                        $refractiveProfile = $operation->refractiveProfile;
+                        $manifestSphereOd = $refractiveProfile->manifest_refraction_od_sphere ?? '';
+                        $manifestCylinderOd = $refractiveProfile->manifest_refraction_od_cylinder ?? '';
+                        $manifestAxisOd = $refractiveProfile->manifest_refraction_od_axis ?? '';
+                        $manifestSphereOs = $refractiveProfile->manifest_refraction_os_sphere ?? '';
+                        $manifestCylinderOs = $refractiveProfile->manifest_refraction_os_cylinder ?? '';
+                        $manifestAxisOs = $refractiveProfile->manifest_refraction_os_axis ?? '';
+                    }
+                }
+            }
+
+            // Check if we have any values
+            if (empty($manifestSphereOd) && empty($manifestCylinderOd) && empty($manifestAxisOd) && 
+                empty($manifestSphereOs) && empty($manifestCylinderOs) && empty($manifestAxisOs)) {
+                session()->flash('error', 'No manifest refraction values found. Please complete the Refractive Profile tab first.');
+                return;
+            }
+
+            // Get values based on eye parameter and show planning section
+            if ($eye === 'od' || $eye === 'both') {
+                $this->recommendationForm['planning_sphere_od'] = $manifestSphereOd;
+                $this->recommendationForm['planning_cylinder_od'] = $manifestCylinderOd;
+                $this->recommendationForm['planning_axis_od'] = $manifestAxisOd;
+                $this->showPlanningOd = true;
+            }
+
+            if ($eye === 'os' || $eye === 'both') {
+                $this->recommendationForm['planning_sphere_os'] = $manifestSphereOs;
+                $this->recommendationForm['planning_cylinder_os'] = $manifestCylinderOs;
+                $this->recommendationForm['planning_axis_os'] = $manifestAxisOs;
+                $this->showPlanningOs = true;
+            }
+
+            if ($eye === 'both') {
+                $this->showPlanningBoth = true;
+            }
+
+            session()->flash('message', 'Refraction values loaded successfully.');
+        } catch (\Exception $e) {
+            \Log::error('OperationManager getRefraction error: ' . $e->getMessage());
+            session()->flash('error', 'Failed to load refraction values: ' . $e->getMessage());
         }
     }
 
@@ -1155,9 +1259,10 @@ class OperationManager extends Component
                 $this->editingId = $operation->id;
             }
             
-            // Redirect after save - stay on edit page to continue editing
+            // Redirect after save - stay on edit page to continue editing with same tab
             if ($this->isCreatePage || $this->isEditPage) {
-                $this->redirect(route('operations.edit', $operation->id));
+                // Preserve active tab in URL query parameter
+                $this->redirect(route('operations.edit', ['id' => $operation->id, 'tab' => $this->activeTab]));
             } else {
                 $this->resetAllForms();
             }
@@ -1178,6 +1283,12 @@ class OperationManager extends Component
         ])->findOrFail($id);
 
         $this->editingId = $operation->id;
+        
+        // Restore active tab from URL query parameter if exists (after save redirect)
+        $tabFromUrl = request()->query('tab');
+        if ($tabFromUrl && in_array($tabFromUrl, ['basic', 'refractive', 'medical', 'exam', 'ectasia', 'recommendation', 'files'])) {
+            $this->activeTab = $tabFromUrl;
+        }
 
         $this->operationForm = [
             'patient_id' => $operation->patient_id,
@@ -1346,8 +1457,20 @@ class OperationManager extends Component
             'ptk_monovision_eye_os' => $operation->ptk_monovision_eye_os ?? '',
             'ptk_target_os' => $operation->ptk_target_os ?? '',
             'incompatible_notes_os' => $operation->incompatible_notes_os ?? '',
+            // Planning fields for each eye
+            'planning_sphere_od' => $operation->planning_sphere_od ?? '',
+            'planning_cylinder_od' => $operation->planning_cylinder_od ?? '',
+            'planning_axis_od' => $operation->planning_axis_od ?? '',
+            'planning_sphere_os' => $operation->planning_sphere_os ?? '',
+            'planning_cylinder_os' => $operation->planning_cylinder_os ?? '',
+            'planning_axis_os' => $operation->planning_axis_os ?? '',
             'recommendation_notes' => $operation->recommendation_notes,
         ];
+
+        // Show planning sections if values exist
+        $this->showPlanningOd = !empty($operation->planning_sphere_od) || !empty($operation->planning_cylinder_od) || !empty($operation->planning_axis_od);
+        $this->showPlanningOs = !empty($operation->planning_sphere_os) || !empty($operation->planning_cylinder_os) || !empty($operation->planning_axis_os);
+        $this->showPlanningBoth = $this->showPlanningOd && $this->showPlanningOs && $sameDecision;
 
         // Load operation files
         $this->loadOperationFiles();

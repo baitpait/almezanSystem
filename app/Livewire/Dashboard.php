@@ -229,15 +229,6 @@ class Dashboard extends Component
         }
     }
 
-    public function goToAssessment($appointmentId)
-    {
-        if (!auth()->user()->can('view.assessment')) {
-            $this->dispatch('show-error', 'You do not have permission to view assessments.');
-            return;
-        }
-
-        return redirect()->route('assessments.index', ['appointment' => $appointmentId]);
-    }
 
     private function getRoleBasedStats($role, $baseStats, $user, $appointmentQuery, $invoiceQuery, $patientQuery)
     {
