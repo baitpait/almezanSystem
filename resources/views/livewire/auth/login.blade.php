@@ -6,7 +6,7 @@
             {{-- Login Heading --}}
             <div class="mb-8">
                 <h1 class="text-3xl font-bold text-blue-900 mb-2">Login</h1>
-                <p class="text-gray-600 text-sm">Welcome to {{ config('app.name', 'Medical System') }}</p>
+                <p class="text-gray-600 text-sm">Welcome to {{ config('app.name', 'مركز الغد لجراحة العيون والليزك') }}</p>
             </div>
 
             {{-- General Error Message (only show if not Livewire errors) --}}
@@ -112,8 +112,8 @@
                 <a href="https://baitpait.com" 
                    target="_blank" 
                    rel="noopener noreferrer" 
-                   class="text-xs text-gray-500 hover:text-blue-600 transition-colors">
-                    تطوير وبرمجة بيت البرمجيات وتكنولوجيا المعلومات
+                   class="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors hover:underline">
+                    Powered by BaitPait © {{ date('Y') }}
                 </a>
             </div>
         </div>
@@ -167,7 +167,7 @@
                         </svg>
                     </div>
                 @endif
-                <h2 class="text-3xl font-bold text-white mb-2">{{ config('app.name', 'Medical System') }}</h2>
+                <h2 class="text-3xl font-bold text-white mb-2">{{ config('app.name', 'مركز الغد لجراحة العيون والليزك') }}</h2>
                 <p class="text-blue-100 text-sm">Professional Medical Management</p>
             </div>
         </div>

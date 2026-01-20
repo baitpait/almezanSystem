@@ -12,7 +12,7 @@
     @vite('resources/css/app.css')
     @livewireStyles
 </head>
-<body class="bg-gradient-to-br from-blue-50 via-white to-blue-50 h-screen font-cairo overflow-hidden">
+<body class="bg-gradient-to-br from-blue-50 via-white to-blue-50 min-h-screen font-cairo">
     @auth
     {{-- Sidebar & Main Content --}}
     <div class="drawer lg:drawer-open">
@@ -365,13 +365,23 @@
                         </a>
                     </li>
                 </ul>
+                
+                {{-- Footer in Sidebar --}}
+                <div class="p-4 border-t border-blue-500/30 mt-auto">
+                    <a href="https://baitpait.com" 
+                       target="_blank" 
+                       rel="noopener noreferrer" 
+                       class="flex items-center justify-center gap-2 text-sm font-medium text-white hover:text-blue-200 transition-colors hover:underline">
+                        <span class="text-white">Powered by BaitPait © {{ date('Y') }}</span>
+                    </a>
+                </div>
             </aside>
         </div>
         
         {{-- Main Content --}}
-        <div class="drawer-content flex flex-col">
+        <div class="drawer-content flex flex-col" style="min-height: 100vh;">
             {{-- Mobile Menu Button --}}
-            <div class="lg:hidden p-3 border-b border-base-300 bg-base-100">
+            <div class="lg:hidden p-3 border-b border-base-300 bg-base-100 flex-shrink-0">
                 <label for="drawer-toggle" class="btn btn-ghost btn-sm drawer-button">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -381,20 +391,6 @@
             <main class="flex-1 p-3 md:p-4 lg:p-6">
                 {{ $slot }}
             </main>
-            
-            {{-- Footer --}}
-            <footer class="border-t border-gray-200 bg-white py-4 px-3 md:px-4 lg:px-6">
-                <div class="flex items-center justify-center gap-2 text-sm text-gray-600">
-                    <span>Powered by</span>
-                    <a href="https://baitpait.com" 
-                       target="_blank" 
-                       rel="noopener noreferrer" 
-                       class="text-blue-600 hover:text-blue-800 font-semibold transition-colors hover:underline">
-                        BaitPait
-                    </a>
-                    <span>© {{ date('Y') }}</span>
-                </div>
-            </footer>
         </div>
     </div>
 
