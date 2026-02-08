@@ -332,9 +332,16 @@
                                     </span>
                                     @endcan
                                         @elseif($appointment->visit_type === 'Operation')
-                                    <span class="badge-status {{ $typeColor }}">
+                                    @can('view.operations')
+                                    <button
+                                        class="badge-status {{ $typeColor }} cursor-pointer hover:opacity-80 transition-opacity"
+                                        wire:click="goToOperationNote({{ $appointment->id }})"
+                                        title="Click to go to Operation Note">
                                         {{ $appointment->visit_type }}
-                                    </span>
+                                    </button>
+                                    @else
+                                    <span class="badge-status {{ $typeColor }}">{{ $appointment->visit_type }}</span>
+                                    @endcan
                                 @else
                                     <span class="badge-status {{ $typeColor }}">{{ $appointment->visit_type }}</span>
                                         @endif

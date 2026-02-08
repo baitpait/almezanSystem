@@ -385,6 +385,17 @@ class AppointmentManager extends Component
         }
     }
 
+    /** التحويل إلى صفحة Operation Note للموعد (عندما visit_type = Operation) */
+    public function goToOperationNote($appointmentId): void
+    {
+        $appointment = Appointment::findOrFail($appointmentId);
+        if ($appointment->visit_type !== 'Operation') {
+            session()->flash('error', 'This appointment is not an Operation.');
+            return;
+        }
+        $this->redirect(route('operation-notes.create', ['appointmentId' => $appointmentId]));
+    }
+
     public function createVisitForPatient($appointmentId): void
     {
         $appointment = Appointment::findOrFail($appointmentId);
