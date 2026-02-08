@@ -29,27 +29,19 @@ class AssignAdminRolesToExistingUsers extends Seeder
         $skipped = 0;
 
         foreach ($users as $user) {
-            // If user has a role in the old 'role' column
+            // مزامنة دور Spatie مع عمود role لجميع أنواع المستخدمين (admin, doctor, secretary)
             if ($user->role) {
-                // Find the Role in Spatie
                 $role = Role::where('name', $user->role)->first();
-                
                 if ($role) {
-                    // Assign role to user (if not already assigned)
-                    if (!$user->hasRole($role->name)) {
-                        $user->assignRole($role);
-                        $assigned++;
-                        $this->command->info("✓ User '{$user->name}' assigned to role '{$role->name}'");
-                    } else {
-                        $skipped++;
-                        $this->command->line("  User '{$user->name}' already has role '{$role->name}'");
-                    }
+                    $user->syncRoles([$role->name]);
+                    $assigned++;
+                    $this->command->info("✓ User '{$user->name}' synced to role '{$role->name}'");
                 } else {
                     $this->command->warn("  Role '{$user->role}' not found in Spatie for user '{$user->name}'");
                 }
             } else {
                 $skipped++;
-                $this->command->line("  User '{$user->name}' has no role to assign");
+                $this->command->line("  User '{$user->name}' has no role in database");
             }
         }
 

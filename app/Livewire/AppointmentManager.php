@@ -38,6 +38,8 @@ class AppointmentManager extends Component
     public $selectedAppointmentId = null;
     public $editingId = null;
     public $patientPreSelected = false;
+    /** فلتر بعرض زيارات مريض معيّن (من رابط "جميع الزيارات" في صفحة المرضى) */
+    public $filterPatientId = null;
     public $showOperationWarning = false;
     public $operationHasData = false;
     public array $patientForm = [
@@ -93,7 +95,14 @@ class AppointmentManager extends Component
 
     public function mount(): void
     {
-        // Check if patient_id is passed as query parameter (from Patient Manager)
+        // فلتر بعرض زيارات مريض معيّن (رابط "جميع الزيارات" من صفحة المرضى)
+        $filterPatientId = request()->query('filter_patient_id');
+        if ($filterPatientId) {
+            $this->filterPatientId = (int) $filterPatientId;
+            $this->dateFilter = ''; // إلغاء فلتر التاريخ لظهور كل زيارات المريض
+            return;
+        }
+        // فتح نافذة زيارة جديدة مع اختيار المريض (زر "Visit" من صفحة المرضى)
         $patientId = request()->query('patient_id');
         if ($patientId) {
             $this->resetForm();
@@ -738,6 +747,12 @@ class AppointmentManager extends Component
         if (!auth()->user()->isAdmin() && auth()->user()->branch_id) {
             $query->where('branch_id', auth()->user()->branch_id);
         }
+
+        // Doctor users see only their appointments; admin and secretary see all (no conflict)
+        $currentDoctor = auth()->user()->doctor;
+        if ($currentDoctor && !auth()->user()->isAdmin() && !auth()->user()->hasRole('secretary')) {
+            $query->where('doctor_id', $currentDoctor->id);
+        }
         
         // Search functionality
         if (!empty(trim($this->search))) {
@@ -768,6 +783,11 @@ class AppointmentManager extends Component
         // Doctor Filter
         if (!empty($this->doctorFilter)) {
             $query->where('doctor_id', $this->doctorFilter);
+        }
+
+        // Filter by patient (from "All Visits" link on Patients page)
+        if (!empty($this->filterPatientId)) {
+            $query->where('patient_id', $this->filterPatientId);
         }
 
         // Date Filter
@@ -815,6 +835,7 @@ class AppointmentManager extends Component
             ->orderBy('appointment_time', 'desc')
             ->paginate($perPageValue);
 
+        $filterPatient = $this->filterPatientId ? Patient::find($this->filterPatientId) : null;
         $data = [
             'patients' => $patients,
             'appointments' => $appointments,
@@ -822,6 +843,7 @@ class AppointmentManager extends Component
             'viewMode' => $this->viewMode,
             'canViewInvoices' => auth()->user()->can('view.invoices'),
             'canCreateInvoices' => auth()->user()->can('create.invoices'),
+            'filterPatient' => $filterPatient,
         ];
 
         // Add calendar data if in calendar mode
@@ -847,6 +869,12 @@ class AppointmentManager extends Component
         // Apply branch filter if user has branch
         if ($this->branchId = auth()->user()->branch_id) {
             $query->where('branch_id', $this->branchId);
+        }
+
+        // Doctor users see only their appointments; admin and secretary see all
+        $currentDoctor = auth()->user()->doctor;
+        if ($currentDoctor && !auth()->user()->isAdmin() && !auth()->user()->hasRole('secretary')) {
+            $query->where('doctor_id', $currentDoctor->id);
         }
 
         // Apply filters

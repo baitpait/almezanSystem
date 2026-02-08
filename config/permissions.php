@@ -22,6 +22,7 @@ return [
         'assessment' => ['view', 'create', 'update', 'delete'],
         'operations' => ['view', 'create', 'update', 'delete'],
         'doctors' => ['view', 'create', 'update', 'delete'],
+        'medical_report' => ['view', 'create'],
     ],
 
     /*
@@ -38,8 +39,8 @@ return [
         'admin' => 'all', // All permissions
         'doctor' => ['view'], // View only for all modules
         'secretary' => [
-            'modules' => ['patients', 'appointments', 'services', 'invoices', 'assessment', 'operations'], // Only these modules
-            'permissions' => ['view'], // View only
+            'modules' => ['patients', 'appointments', 'services', 'invoices', 'assessment', 'operations', 'medical_report'], // Only these modules
+            'permissions' => ['view', 'create'], // View and create (e.g. issue report)
         ],
     ],
 
@@ -77,6 +78,7 @@ return [
         'assessment' => 'Assessment',
         'operations' => 'Operations',
         'doctors' => 'Doctor Management',
+        'medical_report' => 'Medical Report',
     ],
 ];
 

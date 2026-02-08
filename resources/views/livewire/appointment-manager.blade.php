@@ -98,9 +98,17 @@
     @if (session()->has('error'))
         <div class="alert alert-error mb-6 shadow-lg animate-fade-in">
             <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m-2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <span class="text-sm">{{ session('error') }}</span>
+        </div>
+    @endif
+
+    {{-- Filter by patient (from "جميع الزيارات" link) --}}
+    @if(isset($filterPatient) && $filterPatient)
+        <div class="mb-4 px-4 py-2 bg-blue-50 border border-blue-200 rounded-lg flex flex-wrap items-center gap-2">
+            <span class="text-sm text-blue-800">Showing visits for: <strong>{{ $filterPatient->full_name }}</strong></span>
+            <a href="{{ route('appointments.index') }}" class="text-sm text-blue-600 hover:text-blue-800 underline">Clear filter</a>
         </div>
     @endif
     
@@ -439,6 +447,18 @@
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                             </svg>
                                             <span>Add Invoice</span>
+                                        </a>
+                                    </li>
+                                    @endif
+                                    @if($appointment->visit_type === 'Operation' && auth()->user()->can('view.medical_report'))
+                                    <li>
+                                        <a href="{{ route('medical-report.form', ['appointmentId' => $appointment->id]) }}"
+                                           class="dropdown-menu-item dropdown-menu-item-view"
+                                           onclick="closeSimpleDropdown({{ $appointment->id }});">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="dropdown-menu-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                            <span>Medical Report</span>
                                         </a>
                                     </li>
                                     @endif

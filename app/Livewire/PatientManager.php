@@ -38,7 +38,12 @@ class PatientManager extends Component
     {
         return [
             'form.full_name' => 'required|string|max:255',
-            'form.id_number' => 'required|string|max:50|unique:patients,id_number,'.$this->editingId,
+            'form.id_number' => [
+                'required',
+                'string',
+                'max:50',
+                Rule::unique('patients', 'id_number')->ignore($this->editingId),
+            ],
             'form.date_of_birth' => 'required|date',
             'form.gender' => 'required|in:male,female',
             'form.phone' => [
@@ -64,6 +69,7 @@ class PatientManager extends Component
     {
         return [
             'form.phone_secondary.different' => 'The secondary phone number must be different from the primary phone number.',
+            'form.id_number.unique' => 'رقم الهوية مسجّل لمريض آخر. لا يمكن تكرار رقم الهوية.',
         ];
     }
 

@@ -115,12 +115,17 @@ class UserManager extends Component
         }
 
         if ($this->editingId) {
-            User::findOrFail($this->editingId)->update($data);
+            $user = User::findOrFail($this->editingId);
+            $user->update($data);
             $message = 'User updated successfully.';
         } else {
-            User::create($data);
+            $user = User::create($data);
             $message = 'User created successfully.';
         }
+
+        // مزامنة دور Spatie مع حقل role حتى تظهر الصلاحيات (قائمة المرضى، الفواتير، إلخ)
+        $user->syncRoles([$this->form['role']]);
+        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         $this->resetForm();
         session()->flash('message', $message);

@@ -57,19 +57,19 @@
             <div class="grid grid-cols-4 gap-3">
                 <div>
                     <label class="label label-text text-xs">Sphere</label>
-                    <input type="text" wire:model="refractiveForm.current_eyeglasses_od_sphere" class="form-input" placeholder="0.00">
+                    <input type="text" wire:model="refractiveForm.current_eyeglasses_od_sphere" class="form-input" placeholder="0.00" dir="ltr" inputmode="decimal" autocomplete="off">
                 </div>
                 <div>
                     <label class="label label-text text-xs">Cylinder</label>
-                    <input type="text" wire:model="refractiveForm.current_eyeglasses_od_cylinder" class="form-input" placeholder="0.00">
+                    <input type="text" wire:model="refractiveForm.current_eyeglasses_od_cylinder" class="form-input" placeholder="0.00" dir="ltr" inputmode="decimal" autocomplete="off">
                 </div>
                 <div>
                     <label class="label label-text text-xs">Axis</label>
-                    <input type="text" wire:model="refractiveForm.current_eyeglasses_od_axis" class="form-input" placeholder="0">
+                    <input type="text" wire:model="refractiveForm.current_eyeglasses_od_axis" class="form-input" placeholder="0" dir="ltr" inputmode="numeric" autocomplete="off">
                 </div>
                 <div>
                     <label class="label label-text text-xs">Vision</label>
-                    <input type="text" wire:model="refractiveForm.current_eyeglasses_od_vision" class="form-input" placeholder="20/20">
+                    <input type="text" wire:model="refractiveForm.current_eyeglasses_od_vision" class="form-input" placeholder="20/20" dir="ltr" autocomplete="off">
                 </div>
             </div>
         </div>
@@ -80,19 +80,60 @@
             <div class="grid grid-cols-4 gap-3">
                 <div>
                     <label class="label label-text text-xs">Sphere</label>
-                    <input type="text" wire:model="refractiveForm.current_eyeglasses_os_sphere" class="form-input" placeholder="0.00">
+                    <input type="text" wire:model="refractiveForm.current_eyeglasses_os_sphere" class="form-input" placeholder="0.00" dir="ltr" inputmode="decimal" autocomplete="off">
                 </div>
                 <div>
                     <label class="label label-text text-xs">Cylinder</label>
-                    <input type="text" wire:model="refractiveForm.current_eyeglasses_os_cylinder" class="form-input" placeholder="0.00">
+                    <input type="text" wire:model="refractiveForm.current_eyeglasses_os_cylinder" class="form-input" placeholder="0.00" dir="ltr" inputmode="decimal" autocomplete="off">
                 </div>
                 <div>
                     <label class="label label-text text-xs">Axis</label>
-                    <input type="text" wire:model="refractiveForm.current_eyeglasses_os_axis" class="form-input" placeholder="0">
+                    <input type="text" wire:model="refractiveForm.current_eyeglasses_os_axis" class="form-input" placeholder="0" dir="ltr" inputmode="numeric" autocomplete="off">
                 </div>
                 <div>
                     <label class="label label-text text-xs">Vision</label>
-                    <input type="text" wire:model="refractiveForm.current_eyeglasses_os_vision" class="form-input" placeholder="20/20">
+                    <input type="text" wire:model="refractiveForm.current_eyeglasses_os_vision" class="form-input" placeholder="20/20" dir="ltr" autocomplete="off">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Dry Auto-Ref (Sphere, Cylinder, Axis only - no Vision) --}}
+    <div class="divider">Dry Auto-Ref</div>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {{-- OD --}}
+        <div class="card bg-base-200 p-4">
+            <h3 class="font-semibold mb-4">OD (Right Eye)</h3>
+            <div class="grid grid-cols-3 gap-3">
+                <div>
+                    <label class="label label-text text-xs">Sphere</label>
+                    <input type="text" wire:model="refractiveForm.dry_auto_ref_od_sphere" class="form-input" placeholder="0.00" dir="ltr" inputmode="decimal" autocomplete="off">
+                </div>
+                <div>
+                    <label class="label label-text text-xs">Cylinder</label>
+                    <input type="text" wire:model="refractiveForm.dry_auto_ref_od_cylinder" class="form-input" placeholder="0.00" dir="ltr" inputmode="decimal" autocomplete="off">
+                </div>
+                <div>
+                    <label class="label label-text text-xs">Axis</label>
+                    <input type="text" wire:model="refractiveForm.dry_auto_ref_od_axis" class="form-input" placeholder="0" dir="ltr" inputmode="numeric" autocomplete="off">
+                </div>
+            </div>
+        </div>
+        {{-- OS --}}
+        <div class="card bg-base-200 p-4">
+            <h3 class="font-semibold mb-4">OS (Left Eye)</h3>
+            <div class="grid grid-cols-3 gap-3">
+                <div>
+                    <label class="label label-text text-xs">Sphere</label>
+                    <input type="text" wire:model="refractiveForm.dry_auto_ref_os_sphere" class="form-input" placeholder="0.00" dir="ltr" inputmode="decimal" autocomplete="off">
+                </div>
+                <div>
+                    <label class="label label-text text-xs">Cylinder</label>
+                    <input type="text" wire:model="refractiveForm.dry_auto_ref_os_cylinder" class="form-input" placeholder="0.00" dir="ltr" inputmode="decimal" autocomplete="off">
+                </div>
+                <div>
+                    <label class="label label-text text-xs">Axis</label>
+                    <input type="text" wire:model="refractiveForm.dry_auto_ref_os_axis" class="form-input" placeholder="0" dir="ltr" inputmode="numeric" autocomplete="off">
                 </div>
             </div>
         </div>
@@ -130,7 +171,12 @@
                     </div>
                     <div>
                         <label class="label label-text text-xs">R/G</label>
-                        <input type="text" wire:model="refractiveForm.manifest_refraction_od_rg" class="form-input">
+                        <select wire:model="refractiveForm.manifest_refraction_od_rg" class="form-select">
+                            <option value="">—</option>
+                            <option value="R=g">R=g</option>
+                            <option value="R">R</option>
+                            <option value="G">G</option>
+                        </select>
                     </div>
                 </div>
                 {{-- DCNVA 40cm and Add J1 in separate row --}}
@@ -176,7 +222,12 @@
                     </div>
                     <div>
                         <label class="label label-text text-xs">R/G</label>
-                        <input type="text" wire:model="refractiveForm.manifest_refraction_os_rg" class="form-input">
+                        <select wire:model="refractiveForm.manifest_refraction_os_rg" class="form-select">
+                            <option value="">—</option>
+                            <option value="R=g">R=g</option>
+                            <option value="R">R</option>
+                            <option value="G">G</option>
+                        </select>
                     </div>
                 </div>
                 {{-- DCNVA 40cm and Add J1 in separate row --}}

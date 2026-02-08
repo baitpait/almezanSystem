@@ -20,11 +20,7 @@
         th, td { padding: 10px; border: 1px solid #e5e7eb; text-align: left; }
         th { background: #f3f4f6; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
         tfoot td { font-weight: 700; }
-        .signatures { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 24px; }
-        .sig-box { border: 1px dashed #9ca3af; border-radius: 8px; padding: 14px; height: 120px; display: flex; flex-direction: column; justify-content: space-between; }
-        .sig-title { font-size: 13px; font-weight: 700; color: #111827; }
-        .hint { font-size: 11px; color: #6b7280; }
-        .stamp { border: 1px dashed #9ca3af; border-radius: 8px; height: 120px; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #374151; background: #f9fafb; }
+        .signature-stamp { margin-top: 48px; padding-top: 24px; font-size: 13px; font-weight: 600; color: #374151; text-transform: uppercase; letter-spacing: 0.5px; border-top: 1px solid #e5e7eb; }
         .actions { display: flex; gap: 8px; margin: 0 0 16px; }
         .btn-screen { padding: 8px 14px; background:#111827; color:#fff; border:none; border-radius:6px; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:6px; }
         .btn-secondary { background:#e5e7eb; color:#111827; }
@@ -34,10 +30,28 @@
             .actions { display: none; }
         }
     </style>
+    <script>
+    function printInvoiceWithUniqueName() {
+        var now = new Date();
+        var dateStr = now.getFullYear() + '' + String(now.getMonth() + 1).padStart(2, '0') + '' + String(now.getDate()).padStart(2, '0');
+        var timeStr = String(now.getHours()).padStart(2, '0') + '' + String(now.getMinutes()).padStart(2, '0') + '' + String(now.getSeconds()).padStart(2, '0');
+        var random = Math.random().toString(36).substring(2, 10);
+        var uniqueName = 'invoice-' + dateStr + '-' + timeStr + '-' + random + '.pdf';
+        var oldTitle = document.title;
+        document.title = uniqueName;
+        if (window.onafterprint) {
+            var restore = function() { document.title = oldTitle; window.onafterprint = null; };
+            window.onafterprint = restore;
+        } else {
+            setTimeout(function() { document.title = oldTitle; }, 1000);
+        }
+        window.print();
+    }
+    </script>
 </head>
 <body>
     <div class="actions">
-        <button class="btn-screen" onclick="window.print()">
+        <button class="btn-screen" onclick="printInvoiceWithUniqueName()">
             Print
         </button>
         <a href="{{ route('invoices.index') }}" class="btn-screen btn-secondary">
@@ -135,18 +149,7 @@
             </table>
         </div>
 
-        <div class="section">
-            <h3>Signatures & Stamp</h3>
-            <div class="signatures">
-                <div class="sig-box">
-                    <div class="sig-title">Cashier / Admin Signature</div>
-                    <div class="hint">Sign here</div>
-                </div>
-                <div class="stamp">
-                    Clinic Stamp
-                </div>
-            </div>
-        </div>
+        <div class="signature-stamp">Signature &amp; Stamp:</div>
     </div>
 </body>
 </html>

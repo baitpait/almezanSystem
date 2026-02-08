@@ -77,6 +77,12 @@ class ScheduledOperations extends Component
             if ($branchId && !$user->isAdmin()) {
                 $query->where('branch_id', $branchId);
             }
+
+            // Doctor users see only their appointments; admin and secretary see all
+            $currentDoctor = $user->doctor;
+            if ($currentDoctor && !$user->isAdmin() && !$user->hasRole('secretary')) {
+                $query->where('doctor_id', $currentDoctor->id);
+            }
             
             // Apply search filter
             if (!empty($this->search)) {

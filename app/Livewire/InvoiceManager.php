@@ -331,7 +331,8 @@ class InvoiceManager extends Component
         }
         
         $user = auth()->user();
-        $branchId = $user?->branch_id;
+        // الأدمن والسكرتير يرون كل الفواتير؛ غيرهم يُفلترون بفرعهم
+        $branchId = ($user && !$user->isAdmin() && !$user->isSecretary()) ? $user->branch_id : null;
 
         $query = Invoice::with(['patient', 'branch', 'service', 'invoiceServices.service'])
             ->when($branchId, function ($q) use ($branchId) {

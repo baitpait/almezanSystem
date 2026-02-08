@@ -35,12 +35,12 @@ class Dashboard extends Component
         $branchId = $user->branch_id;
         $userRole = $user->getRoleNames()->first() ?? 'guest';
 
-        // Base query with branch filter if user has a branch
+        // Base query: admin and secretary see all; others filter by branch if set
         $appointmentQuery = Appointment::query();
         $invoiceQuery = Invoice::query();
         $patientQuery = Patient::query();
 
-        if ($branchId) {
+        if ($branchId && !$user->isAdmin() && !$user->isSecretary()) {
             $appointmentQuery->where('branch_id', $branchId);
             $invoiceQuery->where('branch_id', $branchId);
         }
@@ -146,8 +146,8 @@ class Dashboard extends Component
             $query->whereBetween('appointment_date', [$dateRange['start'], $dateRange['end']]);
         }
 
-        // Filter by branch if user has a branch
-        if ($user->branch_id) {
+        // Filter by branch only for non-admin, non-secretary (admin and secretary see all)
+        if ($user->branch_id && !$user->isAdmin() && !$user->isSecretary()) {
             $query->where('branch_id', $user->branch_id);
         }
 

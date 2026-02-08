@@ -16,6 +16,7 @@ use App\Livewire\Admin\RoleManager;
 use App\Livewire\Admin\DoctorManager;
 use App\Livewire\Profile;
 use App\Livewire\ServiceManager;
+use App\Livewire\MedicalReportForm;
 use App\Models\Invoice;
 
 // Authentication Routes
@@ -68,6 +69,9 @@ Route::middleware('auth')->group(function () {
     Route::prefix('scheduled-operations')->name('scheduled-operations.')->group(function () {
         Route::get('/', ScheduledOperations::class)->name('index');
     });
+
+    // Medical Report (only for Operation visits; permission: view.medical_report)
+    Route::get('/medical-report/{appointmentId}', MedicalReportForm::class)->name('medical-report.form');
 
     // Profile
     Route::get('/profile', Profile::class)->name('profile');

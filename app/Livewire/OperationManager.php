@@ -79,6 +79,14 @@ class OperationManager extends Component
         'current_eyeglasses_os_cylinder' => '',
         'current_eyeglasses_os_axis' => '',
         'current_eyeglasses_os_vision' => '',
+        // Dry Auto-Ref OD (no Vision)
+        'dry_auto_ref_od_sphere' => '',
+        'dry_auto_ref_od_cylinder' => '',
+        'dry_auto_ref_od_axis' => '',
+        // Dry Auto-Ref OS (no Vision)
+        'dry_auto_ref_os_sphere' => '',
+        'dry_auto_ref_os_cylinder' => '',
+        'dry_auto_ref_os_axis' => '',
         // Manifest Refraction OD
         'manifest_refraction_od_udva' => '',
         'manifest_refraction_od_sphere' => '',
@@ -1757,6 +1765,12 @@ class OperationManager extends Component
             // Apply branch filter
             if ($branchId && !$user->isAdmin()) {
                 $query->where('branch_id', $branchId);
+            }
+
+            // Doctor users see only their appointments; admin and secretary see all
+            $currentDoctor = $user->doctor;
+            if ($currentDoctor && !$user->isAdmin() && !$user->hasRole('secretary')) {
+                $query->where('doctor_id', $currentDoctor->id);
             }
             
             // Apply search filter
