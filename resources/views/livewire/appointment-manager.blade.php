@@ -333,12 +333,16 @@
                                     @endcan
                                         @elseif($appointment->visit_type === 'Operation')
                                     @can('view.operations')
+                                    @if(!auth()->user()->isSecretary())
                                     <button
                                         class="badge-status {{ $typeColor }} cursor-pointer hover:opacity-80 transition-opacity"
                                         wire:click="goToOperationNote({{ $appointment->id }})"
                                         title="Click to go to Operation Note">
                                         {{ $appointment->visit_type }}
                                     </button>
+                                    @else
+                                    <span class="badge-status {{ $typeColor }}">{{ $appointment->visit_type }}</span>
+                                    @endif
                                     @else
                                     <span class="badge-status {{ $typeColor }}">{{ $appointment->visit_type }}</span>
                                     @endcan

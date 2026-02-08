@@ -388,6 +388,10 @@ class AppointmentManager extends Component
     /** التحويل إلى صفحة Operation Note للموعد (عندما visit_type = Operation) */
     public function goToOperationNote($appointmentId): void
     {
+        if (auth()->user()->isSecretary()) {
+            session()->flash('error', 'Operation Note is not available for your role.');
+            return;
+        }
         $appointment = Appointment::findOrFail($appointmentId);
         if ($appointment->visit_type !== 'Operation') {
             session()->flash('error', 'This appointment is not an Operation.');
