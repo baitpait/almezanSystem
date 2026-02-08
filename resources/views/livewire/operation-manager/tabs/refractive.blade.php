@@ -98,13 +98,13 @@
         </div>
     </div>
 
-    {{-- Dry Auto-Ref (Sphere, Cylinder, Axis only - no Vision) --}}
+    {{-- Dry Auto-Ref (نفس ترتيب Current Eyeglasses: Sphere, Cylinder, Axis — بدون Vision) --}}
     <div class="divider">Dry Auto-Ref</div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         {{-- OD --}}
         <div class="card bg-base-200 p-4">
             <h3 class="font-semibold mb-4">OD (Right Eye)</h3>
-            <div class="grid grid-cols-3 gap-3">
+            <div class="grid grid-cols-4 gap-3">
                 <div>
                     <label class="label label-text text-xs">Sphere</label>
                     <input type="text" wire:model="refractiveForm.dry_auto_ref_od_sphere" class="form-input" placeholder="0.00" dir="ltr" inputmode="decimal" autocomplete="off">
@@ -117,12 +117,13 @@
                     <label class="label label-text text-xs">Axis</label>
                     <input type="text" wire:model="refractiveForm.dry_auto_ref_od_axis" class="form-input" placeholder="0" dir="ltr" inputmode="numeric" autocomplete="off">
                 </div>
+                <div aria-hidden="true"></div>
             </div>
         </div>
         {{-- OS --}}
         <div class="card bg-base-200 p-4">
             <h3 class="font-semibold mb-4">OS (Left Eye)</h3>
-            <div class="grid grid-cols-3 gap-3">
+            <div class="grid grid-cols-4 gap-3">
                 <div>
                     <label class="label label-text text-xs">Sphere</label>
                     <input type="text" wire:model="refractiveForm.dry_auto_ref_os_sphere" class="form-input" placeholder="0.00" dir="ltr" inputmode="decimal" autocomplete="off">
@@ -135,6 +136,7 @@
                     <label class="label label-text text-xs">Axis</label>
                     <input type="text" wire:model="refractiveForm.dry_auto_ref_os_axis" class="form-input" placeholder="0" dir="ltr" inputmode="numeric" autocomplete="off">
                 </div>
+                <div aria-hidden="true"></div>
             </div>
         </div>
     </div>
@@ -149,29 +151,29 @@
                 {{-- UDVA in separate row --}}
                 <div>
                     <label class="label label-text text-xs">UDVA</label>
-                    <input type="text" wire:model="refractiveForm.manifest_refraction_od_udva" class="form-input" placeholder="Enter UDVA">
+                    <input type="text" wire:model="refractiveForm.manifest_refraction_od_udva" class="form-input w-full" placeholder="Enter UDVA" dir="ltr">
                 </div>
-                {{-- Fields in one row horizontally --}}
-                <div class="grid grid-cols-5 gap-2">
-                    <div>
+                {{-- Fields in one row — توزيع متساوٍ لملء المساحة --}}
+                <div class="grid grid-cols-5 gap-3 min-w-0">
+                    <div class="min-w-0">
                         <label class="label label-text text-xs">Sphere</label>
-                        <input type="text" wire:model="refractiveForm.manifest_refraction_od_sphere" class="form-input" placeholder="0.00">
+                        <input type="text" wire:model="refractiveForm.manifest_refraction_od_sphere" class="form-input w-full min-w-0" placeholder="0.00" dir="ltr" inputmode="decimal">
                     </div>
-                    <div>
+                    <div class="min-w-0">
                         <label class="label label-text text-xs">Cylinder</label>
-                        <input type="text" wire:model="refractiveForm.manifest_refraction_od_cylinder" class="form-input" placeholder="0.00">
+                        <input type="text" wire:model="refractiveForm.manifest_refraction_od_cylinder" class="form-input w-full min-w-0" placeholder="0.00" dir="ltr" inputmode="decimal">
                     </div>
-                    <div>
+                    <div class="min-w-0">
                         <label class="label label-text text-xs">Axis</label>
-                        <input type="text" wire:model="refractiveForm.manifest_refraction_od_axis" class="form-input" placeholder="0">
+                        <input type="text" wire:model="refractiveForm.manifest_refraction_od_axis" class="form-input w-full min-w-0" placeholder="0" dir="ltr" inputmode="numeric">
                     </div>
-                    <div>
+                    <div class="min-w-0">
                         <label class="label label-text text-xs">BSCVA</label>
-                        <input type="text" wire:model="refractiveForm.manifest_refraction_od_bscva" class="form-input" placeholder="20/20">
+                        <input type="text" wire:model="refractiveForm.manifest_refraction_od_bscva" class="form-input w-full min-w-0" placeholder="20/20" dir="ltr">
                     </div>
-                    <div>
+                    <div class="min-w-0">
                         <label class="label label-text text-xs">R/G</label>
-                        <select wire:model="refractiveForm.manifest_refraction_od_rg" class="form-select">
+                        <select wire:model="refractiveForm.manifest_refraction_od_rg" class="form-select w-full min-w-0">
                             <option value="">—</option>
                             <option value="R=g">R=g</option>
                             <option value="R">R</option>
@@ -179,15 +181,15 @@
                         </select>
                     </div>
                 </div>
-                {{-- DCNVA 40cm and Add J1 in separate row --}}
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
+                {{-- DCNVA 40cm and Add J1 — يملآن الصف --}}
+                <div class="grid grid-cols-2 gap-3 min-w-0">
+                    <div class="min-w-0">
                         <label class="label label-text text-xs">DCNVA 40cm</label>
-                        <input type="text" wire:model="refractiveForm.manifest_refraction_od_dcnva_40cm" class="form-input">
+                        <input type="text" wire:model="refractiveForm.manifest_refraction_od_dcnva_40cm" class="form-input w-full min-w-0" dir="ltr">
                     </div>
-                    <div>
+                    <div class="min-w-0">
                         <label class="label label-text text-xs">Add J1</label>
-                        <input type="text" wire:model="refractiveForm.manifest_refraction_od_add_j1" class="form-input">
+                        <input type="text" wire:model="refractiveForm.manifest_refraction_od_add_j1" class="form-input w-full min-w-0" dir="ltr">
                     </div>
                 </div>
             </div>
@@ -200,29 +202,29 @@
                 {{-- UDVA in separate row --}}
                 <div>
                     <label class="label label-text text-xs">UDVA</label>
-                    <input type="text" wire:model="refractiveForm.manifest_refraction_os_udva" class="form-input" placeholder="Enter UDVA">
+                    <input type="text" wire:model="refractiveForm.manifest_refraction_os_udva" class="form-input w-full" placeholder="Enter UDVA" dir="ltr">
                 </div>
-                {{-- Fields in one row horizontally --}}
-                <div class="grid grid-cols-5 gap-2">
-                    <div>
+                {{-- Fields in one row — توزيع متساوٍ لملء المساحة --}}
+                <div class="grid grid-cols-5 gap-3 min-w-0">
+                    <div class="min-w-0">
                         <label class="label label-text text-xs">Sphere</label>
-                        <input type="text" wire:model="refractiveForm.manifest_refraction_os_sphere" class="form-input" placeholder="0.00">
+                        <input type="text" wire:model="refractiveForm.manifest_refraction_os_sphere" class="form-input w-full min-w-0" placeholder="0.00" dir="ltr" inputmode="decimal">
                     </div>
-                    <div>
+                    <div class="min-w-0">
                         <label class="label label-text text-xs">Cylinder</label>
-                        <input type="text" wire:model="refractiveForm.manifest_refraction_os_cylinder" class="form-input" placeholder="0.00">
+                        <input type="text" wire:model="refractiveForm.manifest_refraction_os_cylinder" class="form-input w-full min-w-0" placeholder="0.00" dir="ltr" inputmode="decimal">
                     </div>
-                    <div>
+                    <div class="min-w-0">
                         <label class="label label-text text-xs">Axis</label>
-                        <input type="text" wire:model="refractiveForm.manifest_refraction_os_axis" class="form-input" placeholder="0">
+                        <input type="text" wire:model="refractiveForm.manifest_refraction_os_axis" class="form-input w-full min-w-0" placeholder="0" dir="ltr" inputmode="numeric">
                     </div>
-                    <div>
+                    <div class="min-w-0">
                         <label class="label label-text text-xs">BSCVA</label>
-                        <input type="text" wire:model="refractiveForm.manifest_refraction_os_bscva" class="form-input" placeholder="20/20">
+                        <input type="text" wire:model="refractiveForm.manifest_refraction_os_bscva" class="form-input w-full min-w-0" placeholder="20/20" dir="ltr">
                     </div>
-                    <div>
+                    <div class="min-w-0">
                         <label class="label label-text text-xs">R/G</label>
-                        <select wire:model="refractiveForm.manifest_refraction_os_rg" class="form-select">
+                        <select wire:model="refractiveForm.manifest_refraction_os_rg" class="form-select w-full min-w-0">
                             <option value="">—</option>
                             <option value="R=g">R=g</option>
                             <option value="R">R</option>
@@ -230,15 +232,15 @@
                         </select>
                     </div>
                 </div>
-                {{-- DCNVA 40cm and Add J1 in separate row --}}
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
+                {{-- DCNVA 40cm and Add J1 — يملآن الصف --}}
+                <div class="grid grid-cols-2 gap-3 min-w-0">
+                    <div class="min-w-0">
                         <label class="label label-text text-xs">DCNVA 40cm</label>
-                        <input type="text" wire:model="refractiveForm.manifest_refraction_os_dcnva_40cm" class="form-input">
+                        <input type="text" wire:model="refractiveForm.manifest_refraction_os_dcnva_40cm" class="form-input w-full min-w-0" dir="ltr">
                     </div>
-                    <div>
+                    <div class="min-w-0">
                         <label class="label label-text text-xs">Add J1</label>
-                        <input type="text" wire:model="refractiveForm.manifest_refraction_os_add_j1" class="form-input">
+                        <input type="text" wire:model="refractiveForm.manifest_refraction_os_add_j1" class="form-input w-full min-w-0" dir="ltr">
                     </div>
                 </div>
             </div>

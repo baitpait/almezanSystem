@@ -17,7 +17,8 @@ cd "/Users/baitpait/BAITPAIT/Bait Pait/Project/Dr alaa Talbeshy/Dr/Dr-system"
 git push origin main
 ```
 
-إذا كان لديك مصادقة ثنائية أو تستخدم SSH، استخدم الطريقة المعتادة لديك للرفع (مثلاً SSH بدل HTTPS، أو إدخال التوكن عند الطلب).
+- إذا طلب منك Git اسم مستخدم وكلمة مرور: استخدم **اسم المستخدم GitHub** وكلمة المرور = **Personal Access Token** (وليس كلمة مرور الحساب).
+- لتفعيل الرفع بدون طلب تفاعلي لاحقاً: استخدم SSH بدل HTTPS، أو خزّن التوكن (مثلاً `git config credential.helper store` ثم نفّذ push مرة واحدة وأدخل التوكن عند الطلب).
 
 ## التحقق بعد الرفع
 
