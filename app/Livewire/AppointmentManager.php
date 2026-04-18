@@ -100,6 +100,10 @@ class AppointmentManager extends Component
         if ($filterPatientId) {
             $this->filterPatientId = (int) $filterPatientId;
             $this->dateFilter = ''; // إلغاء فلتر التاريخ لظهور كل زيارات المريض
+            $visitTypeFromQuery = request()->query('filter_visit_type');
+            if ($visitTypeFromQuery !== null && $visitTypeFromQuery !== '' && in_array($visitTypeFromQuery, ['Assessment', 'Operation', 'Follow up', 'New visit'], true)) {
+                $this->visitTypeFilter = $visitTypeFromQuery;
+            }
             return;
         }
         // فتح نافذة زيارة جديدة مع اختيار المريض (زر "Visit" من صفحة المرضى)

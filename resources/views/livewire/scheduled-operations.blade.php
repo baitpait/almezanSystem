@@ -84,7 +84,7 @@
                     <th class="hidden lg:table-cell">Doctor</th>
                     <th class="hidden md:table-cell">Duration</th>
                     <th>Status</th>
-                    <th class="text-right sticky right-0 z-10 bg-gray-50" style="min-width: 100px; max-width: 120px;">Actions</th>
+                    <th class="text-right sticky right-0 z-10 bg-gray-50" style="min-width: 108px; max-width: 140px;">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -179,17 +179,29 @@
                         @endphp
                         <span class="badge-status {{ $stageColor }} font-semibold">{{ $stageLabel }}</span>
                     </td>
-                    <td class="sticky right-0 z-10 bg-white text-right" style="min-width: 100px; max-width: 120px;">
-                        <button type="button" 
-                                class="btn-add btn-action flex items-center gap-1.5 px-3 py-1.5 text-sm whitespace-nowrap"
-                                wire:click="viewOperation({{ $appointment->id }})"
-                                title="View Operation">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                            <span>View</span>
-                        </button>
+                    <td class="sticky right-0 z-10 bg-white text-right" style="min-width: 108px; max-width: 140px;">
+                        <div class="inline-flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-1.5 p-1 rounded-xl bg-gray-50 border border-gray-200 shadow-sm">
+                            <button type="button"
+                                    class="btn-action btn-add !gap-0 justify-center min-h-[2.25rem] min-w-[2.25rem] w-full sm:w-auto !px-2 !py-2 shadow-sm hover:shadow"
+                                    wire:click="viewOperation({{ $appointment->id }})"
+                                    title="{{ __('Open operation note') }}"
+                                    aria-label="{{ __('Open operation note') }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0 text-blue-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                            </button>
+                            @can('view.appointments')
+                            <a href="{{ route('appointments.index', ['filter_patient_id' => $appointment->patient_id, 'filter_visit_type' => 'Assessment']) }}"
+                               class="btn-action btn-visit !gap-0 justify-center min-h-[2.25rem] min-w-[2.25rem] w-full sm:w-auto !px-2.5 !py-2 no-underline"
+                               title="{{ __('Patient Assessment visits') }}"
+                               aria-label="{{ __('Patient Assessment visits') }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                            </a>
+                            @endcan
+                        </div>
                     </td>
                 </tr>
                 @empty
