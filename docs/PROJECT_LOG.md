@@ -1,7 +1,7 @@
 # سجل المشروع الرئيسي — PROJECT_LOG
 
 **المشروع:** نظام إدارة طبي — مركز الغد / مستشفى الميزان التخصصي (Dr-system / almezanSystem)  
-**آخر تحديث:** 18 أبريل 2026
+**آخر تحديث:** 19 أبريل 2026
 
 ---
 
@@ -20,8 +20,9 @@
 | الغرض | الملف | الوصف |
 |--------|--------|--------|
 | **سجل التعديلات 8 فبراير 2026** | `docs/CHANGELOG_2026-02-08.md` | التقرير الطبي، المرضى/المواعيد، الفواتير، Refractive R/G، صلاحيات الأدوار، Seeders. |
-| **سجل التعديلات 18 أبريل 2026** | `docs/CHANGELOG_2026-04-18.md` | استيراد DB محلي، blur للفواتير، `forBranchAccess` للمواعيد، GitHub، أوامر السيرفر. |
-| **جلسة 18 أبريل 2026 (DB + فواتير + فرع + Git)** | `docs/SESSION_2026_04_18_DB_INVOICES_BRANCH_GIT.md` | تفصيل الجلسة: نسخة احتياطية، Livewire، ظهور مواعيد الطبيب، رفع `main`. |
+| **سجل التعديلات 18 أبريل 2026** | `docs/CHANGELOG_2026-04-18.md` | استيراد DB، blur، `forBranchAccess`، Git، سيرفر، **قائمة مواعيد + scheduled-ops + `filter_visit_type`**. |
+| **جلسة 18 أبريل 2026 (DB + فواتير + فرع + Git)** | `docs/SESSION_2026_04_18_DB_INVOICES_BRANCH_GIT.md` | نسخة احتياطية، Livewire، ظهور مواعيد الطبيب، رفع `main`. |
+| **جلسة تنقل المواعيد + عمليات مجدولة** | `docs/SESSION_2026_04_18_APPOINTMENTS_SCHEDULED_NAV.md` | All Visits / assessment / operation note في dropdown؛ أيقونات scheduled-ops؛ `filter_visit_type` في mount. |
 | **جلسة زر Operation + السكرتير** | `docs/SESSION_2026_02_08_OPERATION_BUTTON_AND_SECRETARY.md` | زر Operation → Operation Note، تعطيل الزر للسكرتير، الاختبارات، الرفع. |
 | **قاعدة البيانات على السيرفر** | `docs/DATABASE_UPDATE_SERVER.md` | نسخة احتياطية، Dry Auto-Ref، PermissionSeeder، AssignAdminRoles — بدون migrate يمس البيانات. |
 | **الرفع على GitHub** | `docs/GIT_PUSH_INSTRUCTIONS.md` | أوامر commit و push. |
@@ -44,7 +45,8 @@
 | **تعطيل زر Operation للسكرتير** | نفس الملفين أعلاه: في الـ Blade شرط `@can('view.operations')` + `!auth()->user()->isSecretary()`؛ في الـ PHP تحقق `isSecretary()` في بداية `goToOperationNote()`. |
 | **Operation Note (صفحة العملية)** | Route: `operation-notes.create` → `/operation-notes/appointment/{appointmentId}`؛ المكونات ذات صلة: OperationNoteManager، إلخ. |
 | **التقرير الطبي** | `app/Livewire/MedicalReportForm.php`، `resources/views/livewire/medical-report-form.blade.php`، route `medical-report.form`. |
-| **المرضى + "جميع الزيارات"** | `app/Livewire/AppointmentManager.php` (`filter_patient_id`)، `resources/views/livewire/patient-manager.blade.php` (رابط All Visits). |
+| **المرضى + "جميع الزيارات"** | `app/Livewire/AppointmentManager.php` (`filter_patient_id` + **`filter_visit_type`** في `mount`)، `patient-manager`، **قائمة منسدلة صف الموعد** في `appointment-manager.blade.php`. |
+| **عمليات مجدولة** | `resources/views/livewire/scheduled-operations.blade.php` — أيقونات View / تقييمات المريض (`btn-add` / `btn-visit`). |
 | **الفواتير والصلاحيات** | `app/Livewire/InvoiceManager.php` (فلتر الفرع: استثناء Admin و Secretary)، `app/Livewire/Admin/UserManager.php` (syncRoles عند الحفظ). |
 | **الأدوار والصلاحيات** | `app/Models/User.php` (`isAdmin()`, `isDoctor()`, `isSecretary()`)، `config/permissions.php`، Seeders: `PermissionSeeder`, `AssignAdminRolesToExistingUsers`. |
 | **اختبارات Operation Note** | `tests/Feature/AppointmentOperationNoteTest.php` (الراوت والرابط). |
@@ -53,12 +55,21 @@
 
 ## 4. آخر التعديلات المنجزة
 
+### حتى 19 أبريل 2026
+
+- **قائمة المواعيد (dropdown):** All Visits، Open assessment، Operation note — بصلاحيات متوافقة مع الشارات (`CHANGELOG_2026-04-18.md` §6).
+- **Scheduled Operations:** أيقونات فقط؛ رابط تقييمات المريض مع `filter_visit_type=Assessment`؛ ألوان `design-system` (`btn-add` / `btn-visit`).
+- **Mount:** دعم `filter_visit_type` مع `filter_patient_id` في `AppointmentManager`.
+- **سيرفر:** توثيق سبب `cp .env .env.backup` قبل `git pull` في `CHANGELOG_2026-04-18.md` §5.
+- **GitHub:** commit `5709c84` على `baitpait/almezanSystem` — `main`.
+- **جلسة:** `SESSION_2026_04_18_APPOINTMENTS_SCHEDULED_NAV.md`.
+
 ### حتى 18 أبريل 2026
 
 - **قاعدة بيانات محلية:** استيراد نسخة احتياطية من السيرفر إلى `dralmyzin`، `optimize:clear`، وتشغيل `PermissionSeeder` و`AssignAdminRolesToExistingUsers` (راجع `CHANGELOG_2026-04-18.md`).
 - **الفواتير (Livewire):** `wire:model.blur` لحقول المبالغ لتقليل تزاحم الطلبات؛ الخدمة تبقى `live` لتحديث السعر فور الاختيار.
 - **ظهور مواعيد الطبيب:** إصلاح استبعاد المواعيد ذات `branch_id` الفارغ عند فلترة فرع المستخدم عبر `Appointment::forBranchAccess` في الواجهات ذات الصلة.
-- **GitHub:** المستودع `baitpait/almezanSystem`؛ آخر commit مرجعي للجلسة: `336902c`.
+- **GitHub:** المستودع `baitpait/almezanSystem`؛ commits: `336902c`، `503e369` (توثيق).
 - **التوثيق:** `CHANGELOG_2026-04-18.md`، `SESSION_2026_04_18_DB_INVOICES_BRANCH_GIT.md`، وتحديث هذا الملف وفهرس الجلسات.
 
 ### حتى 8 فبراير 2026

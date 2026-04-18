@@ -49,7 +49,7 @@ WHERE a.branch_id IS NULL AND d.branch_id IS NOT NULL;
 ## 4. GitHub والمستودع
 
 | **المستودع الحالي** | `https://github.com/baitpait/almezanSystem` — الفرع `main`. |
-| **Commit مرجعي** | `336902c` — `fix: branch visibility for appointments and blur invoice amounts` |
+| **Commits مرجعية** | `336902c` — فرع + blur فواتير؛ `503e369` — توثيق الجلسة؛ `5709c84` — تنقل المواعيد + عمليات مجدولة (انظر §6–7). |
 | **أمان** | لا تخزين **Personal Access Token** داخل رابط `git remote`؛ لا نشر التوكن في الدردشة أو الوثائق — إلغاء التوكن من GitHub إن تسرّب. |
 
 ---
@@ -67,8 +67,38 @@ php artisan optimize:clear
 php artisan config:cache && php artisan route:cache && php artisan view:cache
 ```
 
+**لماذا `cp .env .env.backup`؟** ملف `.env` غير مرفوع على Git ويحتوي أسرار البيئة؛ النسخ الاحتياطي السريع قبل `git pull` يحمي من أي خطأ دمج/سكربت يمس الملف. غالباً يبقى المحتوى كما هو ثم تُستعاد النسخة فوق نفسها بعد السحب.
+
 راجع أيضاً `DEPLOY_UPDATE_SERVER.md` للتفاصيل الكاملة.
 
 ---
 
-*18 أبريل 2026*
+## 6. قائمة المواعيد — إجراءات إضافية في القائمة المنسدلة
+
+| البند | التفاصيل |
+|-------|----------|
+| **All Visits** | رابط `appointments.index?filter_patient_id=…` مع `@can('view.appointments')`. |
+| **Open assessment** | `wire:click="goToAssessment"` عند `visit_type === 'Assessment'` و `can('view.assessment')`. |
+| **Operation note** | `wire:click="goToOperationNote"` عند `visit_type === 'Operation'` و `view.operations` وعدم السكرتير. |
+| **الملف** | `resources/views/livewire/appointment-manager.blade.php` |
+
+---
+
+## 7. عمليات مجدولة + فلتر نوع الزيارة من الرابط
+
+| البند | التفاصيل |
+|-------|----------|
+| **رابط التقييمات** | من `/scheduled-operations`: أيقونة (بدون نص) تفتح `/appointments?filter_patient_id={patient}&filter_visit_type=Assessment`. |
+| **Mount** | في `AppointmentManager::mount`: عند وجود `filter_patient_id` يُقرأ `filter_visit_type` (قيم مسموحة: Assessment, Operation, Follow up, New visit) ويُطبَّق على `visitTypeFilter`. |
+| **واجهة الأزرار** | حاوية `rounded-xl` رمادية؛ زر العرض: `btn-action btn-add`؛ رابط التقييمات: `btn-action btn-visit`؛ أيقونات فقط مع `title` و `aria-label`. |
+| **الملفات** | `app/Livewire/AppointmentManager.php`؛ `resources/views/livewire/scheduled-operations.blade.php` |
+
+---
+
+## 8. رفع GitHub (تابع)
+
+| **Commit** | `5709c84` — `feat(appointments): dropdown shortcuts and scheduled-ops assessment link` |
+
+---
+
+*18–19 أبريل 2026*
