@@ -877,7 +877,7 @@
                                 <span class="label-text font-semibold">Subtotal</span>
                             </label>
                             <input type="number" step="0.01" class="input input-bordered w-full" 
-                                   wire:model.live="invoiceForm.subtotal" placeholder="0.00">
+                                   wire:model.blur="invoiceForm.subtotal" placeholder="0.00">
                             @error('invoiceForm.subtotal') <span class="text-error text-xs">{{ $message }}</span> @enderror
                         </div>
                         <div>
@@ -885,7 +885,7 @@
                                 <span class="label-text font-semibold">Discount</span>
                             </label>
                             <input type="number" step="0.01" class="input input-bordered w-full" 
-                                   wire:model.live="invoiceForm.discount" placeholder="0.00">
+                                   wire:model.blur="invoiceForm.discount" placeholder="0.00">
                             @error('invoiceForm.discount') <span class="text-error text-xs">{{ $message }}</span> @enderror
                         </div>
                         <div>
@@ -893,7 +893,7 @@
                                 <span class="label-text font-semibold">Tax</span>
                             </label>
                             <input type="number" step="0.01" class="input input-bordered w-full" 
-                                   wire:model.live="invoiceForm.tax" placeholder="0.00">
+                                   wire:model.blur="invoiceForm.tax" placeholder="0.00">
                             @error('invoiceForm.tax') <span class="text-error text-xs">{{ $message }}</span> @enderror
                         </div>
                     </div>
@@ -910,7 +910,7 @@
                                 <span class="label-text font-semibold">Paid Amount</span>
                             </label>
                             <input type="number" step="0.01" class="input input-bordered w-full" 
-                                   wire:model.live="invoiceForm.paid_amount" placeholder="0.00">
+                                   wire:model.blur="invoiceForm.paid_amount" placeholder="0.00">
                             @error('invoiceForm.paid_amount') <span class="text-error text-xs">{{ $message }}</span> @enderror
                         </div>
                         <div>

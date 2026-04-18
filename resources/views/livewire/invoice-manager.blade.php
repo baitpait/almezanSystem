@@ -319,13 +319,13 @@
                             <div class="form-group">
                                 <label class="form-label">Amount (₪)</label>
                                 <input type="number" step="0.01" class="form-input"
-                                   wire:model.live="form.subtotal" placeholder="0.00">
+                                   wire:model.blur="form.subtotal" placeholder="0.00">
                                 @error('form.subtotal') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                         </div>
                             <div class="form-group">
                                 <label class="form-label">Discount ($)</label>
                                 <input type="number" step="0.01" class="form-input"
-                                   wire:model.live="form.discount" placeholder="0.00">
+                                   wire:model.blur="form.discount" placeholder="0.00">
                                 @error('form.discount') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                         </div>
                     </div>
@@ -338,7 +338,7 @@
                             <div class="form-group">
                                 <label class="form-label">Paid Amount</label>
                                 <input type="number" step="0.01" class="form-input"
-                                   wire:model.live="form.paid_amount" placeholder="0.00">
+                                   wire:model.blur="form.paid_amount" placeholder="0.00">
                                 @error('form.paid_amount') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                                 @php
                                     $overPaid = (float) ($form['paid_amount'] ?? 0) > (float) ($form['total_amount'] ?? 0);

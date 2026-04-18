@@ -73,9 +73,9 @@ class ScheduledOperations extends Component
                 ->with(['patient', 'doctor', 'branch', 'operation'])
                 ->where('visit_type', 'Operation');
                 
-            // Apply branch filter
+            // Apply branch filter (include legacy appointments with branch_id null)
             if ($branchId && !$user->isAdmin()) {
-                $query->where('branch_id', $branchId);
+                $query->forBranchAccess((int) $branchId);
             }
 
             // Doctor users see only their appointments; admin and secretary see all

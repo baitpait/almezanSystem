@@ -1694,9 +1694,9 @@ class OperationManager extends Component
                 ->whereNull('operation_id')
                 ->with(['patient', 'doctor', 'branch']);
 
-            // Filter by branch if user has a branch
+            // Filter by branch if user has a branch (include legacy null branch_id)
             if ($branchId) {
-                $appointmentsQuery->where('branch_id', $branchId);
+                $appointmentsQuery->forBranchAccess((int) $branchId);
             }
 
             $appointments = $appointmentsQuery->get();
@@ -1762,9 +1762,9 @@ class OperationManager extends Component
                 ->with(['patient', 'doctor', 'branch', 'operation'])
                 ->where('visit_type', 'Assessment');
                 
-            // Apply branch filter
+            // Apply branch filter (include legacy appointments with branch_id null)
             if ($branchId && !$user->isAdmin()) {
-                $query->where('branch_id', $branchId);
+                $query->forBranchAccess((int) $branchId);
             }
 
             // Doctor users see only their appointments; admin and secretary see all

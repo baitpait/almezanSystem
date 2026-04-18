@@ -37,9 +37,9 @@ class AppServiceProvider extends ServiceProvider
                     $query = Appointment::where('visit_type', 'Assessment')
                         ->whereDate('appointment_date', '>=', today());
 
-                    // Filter by branch if user has a branch
+                    // Filter by branch if user has a branch (include legacy null branch_id)
                     if ($user->branch_id) {
-                        $query->where('branch_id', $user->branch_id);
+                        $query->forBranchAccess((int) $user->branch_id);
                     }
 
                     // Filter by doctor if user is a doctor

@@ -89,4 +89,17 @@
 
 ---
 
+## 7. زر Operation في المواعيد + تعطيله للسكرتير (جلسة لاحقة نفس اليوم)
+
+| الملف | التعديل |
+|-------|---------|
+| `app/Livewire/AppointmentManager.php` | إضافة `goToOperationNote($appointmentId)`: توجيه لصفحة Operation Note عند كون الموعد من نوع Operation؛ إضافة تحقق في بداية الدالة: إن كان المستخدم سكرتيراً يتم عرض رسالة خطأ والخروج دون توجيه. |
+| `resources/views/livewire/appointment-manager.blade.php` | لعرض نوع "Operation": زر (مع `@can('view.operations')` وشرط عدم كون المستخدم سكرتيراً) يوجّه لـ Operation Note؛ إن كان المستخدم سكرتيراً يُعرض النص فقط (span). |
+| `tests/Feature/AppointmentOperationNoteTest.php` | اختباران: صحة رابط `operation-notes.create` ووجود المسار. |
+
+- **النتيجة:** الأدمن والطبيب يرون زر Operation وينتقلون لصفحة Operation Note؛ السكرتير يرى "Operation" كنص فقط ولا يُوجّه.
+- **التوثيق التفصيلي:** `docs/SESSION_2026_02_08_OPERATION_BUTTON_AND_SECRETARY.md`.
+
+---
+
 *آخر تحديث: 8 فبراير 2026*

@@ -41,7 +41,7 @@ class Dashboard extends Component
         $patientQuery = Patient::query();
 
         if ($branchId && !$user->isAdmin() && !$user->isSecretary()) {
-            $appointmentQuery->where('branch_id', $branchId);
+            $appointmentQuery->forBranchAccess((int) $branchId);
             $invoiceQuery->where('branch_id', $branchId);
         }
 
@@ -146,9 +146,9 @@ class Dashboard extends Component
             $query->whereBetween('appointment_date', [$dateRange['start'], $dateRange['end']]);
         }
 
-        // Filter by branch only for non-admin, non-secretary (admin and secretary see all)
+        // Filter by branch only for non-admin, non-secretary (include legacy null branch_id)
         if ($user->branch_id && !$user->isAdmin() && !$user->isSecretary()) {
-            $query->where('branch_id', $user->branch_id);
+            $query->forBranchAccess((int) $user->branch_id);
         }
 
         // Filter by doctor if user is a doctor
@@ -334,7 +334,6 @@ class Dashboard extends Component
                     'todayQueue' => $todayQueue,
                     'alerts' => $alerts,
                 ]);
-                break;
                 break;
 
             case 'doctor':

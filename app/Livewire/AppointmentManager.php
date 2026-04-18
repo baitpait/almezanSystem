@@ -758,9 +758,9 @@ class AppointmentManager extends Component
 
         $query = Appointment::with(['patient', 'doctor', 'procedure', 'creator', 'branch']);
         
-        // Filter by branch if user is not admin
+        // Filter by branch if user is not admin (include legacy appointments with branch_id null)
         if (!auth()->user()->isAdmin() && auth()->user()->branch_id) {
-            $query->where('branch_id', auth()->user()->branch_id);
+            $query->forBranchAccess((int) auth()->user()->branch_id);
         }
 
         // Doctor users see only their appointments; admin and secretary see all (no conflict)
@@ -881,9 +881,9 @@ class AppointmentManager extends Component
     {
         $query = Appointment::with(['patient', 'doctor']);
 
-        // Apply branch filter if user has branch
+        // Apply branch filter if user has branch (include legacy null branch_id)
         if ($this->branchId = auth()->user()->branch_id) {
-            $query->where('branch_id', $this->branchId);
+            $query->forBranchAccess((int) $this->branchId);
         }
 
         // Doctor users see only their appointments; admin and secretary see all

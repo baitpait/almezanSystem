@@ -144,6 +144,21 @@ class Appointment extends Model
     }
 
     /**
+     * Scope appointments visible to staff of a branch: same branch or legacy rows with no branch set.
+     * Prevents doctors/secretaries from missing visits created before branch_id was always filled.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder<static>  $query
+     * @return \Illuminate\Database\Eloquent\Builder<static>
+     */
+    public function scopeForBranchAccess($query, int $branchId)
+    {
+        return $query->where(function ($q) use ($branchId) {
+            $q->where('branch_id', $branchId)
+                ->orWhereNull('branch_id');
+        });
+    }
+
+    /**
      * Get the invoices for the appointment.
      */
     public function invoices(): HasMany
