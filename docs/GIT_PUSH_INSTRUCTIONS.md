@@ -22,9 +22,11 @@ git push origin main
 
 ## التحقق بعد الرفع
 
-- افتح المستودع على GitHub: `https://github.com/baiitpait/almezanSystem`
+- افتح المستودع على GitHub: **`https://github.com/baitpait/almezanSystem`**
 - تأكد من ظهور الـ commit الأخير على الفرع `main`.
-- راجع الملف `docs/CHANGELOG_2026-02-08.md` على GitHub للتأكد من وجود التوثيق.
+- راجع التوثيق: `docs/CHANGELOG_2026-02-08.md` و **`docs/CHANGELOG_2026-04-18.md`** على GitHub عند الحاجة.
+
+**أمان:** لا تضع **Personal Access Token** داخل رابط `origin` (يظهر في `git config` ونسخ المشروع). استخدم SSH أو `credential.helper` مع HTTPS.
 
 ---
-*8 فبراير 2026*
+*8 فبراير 2026 — تحديث مسار المستودع وأمان التوكن: 18 أبريل 2026*
