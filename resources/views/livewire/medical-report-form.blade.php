@@ -2,7 +2,18 @@
 {{-- Print-only: ترويسة (الصورة الثانية) + محتوى التقرير --}}
 @php
     $patient = $appointment->patient ?? null;
-    $procDateFormatted = $procedure_date ? \Carbon\Carbon::parse($procedure_date)->format('d.m.Y') : '';
+    $procDate = $procedure_date ? \Carbon\Carbon::parse($procedure_date) : null;
+    $procDateFormatted = $procDate ? $procDate->format('d.m.Y') : '';
+    $arabicDays = [
+        0 => 'الأحد',
+        1 => 'الاثنين',
+        2 => 'الثلاثاء',
+        3 => 'الأربعاء',
+        4 => 'الخميس',
+        5 => 'الجمعة',
+        6 => 'السبت',
+    ];
+    $procDayName = $procDate ? ($arabicDays[$procDate->dayOfWeek] ?? '') : '';
     $reportDateFormatted = $report_date ? \Carbon\Carbon::parse($report_date)->format('d.m.Y') : '';
     $leaveLabel = $leave_duration === '2_weeks' ? 'أسبوعين' : 'أسبوع';
 @endphp
@@ -54,7 +65,7 @@
     <div class="h-12 print:h-12" aria-hidden="true"></div>
     {{-- نص التقرير --}}
     <p class="text-justify leading-relaxed mb-4" dir="rtl">
-        حضر المريض المذكور أعلاه إلى مستشفى الميزان التخصصي لقسم العيون يوم الأحد بتاريخ <strong>{{ $procDateFormatted }}</strong> لإجراء عملية تصحيح النظر بالليزر في كلتا العينين، وخرج المريض وهو بصحة جيدة مرفقاً بالعلاج اللازم. وهو بحاجة للراحة والإجازة <strong>لمدة {{ $leaveLabel }} من تاريخ إجراء العملية</strong>.
+        حضر المريض المذكور أعلاه إلى مستشفى الميزان التخصصي لقسم العيون يوم {{ $procDayName }} بتاريخ <strong>{{ $procDateFormatted }}</strong> لإجراء عملية تصحيح النظر بالليزر في كلتا العينين، وخرج المريض وهو بصحة جيدة مرفقاً بالعلاج اللازم. وهو بحاجة للراحة والإجازة <strong>لمدة {{ $leaveLabel }} من تاريخ إجراء العملية</strong>.
     </p>
     <p class="text-center font-medium my-4" dir="rtl">أعطي هذا التقرير بناءاً على طلبه</p>
     </div>
@@ -125,7 +136,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="form-group">
                         <label class="form-label">Procedure Date</label>
-                        <input type="date" wire:model="procedure_date" class="form-input" dir="ltr">
+                        <input type="date" wire:model.live="procedure_date" class="form-input" dir="ltr">
                     </div>
                     <div class="form-group">
                         <label class="form-label">Leave Duration</label>
